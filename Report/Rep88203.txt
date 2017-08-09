@@ -1,0 +1,232 @@
+OBJECT Report 88203 Comprobar datos Cli/Pro SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=20/06/17;
+    Time=12:33:36;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    OnPreReport=BEGIN
+                  Vent.OPEN('Cliente.....: #1######################\'+
+                            'No correctos: #2#######\'+
+                            'Proveedor...: #3######################\'+
+                            'No correctos: #4#######');
+                END;
+
+    OnPostReport=BEGIN
+                   Vent.CLOSE;
+                 END;
+
+  }
+  DATAITEMS
+  {
+    { PROPERTIES
+      {
+        DataItemTable=Table18;
+        DataItemTableView=SORTING(No.);
+        OnPreDataItem=BEGIN
+                        numcli := 0;
+                      END;
+
+        OnAfterGetRecord=BEGIN
+                           Vent.UPDATE(1, "No.");
+
+                           IF "Country/Region Code" <> '' THEN
+                             IF "Country/Region Code" <> 'ES' THEN
+                               CurrReport.SKIP;
+
+                           IF "VAT Registration No." <> '' THEN
+                             IF WSSII.CalidadDatos(FunAux.NormVATNumber("VAT Registration No.",FALSE,"Country/Region Code"),
+                                                   XMLSII.ConvertStr40(Name), TRUE, 1) THEN
+                               CurrReport.SKIP;
+
+                           numcli := numcli + 1;
+                           Vent.UPDATE(2, numcli);
+                         END;
+
+        OnPostDataItem=BEGIN
+                         Vent.UPDATE(1, '');
+                       END;
+
+        ReqFilterFields=No.,VAT Registration No.,Country/Region Code,Blocked,VAT Bus. Posting Group;
+      }
+      SECTIONS
+      {
+        { PROPERTIES
+          {
+            SectionType=Header;
+            PrintOnEveryPage=Yes;
+            SectionWidth=16950;
+            SectionHeight=1692;
+          }
+          CONTROLS
+          {
+            { 1100288001;Label  ;150  ;846  ;1500 ;846  ;ParentControl=1100288000;
+                                                         VertAlign=Bottom;
+                                                         FontBold=Yes;
+                                                         MultiLine=Yes }
+            { 1100288003;Label  ;1800 ;846  ;4500 ;846  ;ParentControl=1100288002;
+                                                         VertAlign=Bottom;
+                                                         FontBold=Yes;
+                                                         MultiLine=Yes }
+            { 1100288005;Label  ;6450 ;846  ;1500 ;846  ;ParentControl=1100288004;
+                                                         VertAlign=Bottom;
+                                                         FontBold=Yes;
+                                                         MultiLine=Yes }
+            { 1100288010;Label  ;150  ;0    ;12450;846  ;HorzAlign=Center;
+                                                         FontSize=12;
+                                                         FontBold=Yes;
+                                                         CaptionML=ESP=Clientes }
+            { 1100288013;Label  ;8100 ;846  ;4500 ;846  ;ParentControl=1100288011;
+                                                         VertAlign=Bottom;
+                                                         FontBold=Yes;
+                                                         MultiLine=Yes }
+          }
+           }
+        { PROPERTIES
+          {
+            SectionType=Body;
+            SectionWidth=16950;
+            SectionHeight=423;
+          }
+          CONTROLS
+          {
+            { 1100288000;TextBox;150  ;0    ;1500 ;423  ;SourceExpr="No." }
+            { 1100288002;TextBox;1800 ;0    ;4500 ;423  ;SourceExpr=Name }
+            { 1100288004;TextBox;6450 ;0    ;1500 ;423  ;SourceExpr="VAT Registration No." }
+            { 1100288011;TextBox;8100 ;0    ;4500 ;423  ;SourceExpr="Phone No." }
+          }
+           }
+      }
+       }
+    { PROPERTIES
+      {
+        DataItemTable=Table23;
+        DataItemTableView=SORTING(No.);
+        OnPreDataItem=BEGIN
+                        numpro := 0;
+                        Primera := TRUE;
+                      END;
+
+        OnAfterGetRecord=BEGIN
+                           Vent.UPDATE(3, "No.");
+
+                           IF "Country/Region Code" <> '' THEN
+                             IF "Country/Region Code" <> 'ES' THEN
+                               CurrReport.SKIP;
+
+                           IF "VAT Registration No." <> '' THEN
+                             IF WSSII.CalidadDatos(FunAux.NormVATNumber("VAT Registration No.",FALSE,"Country/Region Code"),
+                                                   XMLSII.ConvertStr40(Name), TRUE, 1) THEN
+                               CurrReport.SKIP;
+
+                           numpro := numpro + 1;
+                           Vent.UPDATE(4, numpro);
+                         END;
+
+        OnPostDataItem=BEGIN
+                         Vent.UPDATE(3, '');
+                       END;
+
+        ReqFilterFields=No.,VAT Registration No.,Country/Region Code,Blocked,VAT Bus. Posting Group;
+      }
+      SECTIONS
+      {
+        { PROPERTIES
+          {
+            SectionType=Header;
+            SectionWidth=16950;
+            SectionHeight=0;
+            OnPreSection=BEGIN
+                           CurrReport.NEWPAGE;
+                         END;
+
+          }
+          CONTROLS
+          {
+          }
+           }
+        { PROPERTIES
+          {
+            SectionType=Header;
+            PrintOnEveryPage=Yes;
+            SectionWidth=16950;
+            SectionHeight=1692;
+            OnPreSection=BEGIN
+                           IF Primera THEN BEGIN
+                             CurrReport.SHOWOUTPUT(FALSE);
+                             Primera := FALSE;
+                           END;
+                         END;
+
+          }
+          CONTROLS
+          {
+            { 1100288006;Label  ;6450 ;846  ;1500 ;846  ;VertAlign=Bottom;
+                                                         FontBold=Yes;
+                                                         MultiLine=Yes;
+                                                         CaptionML=ESP=CIF/NIF }
+            { 1100288007;Label  ;1800 ;846  ;4500 ;846  ;VertAlign=Bottom;
+                                                         FontBold=Yes;
+                                                         MultiLine=Yes;
+                                                         CaptionML=ESP=Nombre }
+            { 1100288008;Label  ;150  ;846  ;1500 ;846  ;VertAlign=Bottom;
+                                                         FontBold=Yes;
+                                                         MultiLine=Yes;
+                                                         CaptionML=ESP=N§ }
+            { 1100288017;Label  ;8100 ;846  ;4500 ;846  ;ParentControl=1100288015;
+                                                         VertAlign=Bottom;
+                                                         FontBold=Yes;
+                                                         MultiLine=Yes }
+            { 1100288018;Label  ;150  ;0    ;12450;846  ;HorzAlign=Center;
+                                                         FontSize=12;
+                                                         FontBold=Yes;
+                                                         CaptionML=ESP=Proveedores }
+          }
+           }
+        { PROPERTIES
+          {
+            SectionType=Body;
+            SectionWidth=16950;
+            SectionHeight=423;
+          }
+          CONTROLS
+          {
+            { 1100288012;TextBox;150  ;0    ;1500 ;423  ;SourceExpr="No." }
+            { 1100288014;TextBox;1800 ;0    ;4500 ;423  ;SourceExpr=Name }
+            { 1100288016;TextBox;6450 ;0    ;1500 ;423  ;SourceExpr="VAT Registration No." }
+            { 1100288015;TextBox;8100 ;0    ;4500 ;423  ;SourceExpr="Phone No." }
+          }
+           }
+      }
+       }
+  }
+  REQUESTFORM
+  {
+    PROPERTIES
+    {
+      Width=9020;
+      Height=3410;
+    }
+    CONTROLS
+    {
+    }
+  }
+  CODE
+  {
+    VAR
+      XMLSII@1100000 : Codeunit 88203;
+      WSSII@1100288000 : Codeunit 88202;
+      FunAux@1000000000 : Report 88201;
+      Vent@1100288001 : Dialog;
+      numcli@1100288002 : Integer;
+      numpro@1100288003 : Integer;
+      Primera@1100288004 : Boolean;
+
+    BEGIN
+    END.
+  }
+}

@@ -1,0 +1,224 @@
+OBJECT Codeunit 88205 Carga Certificado SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=30/05/17;
+    Time=13:42:46;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      ExecName@1000000010 : Text[100];
+      IdUsuario@1000000009 : Text[132];
+      NomEmpresa@1000000008 : Text[50];
+      ConfFTP@1000000007 : Record 88205;
+      ret@1000000006 : Integer;
+      InfEmpresa@1000000005 : Record 79;
+      RutaCertif@1000000004 : Text[200];
+      ret2@1000000003 : Integer;
+      ExecName2@1000000002 : Text[100];
+      Passftp@1000000001 : Text[30];
+      PassCertif@1000000000 : Text[30];
+
+    PROCEDURE CargaCertificado@1000000000();
+    VAR
+      FichBat@1000000015 : Text[150];
+      LOG@1000000014 : File;
+      BATname@1000000013 : Text[150];
+      BAT@1000000012 : File;
+      URLname@1000000011 : Text[150];
+      URL@1000000010 : File;
+      CMD@1000000009 : Text[150];
+      ExitoMSG@1000000008 : Text[30];
+      Texto@1000000007 : Text[250];
+      Enviado@1000000006 : Boolean;
+      ReturnValue@1000000005 : Integer;
+    BEGIN
+      IF InfEmpresa.GET THEN
+        NomEmpresa := InfEmpresa."VAT Registration No.";
+
+      IF ConfFTP.GET THEN BEGIN
+        RutaCertif := ConfFTP."Path SII";
+        IdUsuario := ConfFTP."Usuario SII";
+        Passftp := ConfFTP."Password SII";
+        PassCertif := ConfFTP."Contrase¤a SII";
+      END;
+
+      FichBat := MkFilename('Certificados.bat');
+      BAT.WRITEMODE := TRUE;
+      BAT.TEXTMODE := TRUE;
+      BAT.CREATE(FichBat);
+
+      //BAT.WRITE('@echo off');
+      BAT.WRITE('if "%1"=="" GOTO NOPARAM');
+      BAT.WRITE('if "%2"=="" GOTO NOPARAM');
+      BAT.WRITE('if "%3"=="" GOTO NOPARAM');
+      BAT.WRITE('if "%4"=="" GOTO NOPARAM');
+
+      BAT.WRITE('IF "%COMPUTERNAME%"=="ICITRIX1" GOTO CITRIX');
+      BAT.WRITE('IF "%COMPUTERNAME%"=="icitrix1" GOTO CITRIX');
+      BAT.WRITE('IF "%COMPUTERNAME%"=="ICITRIX2" GOTO CITRIX');
+      BAT.WRITE('IF "%COMPUTERNAME%"=="icitrix2" GOTO CITRIX');
+      BAT.WRITE('IF "%COMPUTERNAME%"=="ICITRIX3" GOTO CITRIX');
+      BAT.WRITE('IF "%COMPUTERNAME%"=="icitrix3" GOTO CITRIX');
+      BAT.WRITE('IF "%COMPUTERNAME%"=="ICITRIX4" GOTO CITRIX');
+      BAT.WRITE('IF "%COMPUTERNAME%"=="icitrix4" GOTO CITRIX');
+      BAT.WRITE('IF "%COMPUTERNAME%"=="ICITRIX05" GOTO CITRIX');
+      BAT.WRITE('IF "%COMPUTERNAME%"=="icitrix05" GOTO CITRIX');
+
+
+      BAT.WRITE(':CITRIX');
+      BAT.WRITE('net use /delete n:');
+      BAT.WRITE('net use n: %5 /user:%1 %2');
+      //BAT.WRITE('copy N:\%3.p12 %temp%\%3.p12 /Y');
+      BAT.WRITE('copy N:\%3.p12 %temp%\ /Y');
+      BAT.WRITE('c:\windows\system32\certutil -user -importpfx -p %4 %temp%\%3.p12');
+
+      BAT.WRITE('del %temp%\%3.p12');
+      BAT.WRITE('net use /delete n:');
+      BAT.WRITE('GOTO FIN');
+
+      BAT.WRITE(':NOCITRIX');
+      BAT.WRITE('ECHO.');
+      BAT.WRITE('ECHO Aplicacion ejecutada fuera del entorno de CITRIX ');
+      BAT.WRITE('ECHO.');
+      BAT.WRITE('GOTO FIN');
+      BAT.WRITE(':NOPARAM');
+      BAT.WRITE('ECHO.');
+      BAT.WRITE('ECHO Sintaxis incorrecta.');
+      BAT.WRITE('ECHO.');
+      BAT.WRITE('ECHO Sintaxis: Certificado.bat user userpass cert certpass PATH_TO_CERT');
+      BAT.WRITE(':FIN');
+      //BAT.WRITE('PAUSE');
+
+      BAT.CLOSE;
+      //CMD := STRSUBSTNO('%1 %2 %3 %4 %5 %6>D:\CERT\logcert.txt',FichBat,IdUsuario,Passftp,NomEmpresa,PassCertif,RutaCertif);
+      CMD := STRSUBSTNO('%1 %2 %3 %4 %5 %6',FichBat,IdUsuario,Passftp,NomEmpresa,PassCertif,RutaCertif);
+
+      DosShell(CMD,0,TRUE,ReturnValue);
+      IF ReturnValue <> 0 THEN
+        ERROR('Error al llamar a %1',CMD);
+    END;
+
+    PROCEDURE EliminarCertificado@1000000001();
+    VAR
+      FichBat@1000000003 : Text[150];
+      BAT@1000000002 : File;
+      CMD@1000000001 : Text[150];
+      ReturnValue@1000000000 : Integer;
+    BEGIN
+      FichBat := MkFilename('Quitacertificados.bat');
+      BAT.WRITEMODE := TRUE;
+      BAT.TEXTMODE := TRUE;
+      BAT.CREATE(FichBat);
+
+      BAT.WRITE('IF "%COMPUTERNAME%"=="ICITRIX1" GOTO CITRIX');
+      BAT.WRITE('IF "%COMPUTERNAME%"=="icitrix1" GOTO CITRIX');
+      BAT.WRITE('IF "%COMPUTERNAME%"=="ICITRIX2" GOTO CITRIX');
+      BAT.WRITE('IF "%COMPUTERNAME%"=="icitrix2" GOTO CITRIX');
+      BAT.WRITE('IF "%COMPUTERNAME%"=="ICITRIX3" GOTO CITRIX');
+      BAT.WRITE('IF "%COMPUTERNAME%"=="icitrix3" GOTO CITRIX');
+      BAT.WRITE('IF "%COMPUTERNAME%"=="ICITRIX4" GOTO CITRIX');
+      BAT.WRITE('IF "%COMPUTERNAME%"=="icitrix4" GOTO CITRIX');
+      BAT.WRITE('GOTO NOCITRIX');
+
+      BAT.WRITE(':CITRIX');
+
+      BAT.WRITE('certutil -user -delstore My 3');
+      BAT.WRITE('certutil -user -delstore My 2');
+      BAT.WRITE('certutil -user -delstore My 1');
+      BAT.WRITE('certutil -user -delstore My 0');
+      BAT.WRITE('GOTO FIN');
+
+      BAT.WRITE(':NOCITRIX');
+      BAT.WRITE('ECHO.');
+      BAT.WRITE('ECHO Aplicacion ejecutada fuera del entorno de CITRIX');
+      BAT.WRITE('ECHO.');
+      BAT.WRITE('GOTO FIN');
+
+      BAT.WRITE(':NOPARAM');
+      BAT.WRITE('ECHO.');
+      BAT.WRITE('ECHO Sintaxis incorrecta.');
+      BAT.WRITE('ECHO.');
+      BAT.WRITE('ECHO Sintaxis: Certificado.bat user userpass cert certpass PATH_TO_CERT');
+
+      BAT.WRITE(':FIN');
+
+      BAT.CLOSE;
+
+      //CMD := STRSUBSTNO('%1 > x:\logcert.txt',FichBat);
+      CMD := STRSUBSTNO('%1',FichBat);
+      DosShell(CMD,0,TRUE,ReturnValue);
+      IF ReturnValue <> 0 THEN
+        ERROR('Error al llamar a %1',CMD);
+    END;
+
+    LOCAL PROCEDURE DosShell@1103355021(ItxtCommand@1103355000 : Text[1024];IintWindowStyle@1103355001 : Integer;IblnWaitForEndOfCommand@1103355002 : Boolean;VAR OintReturnValue@1103355004 : Integer);
+    VAR
+      Laut@1103355003 : Automation "{F935DC20-1CF0-11D0-ADB9-00C04FD58A0B} 1.0:{72C24DD5-D70A-438B-8A42-98424B88AFB8}:'Windows Script Host Object Model'.WshShell";
+    BEGIN
+      // DosShell //*** 109
+      // Works like SHELL and HYPERLINK of Navision but without the annoying confirmation-request of Navision 4.00
+      //   (this function uses automation 'Windows Script Host Object Model'.WshShell)
+      // PARAMETERS:
+      //   ItxtCommand : command + parameters for the SHELL
+      //   IintWindowStyle : Type of window for command
+      //     0:Hides the window and activates another window. (=Doesn't even show a window, to kill the doscommand,
+      //             you have to do it with taskmanager=>Processes)
+      //     1:Activates and displays a window. If the window is minimized or maximized, the system restores
+      //       it to its original size and position. An application should specify this flag when displaying
+      //       the window for the first time. (=shows the window as normal window)
+      //     2:Activates the window and displays it as a minimized window. (=shows as minimized)
+      //     3:Activates the window and displays it as a maximized window. (=shows as maximized)
+      //     4:Displays a window in its most recent size and position. The active window remains active.
+      //     5:Activates the window and displays it in its current size and position.
+      //     6:Minimizes the specified window and activates the next top-level window in the Z order.
+      //     7:Displays the window as a minimized window. The active window remains active.
+      //     8:Displays the window in its current state. The active window remains active.
+      //     9:Activates and displays the window. If the window is minimized or maximized, the system
+      //       restores it to its original size and position. An application should specify this flag
+      //       when restoring a minimized window.
+      //     10:Sets the show-state based on the state of the program that started the application.
+      //   IblnWaitForEndOfCommand : TRUE : wait for the command to finish (and use the RETURN-VALUE)
+      //                             FALSE: Launch the command and return (RETURN-VALUE will be 0)
+      //   RETURN-VALUE : SHELL-command RETURN-VALUE
+
+      CREATE(Laut);
+      OintReturnValue := Laut.Run(ItxtCommand,IintWindowStyle,IblnWaitForEndOfCommand);
+      CLEAR(Laut);
+    END;
+
+    PROCEDURE MkFilename@1000000006(Filename@1000000000 : Text[250]) : Text[250];
+    VAR
+      Ruta@1100000 : Text[250];
+      Len@1100001 : Integer;
+      Nombre@1100002 : Text[30];
+    BEGIN
+
+      Ruta := ENVIRON('TEMP');
+      Len := STRLEN(Ruta);
+
+      IF Ruta[Len] <> '\' THEN
+        Ruta += '\';
+
+      Nombre := Filename;
+
+      //TEMPORAL
+      //Ruta := '\\Client\C$\EFactura\';
+      //TEMPORAL
+      EXIT(Ruta + Nombre);
+    END;
+
+    BEGIN
+    END.
+  }
+}
+

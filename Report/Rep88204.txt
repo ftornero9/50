@@ -1,0 +1,175 @@
+OBJECT Report 88204 Enviar documentos SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=21/07/17;
+    Time=18:10:09;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    ProcessingOnly=Yes;
+    OnInitReport=BEGIN
+                   CfgSII.GET;
+                 END;
+
+    OnPreReport=BEGIN
+                  CfgSII.GET;
+                  IF CfgSII."Gesti¢n externa env¡os" THEN
+                    CfgSII.TESTFIELD("Ruta XML envios externos");
+                  NombreFich := DELCHR(FORMAT(CURRENTDATETIME, 0, 9),'=','-.:')+'.XML';
+                END;
+
+  }
+  DATAITEMS
+  {
+    { PROPERTIES
+      {
+        DataItemTable=Table88208;
+        DataItemTableView=SORTING(TipoSII,Bien de inversion,NMov IVA,Estado env¡o)
+                          WHERE(TipoSII=CONST(E),
+                                Bien de inversion=CONST(No),
+                                Estado env¡o=FILTER(<>Correcto));
+        DataItemVarName=Emitidos;
+        OnPreDataItem=BEGIN
+                        IF GUIALLOWED THEN
+                          Vent.OPEN('Registro: #1#########');
+
+                        IF CfgSII."Gesti¢n externa env¡os" THEN
+                          FunXML.GenCabEmitido;
+                      END;
+
+        OnAfterGetRecord=BEGIN
+                           IF GUIALLOWED THEN
+                             Vent.UPDATE(1, NMov);
+
+                           IF CfgSII."Gesti¢n externa env¡os" THEN BEGIN
+                             FunXML.GenDetEmitido(Emitidos);
+                             IF MarcarEnviados THEN BEGIN
+                               "Tipo envio" := "Tipo envio"::Env¡o;
+                               "Estado env¡o" := "Estado env¡o"::Correcto;
+                               MODIFY;
+                             END;
+                           END ELSE BEGIN
+                             IF Tipo = Tipo::Factura THEN
+                               FunSII.EnviarDocEmitido(Emitidos);
+
+                             IF Tipo = Tipo::Pago THEN
+                               FunSII.EnviarCobroEmitidas(Emitidos);
+
+                           END;
+                         END;
+
+        OnPostDataItem=BEGIN
+                         IF CfgSII."Gesti¢n externa env¡os" THEN BEGIN
+                           FichEntrada := FunXML.GenerarXML;
+                           FichSalida := CfgSII."Ruta XML envios externos"+'E_'+NombreFich;
+                           FILE.COPY(FichEntrada, FichSalida);
+                         END;
+                       END;
+
+      }
+      SECTIONS
+      {
+        { PROPERTIES
+          {
+            SectionType=Body;
+            SectionWidth=12000;
+            SectionHeight=846;
+          }
+          CONTROLS
+          {
+          }
+           }
+      }
+       }
+    { PROPERTIES
+      {
+        DataItemTable=Table88208;
+        DataItemTableView=SORTING(TipoSII,Bien de inversion,NMov IVA,Estado env¡o)
+                          WHERE(TipoSII=CONST(R),
+                                Bien de inversion=CONST(No),
+                                Estado env¡o=FILTER(<>Correcto));
+        DataItemVarName=Recibidos;
+        OnPreDataItem=BEGIN
+                        IF CfgSII."Gesti¢n externa env¡os" THEN
+                          FunXML.GenCabRecibido;
+                      END;
+
+        OnAfterGetRecord=BEGIN
+                           IF GUIALLOWED THEN
+                             Vent.UPDATE(1, NMov);
+
+                           IF CfgSII."Gesti¢n externa env¡os" THEN BEGIN
+                             FunXML.GenDetRecibido(Recibidos);
+                             IF MarcarEnviados THEN BEGIN
+                               "Tipo envio" := "Tipo envio"::Env¡o;
+                               "Estado env¡o" := "Estado env¡o"::Correcto;
+                               MODIFY;
+                             END;
+                           END ELSE BEGIN
+                             IF Tipo = Tipo::Factura THEN
+                               FunSII.EnviarDocRecibido(Recibidos);
+
+                             IF Tipo = Tipo::Pago THEN
+                               FunSII.EnviarPagoRecibidas(Recibidos);
+                           END;
+                         END;
+
+        OnPostDataItem=BEGIN
+                         IF CfgSII."Gesti¢n externa env¡os" THEN BEGIN
+                           FichEntrada := FunXML.GenerarXML;
+                           FichSalida := CfgSII."Ruta XML envios externos"+'R_'+NombreFich;
+                           FILE.COPY(FichEntrada, FichSalida);
+                         END;
+                       END;
+
+      }
+      SECTIONS
+      {
+        { PROPERTIES
+          {
+            SectionType=Body;
+            SectionWidth=12000;
+            SectionHeight=846;
+          }
+          CONTROLS
+          {
+          }
+           }
+      }
+       }
+  }
+  REQUESTFORM
+  {
+    PROPERTIES
+    {
+      Width=9020;
+      Height=3410;
+      OnOpenForm=BEGIN
+                   //IF NOT CfgSII."Gesti¢n externa env¡os" THEN
+                   //  CurrReport.USEREQUESTFORM(FALSE);
+                 END;
+
+    }
+    CONTROLS
+    {
+    }
+  }
+  CODE
+  {
+    VAR
+      FunSII@1000000000 : Codeunit 88201;
+      Vent@1000000001 : Dialog;
+      CfgSII@1000000002 : Record 88201;
+      FunXML@1000000003 : Codeunit 88203;
+      MarcarEnviados@1000000004 : Boolean;
+      FichEntrada@1000000005 : Text[1024];
+      FichSalida@1000000006 : Text[1024];
+      NombreFich@1000000007 : Text[50];
+
+    BEGIN
+    END.
+  }
+}

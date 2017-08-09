@@ -1,0 +1,224 @@
+OBJECT Table 88207 Config. c¢d. operaci¢n SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=10/07/17;
+    Time=21:07:18;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    OnInsert=BEGIN
+               ERROR(Error001);
+             END;
+
+    OnModify=BEGIN
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnDelete=BEGIN
+               //ERROR(Error001);
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnRename=BEGIN
+               ERROR(Error001);
+             END;
+
+    CaptionML=[ENU=SII operation code config.;
+               ESP=Config. c¢d. operaci¢n SII];
+    LookupFormID=Form472;
+    DrillDownFormID=Form472;
+  }
+  FIELDS
+  {
+    { 1   ;   ;Grupo registro IVA neg.;Code10     ;TableRelation="VAT Business Posting Group";
+                                                   CaptionML=[ENU=Business VAT group;
+                                                              ESP=Grupo registro IVA neg.];
+                                                   Editable=No }
+    { 2   ;   ;Grupo registro IVA prod.;Code10    ;TableRelation="VAT Product Posting Group";
+                                                   CaptionML=[ENU=Product VAT group;
+                                                              ESP=Grupo registro IVA prod.];
+                                                   Editable=No }
+    { 3   ;   ;Tipo c lculo IVA    ;Option        ;FieldClass=FlowField;
+                                                   CalcFormula=Lookup("VAT Posting Setup"."VAT Calculation Type" WHERE (VAT Bus. Posting Group=FIELD(Grupo registro IVA neg.),
+                                                                                                                        VAT Prod. Posting Group=FIELD(Grupo registro IVA prod.)));
+                                                   CaptionML=[ENU=VAT calculation type;
+                                                              ESP=Tipo c lculo IVA];
+                                                   OptionString=Normal,Reversi¢n,Total,Impto. venta,No sujeto;
+                                                   Editable=No }
+    { 4   ;   ;% IVA+RE            ;Decimal       ;FieldClass=FlowField;
+                                                   CalcFormula=Lookup("VAT Posting Setup"."VAT+EC %" WHERE (VAT Bus. Posting Group=FIELD(Grupo registro IVA neg.),
+                                                                                                            VAT Prod. Posting Group=FIELD(Grupo registro IVA prod.)));
+                                                   CaptionML=[ENU=%VAT+ER;
+                                                              ESP=% IVA+RE];
+                                                   DecimalPlaces=0:5;
+                                                   MinValue=0;
+                                                   MaxValue=100;
+                                                   BlankZero=Yes;
+                                                   Editable=No }
+    { 5   ;   ;Tipo IVA no realizado;Option       ;FieldClass=FlowField;
+                                                   CalcFormula=Lookup("VAT Posting Setup"."Unrealized VAT Type" WHERE (VAT Bus. Posting Group=FIELD(Grupo registro IVA neg.),
+                                                                                                                       VAT Prod. Posting Group=FIELD(Grupo registro IVA prod.)));
+                                                   CaptionML=[ENU=VAT rate not performed;
+                                                              ESP=Tipo IVA no realizado];
+                                                   OptionString=[ ,Porcentual,Inicial,Final,Inicial (pago completo),Final (pago completo)];
+                                                   Editable=No }
+    { 14  ;   ;Service             ;Boolean       ;CaptionML=[ENU=Service;
+                                                              ESP=Servicio] }
+    { 10700;  ;% RE                ;Decimal       ;FieldClass=FlowField;
+                                                   CalcFormula=Lookup("VAT Posting Setup"."EC %" WHERE (VAT Bus. Posting Group=FIELD(Grupo registro IVA neg.),
+                                                                                                        VAT Prod. Posting Group=FIELD(Grupo registro IVA prod.)));
+                                                   CaptionML=[ENU=% ER;
+                                                              ESP=% RE];
+                                                   DecimalPlaces=0:5;
+                                                   MinValue=0;
+                                                   MaxValue=100;
+                                                   BlankZero=Yes;
+                                                   Editable=No }
+    { 10701;  ;% IVA               ;Decimal       ;FieldClass=FlowField;
+                                                   CalcFormula=Lookup("VAT Posting Setup"."VAT %" WHERE (VAT Bus. Posting Group=FIELD(Grupo registro IVA neg.),
+                                                                                                         VAT Prod. Posting Group=FIELD(Grupo registro IVA prod.)));
+                                                   CaptionML=[ENU=% VAT;
+                                                              ESP=% IVA];
+                                                   DecimalPlaces=0:5;
+                                                   MinValue=0;
+                                                   MaxValue=100;
+                                                   BlankZero=Yes;
+                                                   Editable=No }
+    { 88200;  ;C¢d. operacion recibidas;Option    ;CaptionML=[ENU=Received operations code;
+                                                              ESP=C¢d. operaci¢n recibidas];
+                                                   OptionString=[ ,01,02,03,04,05,06,07,08,09,,,12,13] }
+    { 88201;  ;C¢d. operacion emitidas;Option     ;CaptionML=[ENU=Issued operations code;
+                                                              ESP=C¢d. operaci¢n emitidas];
+                                                   OptionString=[ ,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15] }
+    { 88202;  ;Inversion sujeto pasivo;Boolean    ;CaptionML=[ENU=Reversion of taxable person;
+                                                              ESP=Inversi¢n sujeto pasivo] }
+    { 88203;  ;No enviar           ;Boolean       ;CaptionML=[ENU=Don't send
+                                                              ;
+                                                              ESP=No enviar] }
+    { 88204;  ;Ocultar             ;Boolean       ;CaptionML=[ENU=Hide;
+                                                              ESP=Ocultar] }
+    { 88205;  ;DUA                 ;Boolean       ;CaptionML=[ENU=DUA;
+                                                              ESP=DUA] }
+    { 88206;  ;Causa Exencion      ;Option        ;CaptionML=[ENU=Cause of exemption;
+                                                              ESP=Causa Exenci¢n];
+                                                   OptionCaptionML=[ENU=" ,E1,E2,E3,E4,E5,E6";
+                                                                    ESP=" ,E1,E2,E3,E4,E5,E6"];
+                                                   OptionString=[ ,E1,E2,E3,E4,E5,E6] }
+    { 88207;  ;Retencion           ;Boolean       ;CaptionML=[ENU=Retention;
+                                                              ESP=Retenci¢n] }
+    { 88208;  ;Tipo No Sujeto      ;Option        ;CaptionML=[ENU=No Taxable VAT Type;
+                                                              ESP=Tipo No Sujeto];
+                                                   OptionCaptionML=[ENU=" ,ReglasLocalizacion,Articulo7_14";
+                                                                    ESP=" ,ReglasLocalizacion,Articulo7_14"];
+                                                   OptionString=[ ,ReglasLocalizacion,Articulo7_14] }
+  }
+  KEYS
+  {
+    {    ;Grupo registro IVA neg.,Grupo registro IVA prod.;
+                                                   Clustered=Yes }
+    {    ;Grupo registro IVA prod.,Grupo registro IVA neg. }
+  }
+  CODE
+  {
+    VAR
+      ConfCruces@1000000000 : Record 325;
+      Error001@1000000001 : TextConst 'ESP=No se puede realizar este tipo de acci¢n.';
+      FunPer@1000000002 : Codeunit 88201;
+
+    PROCEDURE IniTabla@1100000();
+    VAR
+      ConfigCrucesSII@1100000 : Record 88207;
+    BEGIN
+      ConfCruces.RESET;
+
+      IF ConfCruces.FIND('-') THEN REPEAT
+        IF ConfCruces."VAT Bus. Posting Group" <> '' THEN BEGIN
+          IF NOT ConfigCrucesSII.GET(ConfCruces."VAT Bus. Posting Group",ConfCruces."VAT Prod. Posting Group") THEN BEGIN
+            ConfigCrucesSII.INIT;
+            ConfigCrucesSII."Grupo registro IVA neg." := ConfCruces."VAT Bus. Posting Group";
+            ConfigCrucesSII."Grupo registro IVA prod." := ConfCruces."VAT Prod. Posting Group";
+            ConfigCrucesSII.INSERT;
+          END;
+        END;
+      UNTIL ConfCruces.NEXT = 0;
+    END;
+
+    PROCEDURE DevDescCodOperaRecibida@1100001() : Text[120];
+    VAR
+      Text10001@1100000 : TextConst 'ESP=Operaci¢n de r‚gimen com£n';
+      Text10002@1100001 : TextConst 'ESP=Operaciones por las que los Empresarios satisfacen compensaciones REAGYP';
+      Text10003@1100002 : TextConst 'ESP=Operaciones r‚gimen especial bienes usados, objetos de arte...';
+      Text10004@1100003 : TextConst 'ESP=R‚gimen especial oro de inversi¢n';
+      Text10005@1100004 : TextConst 'ESP=R‚gimen especial agencias de viaje';
+      Text10006@1100005 : TextConst 'ESP=R‚gimen especial grupo de entidades en IVA (Nivel Avanzado)';
+      Text10007@1100006 : TextConst 'ESP=R‚gimen especial criterio de caja';
+      Text10008@1100007 : TextConst 'ESP=Operaciones sujetas al IPSI / IGIC';
+      Text10009@1100008 : TextConst 'ESP=Adquisiciones intracomunitarias de bienes y prestaciones de servicios';
+      Text10010@1100009 : TextConst 'ESP=Compra de agencias viajes: operaciones de mediaci¢n en nombre y por cuenta ajena...';
+      Text10011@1100010 : TextConst 'ESP=Facturaci¢n de las prestaciones de servicios de agencias de viaje que act£an...';
+      Text10012@1100011 : TextConst 'ESP=Operaciones de arrendamiento de local de negocio';
+      Text10013@1100012 : TextConst 'ESP=Factura correspondiente a una importaci¢n (informada sin asociar DUA)';
+    BEGIN
+      CASE "C¢d. operacion recibidas" OF
+        "C¢d. operacion recibidas"::" ": EXIT('');
+        "C¢d. operacion recibidas"::"01": EXIT(Text10001);
+        "C¢d. operacion recibidas"::"02": EXIT(Text10002);
+        "C¢d. operacion recibidas"::"03": EXIT(Text10003);
+        "C¢d. operacion recibidas"::"04": EXIT(Text10004);
+        "C¢d. operacion recibidas"::"05": EXIT(Text10005);
+        "C¢d. operacion recibidas"::"06": EXIT(Text10006);
+        "C¢d. operacion recibidas"::"07": EXIT(Text10007);
+        "C¢d. operacion recibidas"::"08": EXIT(Text10008);
+        "C¢d. operacion recibidas"::"09": EXIT(Text10009);
+        "C¢d. operacion recibidas"::"10": EXIT(Text10010);
+        "C¢d. operacion recibidas"::"11": EXIT(Text10011);
+        "C¢d. operacion recibidas"::"12": EXIT(Text10012);
+        "C¢d. operacion recibidas"::"13": EXIT(Text10013);
+      END;
+    END;
+
+    PROCEDURE DevDescCodOperaEmitida@1000000000() : Text[120];
+    VAR
+      Text10001@1100000 : TextConst 'ESP=Operaci¢n de r‚gimen com£n';
+      Text10002@1100001 : TextConst 'ESP=Exportaci¢n';
+      Text10003@1100002 : TextConst 'ESP=Operaciones r‚gimen especial bienes usados, objetos de arte...';
+      Text10004@1100003 : TextConst 'ESP=R‚gimen especial oro de inversi¢n';
+      Text10005@1100004 : TextConst 'ESP=R‚gimen especial agencias de viaje';
+      Text10006@1100005 : TextConst 'ESP=R‚gimen especial grupo de entidades en IVA (Nivel Avanzado)';
+      Text10007@1100006 : TextConst 'ESP=R‚gimen especial criterio de caja';
+      Text10008@1100007 : TextConst 'ESP=Operaciones sujetas al IPSI / IGIC';
+      Text10009@1100008 : TextConst 'ESP=Facturaci¢n prestaciones de servicios de agencias de viaje que act£an como mediadoras...';
+      Text10010@1100009 : TextConst 'ESP=Cobros por cuenta de terceros de honorarios profesionales o de D§ derivados de la propiedad industrial...';
+      Text10011@1100010 : TextConst 'ESP=Operaciones de arrendamiento de local de negocio sujetas a retenci¢n';
+      Text10012@1100011 : TextConst 'ESP=Operaciones de arrendamiento de local de negocio no sujetos a retenci¢n';
+      Text10013@1100012 : TextConst 'ESP=Operaciones de arrendamiento de local de negocio sujetas y no sujetas a retenci¢n';
+      Text10014@1100013 : TextConst 'ESP=Factura con IVA pendiente de devengo  (certificaciones de obra cuyo destinatario sea la Administraci¢n P£blica)';
+      Text10015@1100014 : TextConst 'ESP=Factura con IVA pendiente de devengo - operaciones con tracto sucesivo';
+    BEGIN
+      CASE "C¢d. operacion emitidas" OF
+        "C¢d. operacion emitidas"::" ": EXIT('');
+        "C¢d. operacion emitidas"::"01": EXIT(Text10001);
+        "C¢d. operacion emitidas"::"02": EXIT(Text10002);
+        "C¢d. operacion emitidas"::"03": EXIT(Text10003);
+        "C¢d. operacion emitidas"::"04": EXIT(Text10004);
+        "C¢d. operacion emitidas"::"05": EXIT(Text10005);
+        "C¢d. operacion emitidas"::"06": EXIT(Text10006);
+        "C¢d. operacion emitidas"::"07": EXIT(Text10007);
+        "C¢d. operacion emitidas"::"08": EXIT(Text10008);
+        "C¢d. operacion emitidas"::"09": EXIT(Text10009);
+        "C¢d. operacion emitidas"::"10": EXIT(Text10010);
+        "C¢d. operacion emitidas"::"11": EXIT(Text10011);
+        "C¢d. operacion emitidas"::"12": EXIT(Text10012);
+        "C¢d. operacion emitidas"::"13": EXIT(Text10013);
+        "C¢d. operacion emitidas"::"14": EXIT(Text10014);
+        "C¢d. operacion emitidas"::"15": EXIT(Text10015);
+      END;
+    END;
+
+    BEGIN
+    END.
+  }
+}

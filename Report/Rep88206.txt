@@ -1,0 +1,177 @@
+OBJECT Report 88206 Eliminar datos SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=29/06/17;
+    Time=18:44:19;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    Permissions=TableData 2000000001=rimd;
+    ProcessingOnly=Yes;
+    OnPreReport=BEGIN
+                  IF (UPPERCASE(COPYSTR(COMPANYNAME, 1, 6)) = 'CRONUS') THEN
+                    ERROR('No se puede ejecutar el report desde una CRONUS.');
+
+                  EVALUATE(NumReport,COPYSTR(CurrReport.OBJECTID(FALSE),8));
+
+                  IF NOT FunGlobal.DevEnPruebas THEN
+                    ERROR('No se pueden eliminar registros pues ya est  cargada la versi¢n definitiva del SII.');
+
+                  IF NOT CONFIRM('Se van a eliminar todos los env¡os generados en todas las empresas.\'+
+                                 'Desea continuar.',FALSE) THEN
+                    ERROR('Proceso cancelado.');
+                END;
+
+    OnPostReport=BEGIN
+                   qObject.RESET;
+                   qObject.SETRANGE(Type,qObject.Type::Report);
+                   qObject.SETRANGE(ID,NumReport);
+                   IF qObject.FIND('-') THEN
+                     qObject.DELETE;
+                 END;
+
+  }
+  DATAITEMS
+  {
+    { PROPERTIES
+      {
+        DataItemTable=Table2000000006;
+        DataItemTableView=SORTING(Name);
+        OnPreDataItem=BEGIN
+                        Ventana.OPEN('Revisando empresa #1##############################',Company.Name);
+                      END;
+
+        OnAfterGetRecord=BEGIN
+                           Ventana.UPDATE;
+                         END;
+
+        OnPostDataItem=BEGIN
+                         Ventana.CLOSE;
+                       END;
+
+      }
+      SECTIONS
+      {
+        { PROPERTIES
+          {
+            SectionType=Body;
+            SectionWidth=12000;
+            SectionHeight=846;
+          }
+          CONTROLS
+          {
+          }
+           }
+      }
+       }
+    { PROPERTIES
+      {
+        DataItemIndent=1;
+        DataItemTable=Table88204;
+        DataItemTableView=SORTING(No. mov.);
+        OnPreDataItem=BEGIN
+                        CHANGECOMPANY(Company.Name);
+                      END;
+
+        OnAfterGetRecord=BEGIN
+                           DELETEALL;
+                         END;
+
+      }
+      SECTIONS
+      {
+        { PROPERTIES
+          {
+            SectionType=Body;
+            SectionWidth=12000;
+            SectionHeight=846;
+          }
+          CONTROLS
+          {
+          }
+           }
+      }
+       }
+    { PROPERTIES
+      {
+        DataItemIndent=1;
+        DataItemTable=Table88208;
+        DataItemTableView=SORTING(NMov);
+        OnPreDataItem=BEGIN
+                        CHANGECOMPANY(Company.Name);
+                      END;
+
+        OnAfterGetRecord=BEGIN
+                           DELETEALL;
+                         END;
+
+      }
+      SECTIONS
+      {
+        { PROPERTIES
+          {
+            SectionType=Body;
+            SectionWidth=12000;
+            SectionHeight=846;
+          }
+          CONTROLS
+          {
+          }
+           }
+      }
+       }
+    { PROPERTIES
+      {
+        DataItemIndent=1;
+        DataItemTable=Table88209;
+        DataItemTableView=SORTING(NMovDoc,NMov);
+        OnPreDataItem=BEGIN
+                        CHANGECOMPANY(Company.Name);
+                      END;
+
+        OnAfterGetRecord=BEGIN
+                           DELETEALL;
+                         END;
+
+      }
+      SECTIONS
+      {
+        { PROPERTIES
+          {
+            SectionType=Body;
+            SectionWidth=12000;
+            SectionHeight=846;
+          }
+          CONTROLS
+          {
+          }
+           }
+      }
+       }
+  }
+  REQUESTFORM
+  {
+    PROPERTIES
+    {
+      Width=9020;
+      Height=3410;
+    }
+    CONTROLS
+    {
+    }
+  }
+  CODE
+  {
+    VAR
+      FunGlobal@1000000000 : Codeunit 88201;
+      qObject@1000000002 : Record 2000000001;
+      Ventana@1000000001 : Dialog;
+      NumReport@1000000003 : Integer;
+
+    BEGIN
+    END.
+  }
+}

@@ -1,0 +1,538 @@
+OBJECT Table 88201 Config. SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=14/07/17;
+    Time=19:39:44;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    OnInsert=BEGIN
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnModify=BEGIN
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnDelete=BEGIN
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnRename=BEGIN
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    CaptionML=[ENU=SII config.;
+               ESP=Config. SII];
+  }
+  FIELDS
+  {
+    { 1   ;   ;Clave primaria      ;Code10        ;CaptionML=[ENU=Primary Key;
+                                                              ESP=Clave primaria] }
+    { 2   ;   ;ID Certificado      ;Text150       ;OnValidate=BEGIN
+                                                                IF "ID Certificado" = '' THEN BEGIN
+                                                                  "Nombre certificado"  := '';
+                                                                  "Huella digital"      := '';
+                                                                  "Valido desde"        := 0D;
+                                                                  "Valido hasta"        := 0D;
+                                                                END;
+                                                              END;
+
+                                                   OnLookup=VAR
+                                                              Funs@1000000000 : Codeunit 88201;
+                                                              Certificado@1000000001 : Code[150];
+                                                              Tabla@1000000002 : TEMPORARY Record 88203;
+                                                            BEGIN
+                                                              Certificado := Funs.CogerCertificado2(TRUE, Tabla, '');
+                                                              IF Certificado <> '' THEN BEGIN
+                                                                "ID Certificado"      := Certificado;
+                                                                "Nombre certificado"  := Tabla.Nombre;
+                                                                "Huella digital"      := Tabla."Huella Digital";
+                                                                "Valido desde"        := Tabla."Valido desde";
+                                                                "Valido hasta"        := Tabla."Valido hasta";
+                                                              END;
+                                                            END;
+
+                                                   CaptionML=[ENU=Certificate ID;
+                                                              ESP=ID Certificado];
+                                                   Description=SII }
+    { 3   ;   ;Nombre certificado  ;Text250       ;CaptionML=[ENU=Certificate name;
+                                                              ESP=Nombre certificado];
+                                                   Description=SII;
+                                                   Editable=No }
+    { 4   ;   ;Huella digital      ;Text50        ;CaptionML=[ENU=Digital print;
+                                                              ESP=Huella digital];
+                                                   Description=SII;
+                                                   Editable=No }
+    { 5   ;   ;Valido desde        ;Date          ;CaptionML=[ENU=Valid from;
+                                                              ESP=Valido desde];
+                                                   Description=SII;
+                                                   Editable=No }
+    { 6   ;   ;Valido hasta        ;Date          ;CaptionML=[ENU=Valid to;
+                                                              ESP=Valido hasta];
+                                                   Description=SII;
+                                                   Editable=No }
+    { 7   ;   ;NIF Representante   ;Code10        ;CaptionML=[ENU=ID Representative;
+                                                              ESP=NIF Representante];
+                                                   Description=SII }
+    { 8   ;   ;No guardar XML respuesta;Boolean   ;CaptionML=[ENU=Don't save response XML;
+                                                              ESP=No guardar XML respuesta] }
+    { 9   ;   ;XML respuesta       ;BLOB          ;CaptionML=[ENU=Response XML;
+                                                              ESP=XML respuesta] }
+    { 10  ;   ;Rol SII             ;Code20        ;TableRelation="User Role";
+                                                   CaptionML=[ENU=SII Rol;
+                                                              ESP=Rol SII] }
+    { 11  ;   ;XML peticion        ;BLOB          ;CaptionML=[ENU=Request XML;
+                                                              ESP=XML peticion] }
+    { 12  ;   ;No guardar XML envio;Boolean       ;CaptionML=[ENU=Don't save request XML;
+                                                              ESP=No guardar XML envio] }
+    { 13  ;   ;NIF Empresa         ;Text20        ;FieldClass=FlowField;
+                                                   CalcFormula=Lookup("Company Information"."VAT Registration No.");
+                                                   CaptionML=[ENU=Company VAT Number;
+                                                              ESP=NIF Empresa];
+                                                   Editable=No }
+    { 14  ;   ;Raz¢n social        ;Text50        ;FieldClass=FlowField;
+                                                   CalcFormula=Lookup("Company Information".Name);
+                                                   CaptionML=[ENU=Company name;
+                                                              ESP=Raz¢n social];
+                                                   Editable=No }
+    { 15  ;   ;Agrupar env¡os      ;Boolean       ;OnValidate=BEGIN
+                                                                IF "Agrupar env¡os" THEN
+                                                                  "Gesti¢n externa env¡os" := FALSE;
+                                                              END;
+
+                                                   CaptionML=[ENU=Group shipments;
+                                                              ESP=Agrupar env¡os] }
+    { 16  ;   ;No procesar movs. IVA aut.;Boolean ;CaptionML=[ENU=Don't process VAT Entries aut.;
+                                                              ESP=No procesar movs. IVA aut.] }
+    { 17  ;   ;Cargar certificados ;Boolean       ;CaptionML=[ENU=Load certificates;
+                                                              ESP=Cargar certificados] }
+    { 18  ;   ;Descripcion Factura venta;Option   ;CaptionML=[ENU=Sales invoice description;
+                                                              ESP=Descripcion Factura venta];
+                                                   OptionString=Texto registro,Primera linea documento,N§ documento emitido }
+    { 19  ;   ;Tipo l¡nea factura Venta;Option    ;OnValidate=BEGIN
+                                                                IF "Tipo l¡nea factura Venta" = "Tipo l¡nea factura Venta"::"Sin tipo " THEN
+                                                                  VALIDATE("Con cantidad en factura venta",FALSE);
+                                                              END;
+
+                                                   CaptionML=[ENU=Sales invoice line type;
+                                                              ESP=Tipo l¡nea factura Venta];
+                                                   OptionString=Todas,Sin tipo ,Con tipo }
+    { 20  ;   ;Con cantidad en factura venta;Boolean;
+                                                   OnValidate=BEGIN
+                                                                IF "Con cantidad en factura venta" AND ("Tipo l¡nea factura Venta" = "Tipo l¡nea factura Venta"::"Sin tipo ") THEN
+                                                                  ERROR('"Tipo l¡nea factura venta" no puede tener el valor "Sin tipo"');
+                                                              END;
+
+                                                   CaptionML=[ENU=With quantity in sales invoice;
+                                                              ESP=Con cantidad en factura venta] }
+    { 21  ;   ;Descripcion Abono venta;Option     ;CaptionML=[ENU=Sales credit memo description;
+                                                              ESP=Descripcion Abono venta];
+                                                   OptionString=Texto registro,Primera linea documento,N§ documento emitido }
+    { 22  ;   ;Tipo l¡nea abono Venta;Option      ;OnValidate=BEGIN
+                                                                IF "Tipo l¡nea abono Venta" = "Tipo l¡nea abono Venta"::"Sin tipo " THEN
+                                                                  VALIDATE("Con cantidad en abono venta",FALSE);
+                                                              END;
+
+                                                   CaptionML=[ENU=Sales credit memo line type;
+                                                              ESP=Tipo l¡nea abono Venta];
+                                                   OptionString=Todas,Sin tipo ,Con tipo }
+    { 23  ;   ;Con cantidad en abono venta;Boolean;OnValidate=BEGIN
+                                                                IF "Con cantidad en abono venta" AND ("Tipo l¡nea abono Venta" = "Tipo l¡nea abono Venta"::"Sin tipo ") THEN
+                                                                  ERROR('"Tipo l¡nea abono venta" no puede tener el valor "Sin tipo"');
+                                                              END;
+
+                                                   CaptionML=[ENU=With quantity in sales credit memo;
+                                                              ESP=Con cantidad en abono venta] }
+    { 24  ;   ;Descripcion Factura compra;Option  ;CaptionML=[ENU=Purchase invoice description;
+                                                              ESP=Descripcion Factura compra];
+                                                   OptionString=Texto registro,Primera linea documento,N§ documento proveedor }
+    { 25  ;   ;Tipo l¡nea factura compra;Option   ;OnValidate=BEGIN
+                                                                IF "Tipo l¡nea factura compra" = "Tipo l¡nea factura compra"::"Sin tipo " THEN
+                                                                  VALIDATE("Con cantidad en factura compra",FALSE);
+                                                              END;
+
+                                                   CaptionML=[ENU=Purchase invoice line type;
+                                                              ESP=Tipo l¡nea factura compra];
+                                                   OptionString=Todas,Sin tipo ,Con tipo }
+    { 26  ;   ;Con cantidad en factura compra;Boolean;
+                                                   OnValidate=BEGIN
+                                                                IF "Con cantidad en factura compra" AND ("Tipo l¡nea factura compra" = "Tipo l¡nea factura compra"::"Sin tipo ") THEN
+                                                                  ERROR('"Tipo l¡nea factura compra" no puede tener el valor "Sin tipo"');
+                                                              END;
+
+                                                   CaptionML=[ENU=With quantity in purchase invoice;
+                                                              ESP=Con cantidad en factura compra] }
+    { 27  ;   ;Descripcion Abono compra;Option    ;CaptionML=[ENU=Purchase credit memo description;
+                                                              ESP=Descripcion Abono compra];
+                                                   OptionString=Texto registro,Primera linea documento,N§ documento proveedor }
+    { 28  ;   ;Tipo l¡nea abono compra;Option     ;OnValidate=BEGIN
+                                                                IF "Tipo l¡nea abono compra" = "Tipo l¡nea abono compra"::"Sin tipo " THEN
+                                                                  VALIDATE("Con cantidad en abono compra",FALSE);
+                                                              END;
+
+                                                   CaptionML=[ENU=Purchase credit memo line type;
+                                                              ESP=Tipo l¡nea abono compra];
+                                                   OptionString=Todas,Sin tipo ,Con tipo }
+    { 29  ;   ;Con cantidad en abono compra;Boolean;
+                                                   OnValidate=BEGIN
+                                                                IF "Con cantidad en abono compra" AND ("Tipo l¡nea abono compra" = "Tipo l¡nea abono compra"::"Sin tipo ") THEN
+                                                                  ERROR('"Tipo l¡nea abono compra" no puede tener el valor "Sin tipo"');
+                                                              END;
+
+                                                   CaptionML=[ENU=With quantity in pruchase credit memo;
+                                                              ESP=Con cantidad en abono compra] }
+    { 30  ;   ;Guardar XML en ficheros;Boolean    ;CaptionML=[ENU=Save XML in a file;
+                                                              ESP=Guardar XML en ficheros] }
+    { 31  ;   ;Ruta XML envio      ;Text100       ;OnValidate=BEGIN
+                                                                "Ruta XML envio" := PonerSlash("Ruta XML envio");
+                                                              END;
+
+                                                   OnLookup=BEGIN
+                                                              "Ruta XML envio" := CogerRuta;
+                                                            END;
+
+                                                   CaptionML=[ENU=Request XML Path;
+                                                              ESP=Ruta XML envio] }
+    { 32  ;   ;Ruta XML respuesta  ;Text100       ;OnValidate=BEGIN
+                                                                "Ruta XML respuesta" := PonerSlash("Ruta XML respuesta");
+                                                              END;
+
+                                                   OnLookup=BEGIN
+                                                              "Ruta XML respuesta" := CogerRuta;
+                                                            END;
+
+                                                   CaptionML=[ENU=Response XML Path;
+                                                              ESP=Ruta XML respuesta] }
+    { 34  ;   ;No procesar 1S 2017 ;Boolean       ;CaptionML=[ENU=Not process H1 2017;
+                                                              ESP=No procesar 1S 2017] }
+    { 36  ;   ;Gesti¢n externa env¡os;Boolean     ;OnValidate=BEGIN
+                                                                IF "Gesti¢n externa env¡os" THEN
+                                                                  "Agrupar env¡os" := FALSE;
+                                                              END;
+
+                                                   CaptionML=[ENU=External request process;
+                                                              ESP=Gesti¢n externa env¡os] }
+    { 37  ;   ;Ruta XML envios externos;Text100   ;OnValidate=BEGIN
+                                                                "Ruta XML envios externos" := PonerSlash("Ruta XML envios externos");
+                                                              END;
+
+                                                   OnLookup=BEGIN
+                                                              "Ruta XML envios externos" := CogerRuta;
+                                                            END;
+
+                                                   CaptionML=[ENU=XML external request Path;
+                                                              ESP=Ruta XML envios externos] }
+    { 38  ;   ;Recepci¢n externa respuesta;Boolean;CaptionML=[ENU=External response;
+                                                              ESP=Recepci¢n externa respuesta] }
+    { 39  ;   ;Ruta XML recepci¢n externos;Text100;OnValidate=BEGIN
+                                                                "Ruta XML recepci¢n externos" := PonerSlash("Ruta XML recepci¢n externos");
+                                                              END;
+
+                                                   OnLookup=BEGIN
+                                                              "Ruta XML recepci¢n externos" := CogerRuta;
+                                                            END;
+
+                                                   CaptionML=[ENU=XML external response Path;
+                                                              ESP=Ruta XML recepci¢n externos] }
+    { 41  ;   ;Certificate         ;BLOB           }
+    { 42  ;   ;Enabled             ;Boolean       ;CaptionML=[ENU=Enabled;
+                                                              ESP=Habilitado];
+                                                   Editable=No }
+    { 43  ;   ;Password            ;Text100       ;CaptionML=[ENU=Password;
+                                                              ESP=Contrase¤a] }
+    { 44  ;   ;Encrypted           ;Boolean       ;Editable=No }
+    { 45  ;   ;Dimension1 as Company;Boolean      ;CaptionML=[ENU=Dimension1 as Company;
+                                                              ESP=Dimension1 como Empresa] }
+    { 47  ;   ;Path for tempfiles  ;Text100       ;OnValidate=BEGIN
+                                                                "Path for tempfiles" := PonerSlash("Path for tempfiles");
+                                                              END;
+
+                                                   OnLookup=BEGIN
+                                                              "Path for tempfiles" := CogerRuta;
+                                                            END;
+
+                                                   CaptionML=[ENU=Path for tempfiles;
+                                                              ESP=Ruta para ficheros temporales] }
+    { 50  ;   ;Rol modificacion SII;Code20        ;TableRelation="User Role";
+                                                   CaptionML=[ENU=SII modify Rol;
+                                                              ESP=Rol modificacion SII] }
+    { 60  ;   ;Creation date       ;Option        ;CaptionML=[ENU=Creation date;
+                                                              ESP=Fecha creacion];
+                                                   OptionCaptionML=[ENU=Creation date in table 45,Transfer date to SII module;
+                                                                    ESP=Fecha creacion en tabla 45,Fecha trapaso al modulo SII];
+                                                   OptionString=Creation date in table 45,Transfer date to SII module }
+    { 61  ;   ;Use creation date as posting;Boolean;
+                                                   CaptionML=[ENU=Use creation date as posting date;
+                                                              ESP=Usar fecha creacion como fecha registro] }
+    { 62  ;   ;Use document date in Sales;Boolean ;CaptionML=[ENU=Use document date in Sales;
+                                                              ESP=Usar fecha documento en Emitidas] }
+    { 63  ;   ;Document date       ;Option        ;CaptionML=[ENU=Document date;
+                                                              ESP=Fecha emisi¢n documento];
+                                                   OptionCaptionML=[ENU=Document date,Creation date in table 45,Transfer date to SII module;
+                                                                    ESP=Fecha emisi¢n documento,Fecha creacion en tabla 45,Fecha trapaso al modulo SII];
+                                                   OptionString=Document date,Creation date in table 45,Transfer date to SII module }
+    { 100 ;   ;Ult. mov. cli_prov proces;Integer  ;CaptionML=[ENU=Last Cus_Sup mov. process;
+                                                              ESP=Ult. mov. cli_prov proces];
+                                                   Editable=No }
+  }
+  KEYS
+  {
+    {    ;Clave primaria                          ;Clustered=Yes }
+  }
+  CODE
+  {
+    VAR
+      Text002@1100288000 : TextConst 'ENU=Choose folder;ESP=Elegir carpeta';
+      FunPer@1000000000 : Codeunit 88201;
+      EmptyTempBlob@1000000001 : TEMPORARY Record 79;
+      TempBlob@1000000002 : TEMPORARY Record 79;
+      TextCN@1000000004 : TextConst 'ESP="CN="';
+      TextC04@1100288003 : TextConst 'ESP=,';
+      CertificateImportedMsg@1000000005 : TextConst 'ENU=The certificate has been successfully imported.;ESP=El certificado ha sido importado correctamente.';
+      FileName@1000000006 : Text[1024];
+      CertificatePasswordErr@1000000007 : TextConst 'ENU=The certificate could not get loaded. The password for the certificate may be incorrect.;ESP=El certificado no puede ser cargado. Puede que la contrase¤a sea incorrecta.';
+      FunSII@1100288001 : Codeunit 88201;
+      ConfirmDelete@1100288002 : TextConst 'ENU=Delete certificate ?;ESP=Borrar certificado ?';
+      Comprobar@1100288004 : TextConst 'ENU=Check certificate load and unload ?;ESP=Comprobar carga y descarga del certificado ?';
+      CheckMsg@1100288006 : TextConst 'ENU=The certificate has been successfully load and unload.;ESP=El certificado ha sido cargado y descargado correctamente.';
+      CheckErr@1100288005 : TextConst 'ENU=The operation of load and unload failed, Check the user permissions.;ESP=La operaci¢n de carga y descarga no se ha podido realizar. Comporbar permisos usuario.';
+
+    PROCEDURE CogerRuta@1000000015() : Text[1024];
+    VAR
+      selShellControl@1000000006 : Automation "{50A7E9B0-70EF-11D1-B75A-00A0C90564FE} 1.0:{13709620-C279-11CE-A49E-444553540000}:'Microsoft Shell Controls And Automation'.Shell";
+      selFolder@1000000005 : Automation "{50A7E9B0-70EF-11D1-B75A-00A0C90564FE} 1.0:{A7AE5F64-C4D7-4D7F-9307-4D24EE54B841}:'Microsoft Shell Controls And Automation'.Folder3";
+      selSuccess@1000000004 : Boolean;
+      FolderItem@1000000003 : Automation "{50A7E9B0-70EF-11D1-B75A-00A0C90564FE} 1.0:{FAC32C80-CBE4-11CE-8350-444553540000}:'Microsoft Shell Controls And Automation'.FolderItem";
+      gbSuccess@1000000002 : Boolean;
+      gtPath@1000000001 : Text[1024];
+    BEGIN
+      gtPath := '';
+      CREATE(selShellControl);
+      selFolder := selShellControl.BrowseForFolder(0,Text002,0);
+
+      gbSuccess := NOT ISCLEAR(selFolder);
+      IF gbSuccess THEN BEGIN
+        FolderItem := selFolder.Self;
+        gtPath := FolderItem.Path;
+        gtPath := PonerSlash(gtPath);
+        CLEAR(selFolder);
+      END;
+
+      CLEAR(selShellControl);
+      EXIT(gtPath);
+    END;
+
+    PROCEDURE PonerSlash@1000000002(gtPath@1000000000 : Text[1024]) : Text[1024];
+    BEGIN
+      IF (gtPath <> '') THEN
+        IF (COPYSTR(gtPath, STRLEN(gtPath), 1) <> '\') THEN
+          gtPath := gtPath + '\';
+      EXIT(gtPath);
+    END;
+
+    PROCEDURE ImportCertificate@1000000003();
+    VAR
+      NombreCert@1000000000 : Text[50];
+      qPos@1000000001 : Integer;
+    BEGIN
+      // Importar Certificado
+      TempBlob.Picture.IMPORT(FileName, TRUE);
+
+      VALIDATE("ID Certificado", '');
+      IF Certificate.HASVALUE THEN BEGIN
+        EmptyTempBlob.INIT;
+        Certificate := EmptyTempBlob.Picture;
+        MODIFY(TRUE);
+      END;
+
+      Certificate := TempBlob.Picture;
+      CALCFIELDS(Certificate);
+      ValidateCertificatePassword;
+      Enabled := TRUE;
+      MODIFY(TRUE);
+      MESSAGE(CertificateImportedMsg);
+    END;
+
+    PROCEDURE DeleteCertificate@1000000004();
+    BEGIN
+      IF NOT CONFIRM(ConfirmDelete, FALSE) THEN
+        EXIT;
+      IF Certificate.HASVALUE THEN BEGIN
+        EmptyTempBlob.INIT;
+        Certificate := EmptyTempBlob.Picture;
+        MODIFY(TRUE);
+      END;
+      Password := '';
+      Encrypted := FALSE;
+      VALIDATE("ID Certificado", '');
+      VALIDATE(Enabled,FALSE);
+      MODIFY(TRUE);
+    END;
+
+    PROCEDURE LoadCertificateFromBLOB@1000000012() : Boolean;
+    VAR
+      NombreCert@1000000001 : Text[50];
+      qPos@1000000000 : Integer;
+      PasarDatos@1100288000 : Boolean;
+      regCert@1100288001 : TEMPORARY Record 88203;
+    BEGIN
+      CALCFIELDS(Certificate);
+      IF NOT Certificate.HASVALUE OR (Password = '') THEN
+        EXIT(FALSE);
+
+      FileName := FunSII.ClientTempFileName('', 'TMP');
+      Certificate.EXPORT(FileName, FALSE);
+
+      PasarDatos := ("ID Certificado" = '');
+
+      IF Encrypted THEN
+        GetCertificate(regCert, FileName, Decrypt(Password), PasarDatos)
+      ELSE
+        GetCertificate(regCert, FileName, Password, PasarDatos);
+
+      IF PasarDatos THEN BEGIN
+        "ID Certificado"     := regCert.Certificado;
+        "Nombre certificado" := regCert.Nombre;
+        "Valido desde"       := regCert."Valido desde";
+        "Valido hasta"       := regCert."Valido hasta";
+        "Huella digital"     := regCert."Huella Digital";
+
+        IF Password = Decrypt(Encrypt(Password)) THEN BEGIN
+          Password           := Encrypt(Password);
+          Encrypted          := TRUE;
+        END;
+      END;
+
+      EXIT(TRUE);
+    END;
+
+    PROCEDURE ValidateCertificatePassword@1000000007();
+    VAR
+      Cert@1000000000 : Record 88203;
+    BEGIN
+      IF NOT LoadCertificateFromBLOB() THEN
+        ERROR(CertificatePasswordErr);
+    END;
+
+    PROCEDURE Encrypt@1000000000(Cadena@1000000000 : Text[100]) : Text[100];
+    VAR
+      CadSal@1000000001 : Text[100];
+      i@1000000002 : Integer;
+      Valor@1000000003 : Integer;
+    BEGIN
+      CadSal := Cadena;
+      FOR i := 1 TO STRLEN(Cadena) DO BEGIN
+        Valor := Cadena[i]+"Huella digital"[i];
+        Valor := Valor MOD 255;
+        CadSal[i] := Valor;
+      END;
+      EXIT(CadSal);
+    END;
+
+    PROCEDURE Decrypt@1000000001(Cadena@1000000000 : Text[100]) : Text[100];
+    VAR
+      CadSal@1000000003 : Text[100];
+      i@1000000002 : Integer;
+      Valor@1000000001 : Integer;
+    BEGIN
+      CadSal := Cadena;
+      FOR i := 1 TO STRLEN(Cadena) DO BEGIN
+        Valor := Cadena[i]-"Huella digital"[i];
+        Valor := Valor MOD 255;
+        CadSal[i] := Valor;
+      END;
+      EXIT(CadSal);
+    END;
+
+    PROCEDURE GetCertificate@1100288001(VAR recCert@1100288005 : Record 88203;pfxpath@1100288001 : Text[1024];password@1100288002 : Text[100];PasarDatos@1100288008 : Boolean);
+    VAR
+      Cert@1100288004 : Automation "{BD26B198-EE42-4725-9B23-AFA912434229} 2.1:{9171C115-7DD9-46BA-B1E5-0ED50AFFC1B8}:'CAPICOM v2.1 Type Library'.Certificate";
+      Store@1100288003 : Automation "{BD26B198-EE42-4725-9B23-AFA912434229} 2.1:{91D221C4-0CD4-461C-A728-01D509321556}:'CAPICOM v2.1 Type Library'.Store";
+      PrivateKey@1100288000 : Automation "{BD26B198-EE42-4725-9B23-AFA912434229} 2.1:{03ACC284-B757-4B8F-9951-86E600D2CD06}:'CAPICOM v2.1 Type Library'.PrivateKey";
+      qPos@1100288006 : Integer;
+      NombreCert@1100288007 : Text[250];
+    BEGIN
+      IF ISCLEAR(Store) THEN
+        CREATE(Store);
+
+      IF ISCLEAR(Cert) THEN
+        CREATE(Cert);
+
+      Store.Open(2, 'My', 2);
+      Cert.Load(pfxpath, password, 0);
+      Store.Add(Cert);
+
+      IF PasarDatos THEN BEGIN
+        recCert.Certificado := COPYSTR(Cert.SerialNumber, 1, MAXSTRLEN(recCert.Certificado));
+        recCert."N§ serie"  := COPYSTR(Cert.SerialNumber, 1, MAXSTRLEN(recCert."N§ serie"));
+        recCert.Emisor      := COPYSTR(Cert.IssuerName, 1, MAXSTRLEN(recCert.Emisor));
+        NombreCert          := COPYSTR(Cert.SubjectName, 1, MAXSTRLEN(recCert.Nombre));
+
+        qPos := STRPOS(NombreCert, TextCN);
+        IF qPos <> 0 THEN
+          NombreCert := COPYSTR(NombreCert, qPos+STRLEN(TextCN));
+        qPos := STRPOS(NombreCert, TextC04);
+        IF qPos <> 0 THEN
+          NombreCert := COPYSTR(NombreCert, 1, qPos-1);
+        recCert.Nombre           := NombreCert;
+
+        recCert."Valido desde"   := Cert.ValidFromDate;
+        recCert."Valido hasta"   := Cert.ValidToDate;
+        recCert."Huella Digital" := Cert.Thumbprint;
+        PrivateKey               := Cert.PrivateKey;
+        recCert."Clave privada"  := NOT PrivateKey.IsExportable;
+
+      END;
+    END;
+
+    PROCEDURE DropCertificate@1100288000() : Boolean;
+    VAR
+      Cert@1100288004 : Automation "{BD26B198-EE42-4725-9B23-AFA912434229} 2.1:{9171C115-7DD9-46BA-B1E5-0ED50AFFC1B8}:'CAPICOM v2.1 Type Library'.Certificate";
+      Store@1100288003 : Automation "{BD26B198-EE42-4725-9B23-AFA912434229} 2.1:{91D221C4-0CD4-461C-A728-01D509321556}:'CAPICOM v2.1 Type Library'.Store";
+    BEGIN
+      IF NOT Certificate.HASVALUE OR (Password = '') THEN
+        EXIT(FALSE);
+
+      FileName := FunSII.ClientTempFileName('', 'TMP');
+      Certificate.EXPORT(FileName, FALSE);
+
+      IF ISCLEAR(Store) THEN
+        CREATE(Store);
+
+      IF ISCLEAR(Cert) THEN
+        CREATE(Cert);
+
+      Store.Open(2, 'My', 2);
+      IF Encrypted THEN
+        Cert.Load(FileName, Decrypt(Password), 0)
+      ELSE
+        Cert.Load(FileName, Password, 0);
+      Store.Remove(Cert);
+
+      EXIT(TRUE);
+    END;
+
+    PROCEDURE CheckLoadUnLoadCert@1100288002();
+    VAR
+      Correcto@1100288000 : Boolean;
+    BEGIN
+      IF CONFIRM(Comprobar, FALSE) THEN BEGIN
+        Correcto := FALSE;
+        IF LoadCertificateFromBLOB THEN
+          Correcto := DropCertificate;
+
+        IF Correcto THEN
+          MESSAGE(CheckMsg)
+        ELSE
+          MESSAGE(CheckErr);
+      END;
+    END;
+
+    BEGIN
+    END.
+  }
+}

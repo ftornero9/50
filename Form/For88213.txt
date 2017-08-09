@@ -1,0 +1,357 @@
+OBJECT Form 88213 Det. Op. Intracomunitarias SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=20/07/17;
+    Time=16:55:04;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    Width=16500;
+    Height=6710;
+    CaptionML=[ENU=SII certain intra-community op.;
+               ESP=Det. Op. Intracomunitarias SII];
+    InsertAllowed=No;
+    DeleteAllowed=No;
+    TableBoxID=1000000000;
+    SourceTable=Table88208;
+    SourceTableView=SORTING(TipoSII,Bien de inversion,Tipo,Documento,Fecha)
+                    WHERE(TipoSII=FILTER(E|R),
+                          Tipo=CONST(OpInt));
+  }
+  CONTROLS
+  {
+    { 1000000000;TableBox;220 ;220  ;16060;5500 ;HorzGlue=Both;
+                                                 VertGlue=Both;
+                                                 HeadingHeight=1210 }
+    { 1000000001;TextBox;0    ;0    ;2143 ;0    ;Editable=No;
+                                                 ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Documento }
+    { 1000000002;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000001;
+                                                 InColumnHeading=Yes }
+    { 1000000003;TextBox;0    ;0    ;1700 ;0    ;Editable=No;
+                                                 ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Fecha }
+    { 1000000004;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000003;
+                                                 InColumnHeading=Yes }
+    { 1000000061;CheckBox;3096;880  ;947  ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr="No enviar" }
+    { 1000000062;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000061;
+                                                 InColumnHeading=Yes }
+    { 1000000005;TextBox;0    ;0    ;2267 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=NIF }
+    { 1000000006;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000005;
+                                                 InColumnHeading=Yes }
+    { 1000000007;TextBox;0    ;0    ;4400 ;0    ;HorzGlue=Both;
+                                                 ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=RazonSocial }
+    { 1000000008;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000007;
+                                                 InColumnHeading=Yes }
+    { 1000000013;TextBox;0    ;0    ;1700 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=NumTercero }
+    { 1000000014;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000013;
+                                                 InColumnHeading=Yes }
+    { 1000000055;TextBox;13706;770  ;990  ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=IDTipo }
+    { 1000000056;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000055;
+                                                 InColumnHeading=Yes }
+    { 1000000057;TextBox;14711;660  ;990  ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Cod. pais" }
+    { 1000000058;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000057;
+                                                 InColumnHeading=Yes }
+    { 1000000063;TextBox;14685;660  ;1700 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Tipo operacion intracomu." }
+    { 1000000064;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000063;
+                                                 InColumnHeading=Yes }
+    { 1000000065;TextBox;16385;660  ;1700 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Clave declarado intracomu." }
+    { 1000000066;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000065;
+                                                 InColumnHeading=Yes }
+    { 1000000067;TextBox;18256;880  ;4400 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Identificacion Bien" }
+    { 1000000068;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000067;
+                                                 InColumnHeading=Yes }
+    { 1000000059;TextBox;15611;660  ;4400 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=DireccionOperador }
+    { 1000000060;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000059;
+                                                 InColumnHeading=Yes }
+    { 1000000037;TextBox;26908;2750 ;1937 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Estado env¡o" }
+    { 1000000038;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000037;
+                                                 InColumnHeading=Yes }
+    { 1000000049;TextBox;45108;2750 ;1436 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Tipo envio" }
+    { 1000000050;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000049;
+                                                 InColumnHeading=Yes }
+    { 1000000051;TextBox;45658;2750 ;1700 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Env¡os }
+    { 1000000052;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000051;
+                                                 InColumnHeading=Yes }
+    { 1000000039;TextBox;27458;2750 ;2750 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Timestamp presentaci¢n" }
+    { 1000000040;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000039;
+                                                 InColumnHeading=Yes }
+    { 1000000041;TextBox;30208;2750 ;1700 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Tipo comunicaci¢n" }
+    { 1000000042;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000041;
+                                                 InColumnHeading=Yes }
+    { 1000000043;TextBox;31908;2750 ;4400 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=CSV }
+    { 1000000044;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000043;
+                                                 InColumnHeading=Yes }
+    { 1000000045;TextBox;36308;2750 ;4400 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Codigo Error" }
+    { 1000000046;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000045;
+                                                 InColumnHeading=Yes }
+    { 1000000047;TextBox;40708;2750 ;4400 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Descripcion Error" }
+    { 1000000048;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000047;
+                                                 InColumnHeading=Yes }
+    { 1000000023;CommandButton;4400;5940;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 Default=Yes;
+                                                 PushAction=LookupOK;
+                                                 InvalidActionAppearance=Hide }
+    { 1000000024;CommandButton;6820;5940;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 Cancel=Yes;
+                                                 PushAction=LookupCancel;
+                                                 InvalidActionAppearance=Hide }
+    { 1000000025;CommandButton;14080;5940;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 PushAction=FormHelp }
+    { 1000000009;MenuButton;9240;5940;2200;550  ;HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 CaptionML=ESP=Acciones;
+                                                 Menu=MENUITEMS
+                                                 {
+                                                   { ID=1000000012;
+                                                     CaptionML=ESP=Enviar;
+                                                     OnPush=VAR
+                                                              qRec@1000000002 : Record 88208;
+                                                            BEGIN
+                                                              qEmpresa := GblSII.GetGblEmpresa;
+                                                              IF qEmpresa <> '' THEN BEGIN
+                                                                qRec.CHANGECOMPANY(qEmpresa);
+                                                                CfgSII.CHANGECOMPANY(qEmpresa);
+                                                              END;
+
+                                                              CfgSII.GET;
+                                                              CfgSII."Agrupar env¡os" := FALSE;
+
+                                                              IF CfgSII."Agrupar env¡os" OR CfgSII."Gesti¢n externa env¡os" THEN BEGIN
+                                                                tmpDocSII.DELETEALL;
+                                                                DT := CURRENTDATETIME;
+                                                                CurrForm.SETSELECTIONFILTER(qRec);
+                                                                IF qRec.FIND('-') THEN  REPEAT
+                                                                  tmpDocSII.NMov := qRec.NMov;
+                                                                  tmpDocSII.INSERT;
+                                                                UNTIL qRec.NEXT = 0;
+                                                                IF CfgSII."Agrupar env¡os" THEN
+                                                                  FunSII.EnviarOpIntracAgrupados(tmpDocSII)
+                                                                ELSE
+                                                                  FileName := FunSII.GenXMLOpIntracAgrupados(tmpDocSII, 2);
+                                                                  IF FileName <> '' THEN
+                                                                    MESSAGE(Text002, FileName);
+                                                              END ELSE BEGIN
+                                                                CurrForm.SETSELECTIONFILTER(qRec);
+                                                                IF qRec.FIND('-') THEN  REPEAT
+                                                                  FunSII.EnviarOpIntracomunitaria(qRec);
+                                                                UNTIL qRec.NEXT = 0;
+                                                              END;
+                                                            END;
+                                                             }
+                                                   { ID=1000000015;
+                                                     MenuItemType=Separator }
+                                                   { ID=1000000026;
+                                                     CaptionML=ESP=Consultar }
+                                                   { ID=1100288000;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Periodo;
+                                                     OnPush=BEGIN
+                                                              NIF := '';
+                                                              RazonSocial := '';
+                                                              FunSII.ConOpIntracomunitaria(Rec);
+                                                            END;
+                                                             }
+                                                   { ID=1100288001;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Periodo y NIF;
+                                                     OnPush=BEGIN
+                                                              FunSII.ConOpIntracomunitaria(Rec);
+                                                            END;
+                                                             }
+                                                   { ID=1000000027;
+                                                     MenuItemType=Separator }
+                                                   { ID=1000000028;
+                                                     CaptionML=ESP=XML }
+                                                   { ID=1000000029;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Ver;
+                                                     OnPush=BEGIN
+                                                              qEmpresa := GblSII.GetGblEmpresa;
+                                                              IF qEmpresa <> '' THEN BEGIN
+                                                                CfgSII.CHANGECOMPANY(qEmpresa);
+                                                                qRec.CHANGECOMPANY(qEmpresa);
+                                                              END;
+
+                                                              CfgSII.GET;
+                                                              IF CfgSII."Agrupar env¡os" OR CfgSII."Gesti¢n externa env¡os" THEN BEGIN
+                                                                tmpDocSII.DELETEALL;
+                                                                CurrForm.SETSELECTIONFILTER(qRec);
+                                                                IF qRec.FIND('-') THEN  REPEAT
+                                                                  tmpDocSII.NMov := qRec.NMov;
+                                                                  tmpDocSII.INSERT;
+                                                                UNTIL qRec.NEXT = 0;
+                                                                FunSII.GenXMLOpIntracAgrupados(tmpDocSII, 0);
+                                                              END  ELSE BEGIN
+                                                                FunSII.GenerarXMLOpIntracomunitaria(Rec, FALSE);
+                                                              END;
+                                                            END;
+                                                             }
+                                                   { ID=1000000030;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Exportar;
+                                                     OnPush=BEGIN
+                                                              qEmpresa := GblSII.GetGblEmpresa;
+                                                              IF qEmpresa <> '' THEN BEGIN
+                                                                CfgSII.CHANGECOMPANY(qEmpresa);
+                                                                qRec.CHANGECOMPANY(qEmpresa);
+                                                              END;
+
+                                                              CfgSII.GET;
+                                                              IF CfgSII."Agrupar env¡os" OR CfgSII."Gesti¢n externa env¡os" THEN BEGIN
+                                                                tmpDocSII.DELETEALL;
+                                                                CurrForm.SETSELECTIONFILTER(qRec);
+                                                                IF qRec.FIND('-') THEN  REPEAT
+                                                                  tmpDocSII.NMov := qRec.NMov;
+                                                                  tmpDocSII.INSERT;
+                                                                UNTIL qRec.NEXT = 0;
+                                                                FunSII.GenXMLOpIntracAgrupados(tmpDocSII, 1);
+                                                              END  ELSE BEGIN
+                                                                FunSII.GenerarXMLOpIntracomunitaria(Rec, TRUE);
+                                                              END;
+                                                            END;
+                                                             }
+                                                   { ID=1000000031;
+                                                     MenuItemType=Separator }
+                                                   { ID=1000000032;
+                                                     CaptionML=ESP=Comprobar NIF;
+                                                     OnPush=VAR
+                                                              qRec@1100288000 : Record 88208;
+                                                            BEGIN
+                                                              qEmpresa := GblSII.GetGblEmpresa;
+                                                              IF qEmpresa <> '' THEN
+                                                                qRec.CHANGECOMPANY(qEmpresa);
+
+                                                              CurrForm.SETSELECTIONFILTER(qRec);
+                                                              IF qRec.FIND('-') THEN  REPEAT
+                                                                WSSII.CalidadDatos(qRec.NIF, qRec.RazonSocial, FALSE, qRec.NMov);
+                                                              UNTIL qRec.NEXT = 0;
+                                                            END;
+                                                             }
+                                                   { ID=1000000033;
+                                                     MenuItemType=Separator }
+                                                   { ID=1000000034;
+                                                     CaptionML=ESP=Anular;
+                                                     OnPush=VAR
+                                                              qRec@1100288000 : Record 88208;
+                                                            BEGIN
+                                                              qEmpresa := GblSII.GetGblEmpresa;
+                                                              IF qEmpresa <> '' THEN BEGIN
+                                                                qRec.CHANGECOMPANY(qEmpresa);
+                                                              END;
+
+                                                              IF CONFIRM(Text001, FALSE) THEN BEGIN
+                                                                DT := CURRENTDATETIME;
+                                                                CurrForm.SETSELECTIONFILTER(qRec);
+                                                                IF qRec.FIND('-') THEN  REPEAT
+                                                                  FunSII.AnularOpIntracomunitaria(qRec, DT);
+                                                                UNTIL qRec.NEXT = 0;
+                                                              END;
+                                                            END;
+                                                             }
+                                                 }
+                                                  }
+    { 1000000010;CommandButton;1320;5940;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 Visible=No;
+                                                 CaptionML=ESP=Datos;
+                                                 OnPush=VAR
+                                                          DocuSII@1000000000 : Record 88205;
+                                                          qEmpresa@1000000001 : Text[30];
+                                                        BEGIN
+                                                          {
+                                                          qEmpresa := GblSII.GetGblEmpresa;
+                                                          IF qEmpresa <> '' THEN
+                                                            DocuSII.CHANGECOMPANY(qEmpresa);
+
+                                                          IF NOT DocuSII.GET(DocuSII.Tipo::FV, Documento) THEN BEGIN
+                                                            DocuSII.INIT;
+                                                            DocuSII.Tipo      := DocuSII.Tipo::FV;
+                                                            DocuSII.Documento := "N§";
+                                                            DocuSII.Fecha     := "Fecha registro";
+                                                            DocuSII.INSERT;
+                                                          END;
+
+                                                          DocuSII.SETRANGE(Tipo, DocuSII.Tipo::FV);
+                                                          DocuSII.SETRANGE(Documento, "N§");
+                                                          FORM.RUN(FORM::"Documentos SII", DocuSII);
+                                                          }
+                                                        END;
+                                                         }
+    { 1000000011;CommandButton;11660;5940;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 CaptionML=ESP=&Navegar;
+                                                 OnPush=BEGIN
+                                                          Navegar;
+                                                        END;
+                                                         }
+  }
+  CODE
+  {
+    VAR
+      qEmpresa@1000000000 : Text[30];
+      GblSII@1000000001 : Codeunit 88200;
+      FunSII@1000000002 : Codeunit 88201;
+      WSSII@1000000003 : Codeunit 88202;
+      Text001@1000000004 : TextConst 'ESP=Ejecutar proceso de anulaci¢n';
+      CfgSII@1000000009 : Record 88201;
+      DT@1000000008 : DateTime;
+      tmpDocSII@1000000007 : TEMPORARY Record 88208;
+      FileName@1000000006 : Text[1024];
+      qRec@1000000005 : Record 88208;
+      Text002@1000000010 : TextConst 'ENU=File %1, created.;ESP=Fichero %1, creado.';
+
+    BEGIN
+    END.
+  }
+}

@@ -1,0 +1,61 @@
+OBJECT Table 88205 Config. Certificados SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=23/06/17;
+    Time=11:37:07;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    DataPerCompany=No;
+    OnInsert=BEGIN
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnModify=BEGIN
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnDelete=BEGIN
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnRename=BEGIN
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    CaptionML=[ENU=SII certificates config.;
+               ESP=Config. Certificados SII];
+  }
+  FIELDS
+  {
+    { 1   ;   ;CLAVE               ;Code10        ;CaptionML=[ENU=KEY;
+                                                              ESP=CLAVE] }
+    { 2   ;   ;Servidor ftp        ;Text30        ;CaptionML=[ENU=FTP server;
+                                                              ESP=Servidor ftp] }
+    { 3   ;   ;Usuario SII         ;Text30        ;CaptionML=[ENU=SII user;
+                                                              ESP=Usuario SII] }
+    { 4   ;   ;Password SII        ;Text30        ;CaptionML=[ENU=SII user password;
+                                                              ESP=Password SII] }
+    { 5   ;   ;Path env¡os         ;Text150       ;CaptionML=[ENU=Shipment path;
+                                                              ESP=Path env¡os] }
+    { 50000;  ;Path SII            ;Text150       ;CaptionML=[ENU=SII path;
+                                                              ESP=Path SII] }
+    { 50001;  ;Contrase¤a SII      ;Text30        ;CaptionML=[ENU=SII password;
+                                                              ESP=Contrase¤a SII] }
+  }
+  KEYS
+  {
+    {    ;CLAVE                                   ;Clustered=Yes }
+  }
+  CODE
+  {
+    VAR
+      FunPer@1000000000 : Codeunit 88201;
+
+    BEGIN
+    END.
+  }
+}

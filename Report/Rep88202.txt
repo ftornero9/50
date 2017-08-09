@@ -1,0 +1,378 @@
+OBJECT Report 88202 Cargar documentos externos SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=21/07/17;
+    Time=17:50:54;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    ProcessingOnly=Yes;
+    OnPostReport=BEGIN
+                   IF GUIALLOWED THEN
+                     MESSAGE('Proceso terminado');
+                 END;
+
+  }
+  DATAITEMS
+  {
+    { PROPERTIES
+      {
+        DataItemTable=Table2000000026;
+        DataItemTableView=SORTING(Number)
+                          WHERE(Number=CONST(1));
+        OnAfterGetRecord=BEGIN
+                           LeerFichero(Fichero);
+                         END;
+
+      }
+      SECTIONS
+      {
+        { PROPERTIES
+          {
+            SectionType=Body;
+            SectionWidth=12000;
+            SectionHeight=846;
+          }
+          CONTROLS
+          {
+          }
+           }
+      }
+       }
+  }
+  REQUESTFORM
+  {
+    PROPERTIES
+    {
+      Width=9020;
+      Height=3410;
+      SaveValues=Yes;
+    }
+    CONTROLS
+    {
+      { 1000000002;TextBox;3630 ;220  ;5170 ;440  ;InPage=-1;
+                                                   CaptionML=ESP=Fichero;
+                                                   SourceExpr=Fichero;
+                                                   OnAssistEdit=BEGIN
+                                                                  // Elegir fichero
+                                                                  Fichero := FunSII.OpenFile('Elegir fichero:', '', 6, '*.CSV', 0);
+                                                                END;
+                                                                 }
+      { 1000000003;Label  ;220  ;220  ;3300 ;440  ;ParentControl=1000000002;
+                                                   InPage=-1 }
+    }
+  }
+  CODE
+  {
+    VAR
+      Fichero@1000000000 : Text[1024];
+      NumDoc@1000000001 : Code[20];
+      GblSII@1000000002 : Codeunit 88200;
+      qEmpresa@1000000003 : Text[30];
+      Sep@1000000004 : TextConst 'ESP=";"';
+      FunSII@1100288000 : Codeunit 88201;
+
+    PROCEDURE LeerFichero@1000000000(Fichero@1000000000 : Text[1024]);
+    VAR
+      qFile@1000000001 : File;
+      Linea@1000000002 : Text[1024];
+      memIntSII@1000000005 : Record 88202;
+      FunCargaSII@1000000003 : Codeunit 88204;
+      FVR@1000000004 : Record 112;
+      MovIVA@1000000006 : Record 254;
+      TxtError@1000000007 : Text[250];
+      qValor@1000000009 : Text[1024];
+      qFecha@1000000010 : Date;
+      qDec@1000000011 : Decimal;
+      qInt@1000000012 : Integer;
+      Vent@1000000008 : Dialog;
+      i@1000000013 : Integer;
+    BEGIN
+      IF GUIALLOWED THEN
+        Vent.OPEN('Leyendo fichero: #1######');
+      i := 0;
+      qFile.TEXTMODE := TRUE;
+      IF qFile.OPEN(Fichero) THEN BEGIN
+        WHILE qFile.POS < qFile.LEN DO BEGIN
+          qFile.READ(Linea);
+          i := i +1 ;
+          IF GUIALLOWED THEN
+            Vent.UPDATE(1, i);
+          qValor := Entry(2, Linea, Sep);
+          IF NumDoc <> qValor THEN BEGIN
+            CLEAR(memIntSII);
+            NumDoc := qValor;
+            memIntSII.Documento := NumDoc;
+            qValor := Entry(1, Linea, Sep);
+            IF qValor = 'Factura Emitida' THEN
+              memIntSII.TipoSII := memIntSII.TipoSII::E
+            ELSE
+              memIntSII.TipoSII := memIntSII.TipoSII::R;
+
+            qValor := Entry(3, Linea, Sep);
+            memIntSII."Tipo factura" := qValor;
+
+            qValor := Entry(4, Linea, Sep);
+            memIntSII."Tipo factura rectificativa" := qValor;
+
+            qValor := Entry(5, Linea, Sep);
+            IF EVALUATE(qInt, qValor) THEN
+              memIntSII."Clave operacion" := qInt;
+
+            qValor := Entry(6, Linea, Sep);
+            IF (qValor <> '02') AND (qValor <> '2') THEN
+              memIntSII.IDOtro := TRUE;
+
+            qValor := Entry(7, Linea, Sep);
+
+            IF EVALUATE(memIntSII."Tipo IVA", qValor) THEN;
+
+            qValor := Entry(8, Linea, Sep);
+            memIntSII.Sujeta_NoExenta := qValor;
+
+            qValor := Entry(9, Linea, Sep);
+            memIntSII.NIF := qValor;
+
+            qValor := Entry(10, Linea, Sep);
+            memIntSII.RazonSocial := qValor;
+
+            qValor := Entry(12, Linea, Sep);
+            memIntSII.TextoRegistro := qValor;
+
+            qValor := Entry(11, Linea, Sep);
+            IF EVALUATE(qFecha, qValor) THEN
+              memIntSII.Fecha := qFecha;
+
+            qValor := Entry(17, Linea, Sep);
+            memIntSII.DocumentoTercero := qValor;
+
+            qValor := Entry(18, Linea, Sep);
+            IF EVALUATE(qFecha, qValor) THEN
+              memIntSII."Fecha documento" := qFecha;
+
+            qValor := Entry(19, Linea, Sep);
+            memIntSII."Factura corregida" := qValor;
+
+            qValor := Entry(20, Linea, Sep);
+            IF EVALUATE(qFecha, qValor) THEN
+              memIntSII."Fecha factura corregida" := qFecha;
+            {
+            qValor := Entry(21, Linea, Sep);
+            IF qValor <> '' THEN
+             memIntSII."Factura corregida" := qValor;
+
+            qValor := Entry(22, Linea, Sep);
+            IF EVALUATE(qFecha, qValor) THEN
+              IF qFecha <> 0D THEN
+                memIntSII."Fecha factura corregida" := qFecha;
+            }
+            qValor := Entry(23, Linea, Sep);
+            IF EVALUATE(qDec, qValor) THEN
+             memIntSII."Base rectificada" := qDec;
+
+            qValor := Entry(24, Linea, Sep);
+            IF EVALUATE(qDec, qValor) THEN
+             memIntSII."Cuota rectificada" := qDec;
+
+            qValor := Entry(25, Linea, Sep);
+            memIntSII."Cod. pais" := qValor;
+
+            qValor := Entry(26, Linea, Sep);
+            IF EVALUATE(qFecha, qValor) THEN
+              IF qFecha <> 0D THEN
+                memIntSII."Creation date" := qFecha;
+
+            qValor := Entry(27, Linea, Sep);
+            IF EVALUATE(qFecha, qValor) THEN
+              IF qFecha <> 0D THEN
+                memIntSII."Fecha operacion" := qFecha;
+
+            IF memIntSII.TipoSII = memIntSII.TipoSII::E THEN BEGIN
+              IF memIntSII."Fecha documento" = 0D THEN
+                memIntSII."Fecha documento" := memIntSII.Fecha;
+              IF memIntSII."Fecha operacion" = 0D THEN
+                memIntSII."Fecha operacion" := memIntSII.Fecha;
+            END;
+
+            IF memIntSII.TipoSII = memIntSII.TipoSII::R THEN BEGIN
+              IF memIntSII."Fecha documento" = 0D THEN
+                memIntSII."Fecha documento" := memIntSII.Fecha;
+              IF memIntSII."Fecha operacion" = 0D THEN
+                memIntSII."Fecha operacion" := memIntSII."Fecha documento";
+              IF memIntSII.DocumentoTercero = '' THEN
+                memIntSII.DocumentoTercero := memIntSII.Documento;
+            END;
+
+            // A partir de la columna 31 entendemos que vienen los datos de determinadas operaciones intracomuntarias
+
+            qValor := Entry(31, Linea, Sep); // TipoOperacion
+            memIntSII."Tipo operacion intracomu." := qValor;
+
+            qValor := Entry(32, Linea, Sep); // CalveDeclarada
+            memIntSII."Clave declarado intracomu." := qValor;
+
+            qValor := Entry(33, Linea, Sep); // DescripcioinBienes
+            memIntSII."Identificacion Bien" := qValor;
+
+            qValor := Entry(34, Linea, Sep); // DireccionOperador
+            memIntSII.DireccionOperador := qValor;
+
+            IF memIntSII."Tipo operacion intracomu." <> '' THEN
+              memIntSII.TipoDocumento := memIntSII.TipoDocumento::OpInt;
+
+            // A partir de la columna 31 entendemos que vienen los datos de determinadas operaciones intracomuntarias
+
+            CogerDatos(Linea, memIntSII);
+
+          END ELSE BEGIN // S¢lo l¡neas
+            memIntSII.Tipo := memIntSII.Tipo::Lineas;
+            CogerDatos(Linea, memIntSII);
+          END;
+
+          FunCargaSII.CargarDocSII(memIntSII, TRUE);
+        END;
+      END;
+    END;
+
+    PROCEDURE CogerDatos@1000000014(Linea@1000000000 : Text[1024];VAR memIntSII@1000000001 : Record 88202);
+    VAR
+      qValor@1000000004 : Text[1024];
+      qDec@1000000002 : Decimal;
+    BEGIN
+      //memIntSII."Grupo registro IVA neg."   := MovIVa."Grupo registro IVA neg.";
+      //memIntSII."Grupo registro IVA prod."  := MovIVa."Grupo registro IVA prod.";
+      //qValor := Entry(7, Linea, Sep);
+      //  memIntSII."Tipo IVA" := qValor;
+      qValor := Entry(13, Linea, Sep);
+      IF EVALUATE(qDec, qValor) THEN
+        memIntSII.BaseIVA := qDec;
+      qValor := Entry(14, Linea, Sep);
+      IF EVALUATE(qDec, qValor) THEN BEGIN
+        memIntSII.ImporteIVA := qDec;
+        memIntSII.OrigenImporteIVA := qDec;
+      END;
+      qValor := Entry(15, Linea, Sep);
+      IF EVALUATE(qDec, qValor) THEN
+        memIntSII."%IVA"  := qDec;
+
+      qValor := Entry(21, Linea, Sep); // Cuota Deducible antes 26
+      IF EVALUATE(qDec, qValor) THEN
+        memIntSII.ImporteIVA := qDec;
+
+      qValor := Entry(22, Linea, Sep); // Recargo de equivalencia antes 27
+      IF EVALUATE(qDec, qValor) THEN
+        memIntSII.ImporteRE := qDec;
+    END;
+
+    PROCEDURE CogerDatosFicha@1000000015();
+    BEGIN
+    END;
+
+    PROCEDURE CalcImpRE@1000000003(VATEntry@1000000000 : Record 254) : Decimal;
+    VAR
+      Importe@1000000001 : Decimal;
+    BEGIN
+      // Recargo de equivalencia
+      IF (VATEntry."EC %" <> 0) THEN
+        Importe := (VATEntry.Base*VATEntry."EC %")/100
+      ELSE
+        Importe := 0;
+      EXIT(Importe);
+    END;
+
+    PROCEDURE Sujeta@1000000025(MemFacturaE@1000000000 : TEMPORARY Record 88202) : Boolean;
+    BEGIN
+      EXIT(MemFacturaE."Tipo IVA" <> MemFacturaE."Tipo IVA"::"No sujeto");
+    END;
+
+    PROCEDURE SujetaNoExenta@1100013(MemFacturaE@1000000000 : TEMPORARY Record 88202) : Boolean;
+    VAR
+      FactVta@1100002 : Record 112;
+      AboVta@1100001 : Record 114;
+    BEGIN
+      EXIT((MemFacturaE."Tipo IVA" = MemFacturaE."Tipo IVA"::Normal) OR
+          (MemFacturaE."Tipo IVA" = MemFacturaE."Tipo IVA"::Reversi¢n));
+    END;
+
+    PROCEDURE SujetaExenta@1100016(MemFacturaE@1000000000 : TEMPORARY Record 88202) : Boolean;
+    VAR
+      FactVta@1100002 : Record 112;
+      AboVta@1100001 : Record 114;
+    BEGIN
+      EXIT(MemFacturaE."Tipo IVA" = MemFacturaE."Tipo IVA"::Exento);
+    END;
+
+    PROCEDURE NoSujetaLocal@1000000024(MemFacturaE@1000000000 : TEMPORARY Record 88202) : Boolean;
+    BEGIN
+      EXIT(MemFacturaE."Clave operacion"=MemFacturaE."Clave operacion"::"08");
+    END;
+
+    PROCEDURE CogerInvSujetoPasivo@1000000001(mIntSII@1000000000 : Record 88202) : Boolean;
+    VAR
+      ConfCodOper@1000000001 : Record 88207;
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF (qEmpresa <> '') THEN
+        ConfCodOper.CHANGECOMPANY(qEmpresa);
+      ConfCodOper.SETRANGE("Grupo registro IVA neg.", mIntSII."Grupo registro IVA neg.");
+      ConfCodOper.SETRANGE("Grupo registro IVA prod.", mIntSII."Grupo registro IVA prod.");
+      IF ConfCodOper.FIND('-') THEN
+        EXIT(ConfCodOper."Inversion sujeto pasivo")
+      ELSE
+        EXIT(FALSE);
+    END;
+
+    PROCEDURE CambiarEmpresa@1100288001();
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        //TabLinDocus.CHANGECOMPANY(qEmpresa);
+      END;
+    END;
+
+    PROCEDURE Entry@1000000004(PintEntry@1000000000 : Integer;PtexEntries@1000000001 : Text[1024];PtexSeperator@1000000002 : Text[1]) PtexReturnValue : Text[1024];
+    VAR
+      LintLength@1000000003 : Integer;
+      Lint@1000000004 : Integer;
+    BEGIN
+      // Entry
+      // gives an entry of a list base on an integer
+      // (like Navision SELECTSTR, but without bugs)
+      // PARAMETERS :
+      // PintEntry : which element must be returned
+      // IF (PintElement <= 0) OR (PintElement > NumEntries(PtexEntries,PtexSeperator))
+      // THEN '' is returned
+      // PtexEntries : list
+      // PtexSeperator : charakter used as seperator
+      // if = '' then ',' is used
+      // PtexReturnValue : selected element
+
+      PtexReturnValue := '';
+      LintLength := STRLEN(PtexEntries);
+
+      IF (LintLength = 0) OR (PintEntry <= 0) THEN
+        EXIT('');
+
+      IF PtexSeperator = '' THEN
+        PtexSeperator := ',';
+
+      Lint := 0;
+
+      WHILE Lint < LintLength DO BEGIN
+        Lint := Lint + 1;
+        IF COPYSTR(PtexEntries,Lint,1) = PtexSeperator THEN
+          PintEntry := PintEntry - 1
+        ELSE IF PintEntry = 1 THEN
+          PtexReturnValue := PtexReturnValue + COPYSTR(PtexEntries,Lint,1);
+      END;
+
+      EXIT(PtexReturnValue);
+    END;
+
+    BEGIN
+    END.
+  }
+}

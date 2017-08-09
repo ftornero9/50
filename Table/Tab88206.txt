@@ -1,0 +1,167 @@
+OBJECT Table 88206 Series/Clientes/Consultas SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=19/07/17;
+    Time=14:48:41;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    OnInsert=BEGIN
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnModify=BEGIN
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnDelete=BEGIN
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnRename=BEGIN
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    CaptionML=[ENU=SII Series / Queries;
+               ESP=Series / Consultas SII];
+    LookupFormID=Form88208;
+    DrillDownFormID=Form88208;
+  }
+  FIELDS
+  {
+    { 1   ;   ;No. mov.            ;Integer       ;CaptionML=[ENU=Mov. No.;
+                                                              ESP=No. mov.] }
+    { 2   ;   ;NIF                 ;Code10        ;CaptionML=[ENU=VAT No.;
+                                                              ESP=NIF] }
+    { 3   ;   ;Ejercicio           ;Code4         ;CaptionML=[ENU=Fiscal year;
+                                                              ESP=Ejercicio] }
+    { 4   ;   ;Periodo             ;Code2         ;CaptionML=[ENU=Period;
+                                                              ESP=Periodo] }
+    { 5   ;   ;Paginacion          ;Code1         ;CaptionML=[ENU=Pagination;
+                                                              ESP=Paginaci¢n] }
+    { 6   ;   ;NIF Emisor/Presentador;Code10      ;CaptionML=[ENU=Issuer/Submitter VAT No.;
+                                                              ESP=NIF Emisor/Presentador] }
+    { 7   ;   ;Tipo                ;Option        ;CaptionML=[ENU=Type;
+                                                              ESP=Tipo];
+                                                   OptionCaptionML=ESP=E,R;
+                                                   OptionString=E,R }
+    { 8   ;   ;Documento           ;Code20        ;CaptionML=[ENU=Document;
+                                                              ESP=Documento] }
+    { 9   ;   ;Fecha               ;Date          ;CaptionML=[ENU=Date;
+                                                              ESP=Fecha] }
+    { 10  ;   ;Tipo factura        ;Code2         ;CaptionML=[ENU=Invoice type;
+                                                              ESP=Tipo factura] }
+    { 11  ;   ;Clave               ;Code2         ;CaptionML=[ENU=Key;
+                                                              ESP=Calve] }
+    { 12  ;   ;Importe / Cuota     ;Decimal       ;CaptionML=[ENU=Amount / Fee;
+                                                              ESP=Importe / Cuota] }
+    { 13  ;   ;Descripcion         ;Text50        ;CaptionML=[ENU=Description;
+                                                              ESP=Descripci¢n] }
+    { 14  ;   ;Emitida por terceros;Code1         ;CaptionML=[ENU=Issued by third parties;
+                                                              ESP=Emitida por terceros] }
+    { 15  ;   ;Nombre Contraparte  ;Text40        ;CaptionML=[ENU=Counterpart name;
+                                                              ESP=Nombre Contraparte] }
+    { 16  ;   ;NIF Contraparte     ;Code20        ;CaptionML=[ENU=Counterpart VAT No.;
+                                                              ESP=NIF Contraparte] }
+    { 17  ;   ;Factura rectificada ;Code20        ;CaptionML=[ENU=Rectified invoice;
+                                                              ESP=Factura rectificada] }
+    { 18  ;   ;Fecha factura rectificada;Date     ;CaptionML=[ENU=Rectified invoice date;
+                                                              ESP=Fecha factura rectificada] }
+    { 20  ;   ;CSV                 ;Text50        ;CaptionML=[ENU=CSV;
+                                                              ESP=CSV] }
+    { 23  ;   ;Identificacion Bien ;Text40        ;CaptionML=[ENU=Asset identification;
+                                                              ESP=Identificaci¢n Bien] }
+    { 24  ;   ;Fecha Inicio Utilizacion;Date      ;CaptionML=[ENU=Start date of utilization;
+                                                              ESP=Fecha Inicio Utilizaci¢n] }
+    { 25  ;   ;Prorrata anual definitiva;Decimal  ;CaptionML=[ENU=Final annual prorated;
+                                                              ESP=Prorrata anual definitiva];
+                                                   DecimalPlaces=2:2;
+                                                   MinValue=0;
+                                                   MaxValue=9.999;
+                                                   BlankZero=Yes }
+    { 26  ;   ;Estado cuadre       ;Option        ;CaptionML=[ENU=Balance status;
+                                                              ESP=Estado cuadre];
+                                                   OptionCaptionML=[ENU=" ,No contastable,En proceso de contraste,No contrastada,Parcialmente contrastada,Contrastada";
+                                                                    ESP=" ,No contastable,En proceso de contraste,No contrastada,Parcialmente contrastada,Contrastada"];
+                                                   OptionString=[ ,No contastable,En proceso de contraste,No contrastada,Parcialmente contrastada,Contrastada] }
+    { 27  ;   ;Timestamp cuadre    ;DateTime      ;CaptionML=[ENU=Balance timestamp;
+                                                              ESP=Timestamp cuadre] }
+    { 30  ;   ;Timestamp presentaci¢n;DateTime    ;CaptionML=[ENU=Presentation timestamp;
+                                                              ESP=Timestamp presentaci¢n] }
+    { 31  ;   ;Timestamp ultima modificacion;DateTime;
+                                                   CaptionML=[ENU=Last modification timestamp;
+                                                              ESP=Timestamp £ltima modificaci¢n] }
+    { 32  ;   ;Estado registro     ;Text30        ;CaptionML=[ENU=Record status;
+                                                              ESP=Estado registro] }
+    { 33  ;   ;Fecha pago          ;Date          ;CaptionML=[ENU=Paiment date;
+                                                              ESP=Fecha pago] }
+    { 34  ;   ;Importe pago        ;Decimal       ;CaptionML=[ENU=Paiment amount;
+                                                              ESP=Importe pago] }
+    { 35  ;   ;Medio pago          ;Code10        ;CaptionML=[ENU=Paiment method;
+                                                              ESP=Medio pago] }
+    { 50  ;   ;Texto               ;Text250       ;CaptionML=[ENU=Text;
+                                                              ESP=Texto] }
+    { 60  ;   ;Tipo registro       ;Option        ;CaptionML=[ENU=Record type;
+                                                              ESP=Tipo registro];
+                                                   OptionCaptionML=[ENU=" ,Series,Customers,Exclude";
+                                                                    ESP=" ,Series,Clientes,Excluir"];
+                                                   OptionString=[ ,Series,Clientes,Excluir] }
+    { 80  ;   ;Code                ;Code20        ;TableRelation=IF (Tipo registro=CONST(Series)) "No. Series"
+                                                                 ELSE IF (Tipo registro=CONST(Clientes)) Customer
+                                                                 ELSE IF (Tipo registro=CONST(Excluir)) "No. Series";
+                                                   OnValidate=BEGIN
+                                                                IF "Tipo registro" = "Tipo registro"::Clientes THEN
+                                                                  "Tipo factura simplificada" := "Tipo factura simplificada"::F2;
+                                                              END;
+
+                                                   ValidateTableRelation=No;
+                                                   CaptionML=[ENU=Code;
+                                                              ESP=C¢digo] }
+    { 81  ;   ;Tipo factura rectificativa;Option  ;OnValidate=BEGIN
+                                                                IF "Tipo factura rectificativa" <> "Tipo factura rectificativa"::" " THEN
+                                                                  "Tipo factura simplificada" := "Tipo factura simplificada"::" ";
+                                                              END;
+
+                                                   CaptionML=[ENU=Corrected invoice type;
+                                                              ESP=Tipo factura rectificativa];
+                                                   OptionCaptionML=[ENU=" ,R1,R2,R3,R4,R5";
+                                                                    ESP=" ,R1,R2,R3,R4,R5"];
+                                                   OptionString=[ ,R1,R2,R3,R4,R5] }
+    { 82  ;   ;Tipo rectificativa  ;Option        ;CaptionML=[ENU=Corrected type;
+                                                              ESP=Tipo rectificativa];
+                                                   OptionCaptionML=[ENU=" ,I,S";
+                                                                    ESP=" ,I,S"];
+                                                   OptionString=[ ,I,S] }
+    { 83  ;   ;Tipo factura simplificada;Option   ;OnValidate=BEGIN
+                                                                IF "Tipo factura simplificada" <> "Tipo factura simplificada"::" " THEN
+                                                                  "Tipo factura rectificativa" := "Tipo factura rectificativa"::" ";
+                                                              END;
+
+                                                   CaptionML=[ENU=Simple invoice type;
+                                                              ESP=Tipo factura simplificada];
+                                                   OptionCaptionML=[ENU=" ,F2,F4";
+                                                                    ESP=" ,F2,F4"];
+                                                   OptionString=[ ,F2,F4] }
+    { 84  ;   ;Es prefijo          ;Boolean       ;CaptionML=[ENU=Is prefix;
+                                                              ESP=Es prefijo] }
+    { 85  ;   ;Tipo serie          ;Option        ;OptionCaptionML=[ENU=" ,Invoices,CreditMemos";
+                                                                    ESP=" ,Facturas,Abonos"];
+                                                   OptionString=[ ,Invoice,CreditMemo] }
+  }
+  KEYS
+  {
+    {    ;Tipo registro,Tipo,Code,No. mov.        ;Clustered=Yes }
+    {    ;NIF,Ejercicio                            }
+  }
+  CODE
+  {
+    VAR
+      FunPer@1000000000 : Codeunit 88201;
+
+    BEGIN
+    END.
+  }
+}

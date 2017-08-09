@@ -1,0 +1,394 @@
+OBJECT Form 88211 Bienes inversi¢n SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=01/08/17;
+    Time=13:35:09;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    Width=16500;
+    Height=7040;
+    CaptionML=[ENU=SII investment assets;
+               ESP=Bienes inversi¢n SII];
+    InsertAllowed=No;
+    DeleteAllowed=No;
+    TableBoxID=1000000000;
+    SourceTable=Table88208;
+    SourceTableView=SORTING(TipoSII,Bien de inversion,Tipo,Documento,Fecha)
+                    WHERE(TipoSII=CONST(R),
+                          Bien de inversion=CONST(Yes));
+  }
+  CONTROLS
+  {
+    { 1000000000;TableBox;220 ;220  ;16060;5500 ;HorzGlue=Both;
+                                                 VertGlue=Both;
+                                                 HeadingHeight=1210;
+                                                 InlineEditing=Yes }
+    { 1000000001;TextBox;0    ;0    ;2143 ;0    ;Editable=No;
+                                                 ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Documento }
+    { 1000000002;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000001;
+                                                 InColumnHeading=Yes }
+    { 1000000003;TextBox;0    ;0    ;1700 ;0    ;Editable=No;
+                                                 ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Fecha }
+    { 1000000004;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000003;
+                                                 InColumnHeading=Yes }
+    { 1000000061;CheckBox;3096;880  ;947  ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr="No enviar" }
+    { 1000000062;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000061;
+                                                 InColumnHeading=Yes }
+    { 1000000005;TextBox;0    ;0    ;2267 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=NIF }
+    { 1000000006;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000005;
+                                                 InColumnHeading=Yes }
+    { 1000000007;TextBox;0    ;0    ;4400 ;0    ;HorzGlue=Both;
+                                                 ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=RazonSocial }
+    { 1000000008;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000007;
+                                                 InColumnHeading=Yes }
+    { 1000000053;CheckBox;10001;660 ;1700 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr="Bien de inversion" }
+    { 1000000054;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000053;
+                                                 InColumnHeading=Yes }
+    { 1000000055;TextBox;30560;1210 ;4400 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Identificacion Bien" }
+    { 1000000056;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000055;
+                                                 InColumnHeading=Yes }
+    { 1000000057;TextBox;34766;660  ;1700 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Fecha Inicio Utilizacion" }
+    { 1000000058;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000057;
+                                                 InColumnHeading=Yes }
+    { 1000000059;TextBox;36466;660  ;1356 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Prorrata anual definitiva" }
+    { 1000000060;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000059;
+                                                 InColumnHeading=Yes }
+    { 1000000013;TextBox;0    ;0    ;1700 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=NumTercero }
+    { 1000000014;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000013;
+                                                 InColumnHeading=Yes }
+    { 1000000037;TextBox;26908;2750 ;1937 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Estado env¡o" }
+    { 1000000038;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000037;
+                                                 InColumnHeading=Yes }
+    { 1000000049;TextBox;45108;2750 ;1436 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Tipo envio" }
+    { 1000000050;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000049;
+                                                 InColumnHeading=Yes }
+    { 1000000051;TextBox;45658;2750 ;1700 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Env¡os }
+    { 1000000052;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000051;
+                                                 InColumnHeading=Yes }
+    { 1000000015;TextBox;0    ;0    ;4400 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=TextoRegistro }
+    { 1000000016;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000015;
+                                                 InColumnHeading=Yes }
+    { 1000000017;TextBox;0    ;0    ;1700 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Cod. pais" }
+    { 1000000018;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000017;
+                                                 InColumnHeading=Yes }
+    { 1000000019;TextBox;0    ;0    ;1700 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Clave operacion" }
+    { 1000000020;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000019;
+                                                 InColumnHeading=Yes }
+    { 1000000021;TextBox;0    ;0    ;2200 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Base }
+    { 1000000022;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000021;
+                                                 InColumnHeading=Yes }
+    { 1000000035;TextBox;14288;1980 ;2200 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Cuota }
+    { 1000000036;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000035;
+                                                 InColumnHeading=Yes }
+    { 1000000039;TextBox;27458;2750 ;2750 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Timestamp presentaci¢n" }
+    { 1000000040;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000039;
+                                                 InColumnHeading=Yes }
+    { 1000000041;TextBox;30208;2750 ;1700 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Tipo comunicaci¢n" }
+    { 1000000042;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000041;
+                                                 InColumnHeading=Yes }
+    { 1000000043;TextBox;31908;2750 ;4400 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=CSV }
+    { 1000000044;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000043;
+                                                 InColumnHeading=Yes }
+    { 1000000045;TextBox;36308;2750 ;4400 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Codigo Error" }
+    { 1000000046;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000045;
+                                                 InColumnHeading=Yes }
+    { 1000000047;TextBox;40708;2750 ;4400 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Descripcion Error" }
+    { 1000000048;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000047;
+                                                 InColumnHeading=Yes }
+    { 1000000023;CommandButton;4400;6380;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 Default=Yes;
+                                                 PushAction=LookupOK;
+                                                 InvalidActionAppearance=Hide }
+    { 1000000024;CommandButton;6820;6380;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 Cancel=Yes;
+                                                 PushAction=LookupCancel;
+                                                 InvalidActionAppearance=Hide }
+    { 1000000025;CommandButton;14080;6380;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 PushAction=FormHelp }
+    { 1000000009;MenuButton;9240;6380;2200;550  ;HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 CaptionML=ESP=Acciones;
+                                                 Menu=MENUITEMS
+                                                 {
+                                                   { ID=1000000012;
+                                                     CaptionML=ESP=Enviar;
+                                                     OnPush=VAR
+                                                              qRec@1000000002 : Record 88208;
+                                                            BEGIN
+                                                              qEmpresa := GblSII.GetGblEmpresa;
+                                                              IF qEmpresa <> '' THEN BEGIN
+                                                                qRec.CHANGECOMPANY(qEmpresa);
+                                                                CfgSII.CHANGECOMPANY(qEmpresa);
+                                                              END;
+
+                                                              CfgSII.GET;
+                                                              CfgSII."Agrupar env¡os" := FALSE;
+
+                                                              IF CfgSII."Agrupar env¡os" OR CfgSII."Gesti¢n externa env¡os" THEN BEGIN
+                                                                tmpDocSII.DELETEALL;
+                                                                DT := CURRENTDATETIME;
+                                                                CurrForm.SETSELECTIONFILTER(qRec);
+                                                                qRec.SETRANGE(Tipo, Tipo::Factura);
+                                                                IF qRec.FIND('-') THEN  REPEAT
+                                                                  tmpDocSII.NMov := qRec.NMov;
+                                                                  tmpDocSII.INSERT;
+                                                                UNTIL qRec.NEXT = 0;
+                                                                IF CfgSII."Agrupar env¡os" THEN
+                                                                  FunSII.EnviarBienesInvAgrupados(tmpDocSII)
+                                                                ELSE
+                                                                  FileName := FunSII.GenXMLBienesInvAgrupados(tmpDocSII, 2);
+                                                                  IF FileName <> '' THEN
+                                                                    MESSAGE(Text002, FileName);
+                                                              END ELSE BEGIN
+                                                                CurrForm.SETSELECTIONFILTER(qRec);
+                                                                IF qRec.FIND('-') THEN  REPEAT
+                                                                  IF qRec."Bien de inversion" THEN BEGIN
+                                                                    FunSII.EnviarDocRecibido(qRec);
+                                                                    FunSII.EnviarDocBienInversion(qRec);
+                                                                  END;
+                                                                UNTIL qRec.NEXT = 0;
+                                                              END;
+                                                            END;
+                                                             }
+                                                   { ID=1000000063;
+                                                     MenuItemType=Separator }
+                                                   { ID=1000000026;
+                                                     CaptionML=ESP=Consultar }
+                                                   { ID=1100288000;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Periodo;
+                                                     OnPush=BEGIN
+                                                              NIF := '';
+                                                              RazonSocial := '';
+                                                              FunSII.ConBienInversionEnviados(Rec);
+                                                            END;
+                                                             }
+                                                   { ID=1100288001;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Periodo y NIF;
+                                                     OnPush=BEGIN
+                                                              FunSII.ConBienInversionEnviados(Rec);
+                                                            END;
+                                                             }
+                                                   { ID=1000000027;
+                                                     MenuItemType=Separator }
+                                                   { ID=1000000028;
+                                                     CaptionML=ESP=XML }
+                                                   { ID=1000000029;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Ver;
+                                                     OnPush=BEGIN
+                                                              qEmpresa := GblSII.GetGblEmpresa;
+                                                              IF qEmpresa <> '' THEN BEGIN
+                                                                CfgSII.CHANGECOMPANY(qEmpresa);
+                                                                qRec.CHANGECOMPANY(qEmpresa);
+                                                              END;
+
+                                                              CfgSII.GET;
+                                                              IF CfgSII."Agrupar env¡os" OR CfgSII."Gesti¢n externa env¡os" THEN BEGIN
+                                                                tmpDocSII.DELETEALL;
+                                                                CurrForm.SETSELECTIONFILTER(qRec);
+                                                                IF qRec.FIND('-') THEN  REPEAT
+                                                                  tmpDocSII.NMov := qRec.NMov;
+                                                                  tmpDocSII.INSERT;
+                                                                UNTIL qRec.NEXT = 0;
+                                                                FunSII.GenXMLBienesInvAgrupados(tmpDocSII, 0);
+                                                              END  ELSE BEGIN
+                                                                FunSII.GenerarXMLDocBienInversion(Rec, FALSE);
+                                                              END;
+                                                            END;
+                                                             }
+                                                   { ID=1000000030;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Exportar;
+                                                     OnPush=BEGIN
+                                                              qEmpresa := GblSII.GetGblEmpresa;
+                                                              IF qEmpresa <> '' THEN BEGIN
+                                                                CfgSII.CHANGECOMPANY(qEmpresa);
+                                                                qRec.CHANGECOMPANY(qEmpresa);
+                                                              END;
+
+                                                              CfgSII.GET;
+                                                              IF CfgSII."Agrupar env¡os" OR CfgSII."Gesti¢n externa env¡os" THEN BEGIN
+                                                                tmpDocSII.DELETEALL;
+                                                                CurrForm.SETSELECTIONFILTER(qRec);
+                                                                IF qRec.FIND('-') THEN  REPEAT
+                                                                  tmpDocSII.NMov := qRec.NMov;
+                                                                  tmpDocSII.INSERT;
+                                                                UNTIL qRec.NEXT = 0;
+                                                                FunSII.GenXMLBienesInvAgrupados(tmpDocSII, 1);
+                                                              END  ELSE BEGIN
+                                                                FunSII.GenerarXMLDocBienInversion(Rec, TRUE);
+                                                              END;
+                                                            END;
+                                                             }
+                                                   { ID=1000000031;
+                                                     MenuItemType=Separator }
+                                                   { ID=1000000032;
+                                                     CaptionML=ESP=Comprobar NIF;
+                                                     OnPush=VAR
+                                                              qRec@1100288000 : Record 88208;
+                                                            BEGIN
+                                                              qEmpresa := GblSII.GetGblEmpresa;
+                                                              IF qEmpresa <> '' THEN
+                                                                qRec.CHANGECOMPANY(qEmpresa);
+
+                                                              CurrForm.SETSELECTIONFILTER(qRec);
+                                                              IF qRec.FIND('-') THEN  REPEAT
+                                                                WSSII.CalidadDatos(qRec.NIF, qRec.RazonSocial, FALSE, qRec.NMov);
+                                                              UNTIL qRec.NEXT = 0;
+                                                            END;
+                                                             }
+                                                   { ID=1000000033;
+                                                     MenuItemType=Separator }
+                                                   { ID=1000000034;
+                                                     CaptionML=ESP=Anular;
+                                                     OnPush=VAR
+                                                              qRec@1100288000 : Record 88208;
+                                                            BEGIN
+                                                              qEmpresa := GblSII.GetGblEmpresa;
+                                                              IF qEmpresa <> '' THEN BEGIN
+                                                                qRec.CHANGECOMPANY(qEmpresa);
+                                                                CfgSII.CHANGECOMPANY(qEmpresa);
+                                                              END;
+
+                                                              IF CONFIRM(Text001, FALSE) THEN BEGIN
+                                                                CfgSII.GET;
+                                                                DT := CURRENTDATETIME;
+                                                                CurrForm.SETSELECTIONFILTER(qRec);
+                                                                IF qRec.FIND('-') THEN  REPEAT
+                                                                  FunSII.AnularDocBienInversion(qRec, DT);
+                                                                UNTIL qRec.NEXT = 0;
+                                                              END;
+                                                            END;
+                                                             }
+                                                   { ID=1000000064;
+                                                     MenuItemType=Separator }
+                                                   { ID=1000000065;
+                                                     CaptionML=ESP=Quitar de bienes de inversion;
+                                                     OnPush=BEGIN
+                                                              FunSII.CambiarBienInversionDocSII(Rec);
+                                                            END;
+                                                             }
+                                                 }
+                                                  }
+    { 1000000010;CommandButton;1320;6380;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 Visible=No;
+                                                 CaptionML=ESP=Datos;
+                                                 OnPush=VAR
+                                                          DocuSII@1000000000 : Record 88205;
+                                                          qEmpresa@1000000001 : Text[30];
+                                                        BEGIN
+                                                          {
+                                                          qEmpresa := GblSII.GetGblEmpresa;
+                                                          IF qEmpresa <> '' THEN
+                                                            DocuSII.CHANGECOMPANY(qEmpresa);
+
+                                                          IF NOT DocuSII.GET(DocuSII.Tipo::FV, Documento) THEN BEGIN
+                                                            DocuSII.INIT;
+                                                            DocuSII.Tipo      := DocuSII.Tipo::FV;
+                                                            DocuSII.Documento := "N§";
+                                                            DocuSII.Fecha     := "Fecha registro";
+                                                            DocuSII.INSERT;
+                                                          END;
+
+                                                          DocuSII.SETRANGE(Tipo, DocuSII.Tipo::FV);
+                                                          DocuSII.SETRANGE(Documento, "N§");
+                                                          FORM.RUN(FORM::"Documentos SII", DocuSII);
+                                                          }
+                                                        END;
+                                                         }
+    { 1000000011;CommandButton;11660;6380;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 CaptionML=ESP=&Navegar;
+                                                 OnPush=BEGIN
+                                                          Navegar;
+                                                        END;
+                                                         }
+    { 1000000066;Label  ;220  ;5830 ;16060;440  ;HorzGlue=Both;
+                                                 VertGlue=Bottom;
+                                                 HorzAlign=Center;
+                                                 ForeColor=255;
+                                                 FontBold=Yes;
+                                                 CaptionML=ESP=PULSAR F2 PARA EDITAR }
+  }
+  CODE
+  {
+    VAR
+      qEmpresa@1000000000 : Text[30];
+      GblSII@1000000001 : Codeunit 88200;
+      FunSII@1000000002 : Codeunit 88201;
+      WSSII@1000000003 : Codeunit 88202;
+      Text001@1000000004 : TextConst 'ESP=Ejecutar proceso de anulaci¢n';
+      CfgSII@1000000005 : Record 88201;
+      DT@1000000006 : DateTime;
+      tmpDocSII@1000000007 : TEMPORARY Record 88208;
+      FileName@1000000008 : Text[1024];
+      Text002@1000000009 : TextConst 'ENU=File %1, created.;ESP=Fichero %1, creado.';
+      qRec@1000000010 : Record 88208;
+
+    BEGIN
+    END.
+  }
+}

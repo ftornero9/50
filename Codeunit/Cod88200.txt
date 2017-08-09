@@ -1,0 +1,77 @@
+OBJECT Codeunit 88200 Globales SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=14/06/17;
+    Time=18:18:06;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    SingleInstance=Yes;
+    OnRun=BEGIN
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      GblEmpresa@1000000005 : Text[30];
+
+    PROCEDURE SetGblEmpresa@1000000002(pEmpresa@1000000000 : Text[30]);
+    BEGIN
+      IF pEmpresa = COMPANYNAME THEN
+        pEmpresa := '';
+      GblEmpresa := pEmpresa;
+    END;
+
+    PROCEDURE GetGblEmpresa@1000000003() : Text[30];
+    BEGIN
+      EXIT(GblEmpresa);
+    END;
+
+    PROCEDURE AntesPasarDocSII@1000000000(MovIVA@1000000000 : Record 254;VAR MemIntSII@1000000001 : Record 88202);
+    BEGIN
+    END;
+
+    PROCEDURE AntesPasarLinDocSII@1000000014(MovIVA@1000000000 : Record 254;VAR MemIntSII@1000000001 : Record 88202);
+    BEGIN
+    END;
+
+    PROCEDURE AntesDuplicarDocSII_DUA@1000000001(OldDocSII@1000000000 : Record 88208;VAR NewDocSII@1000000001 : Record 88208);
+    BEGIN
+    END;
+
+    PROCEDURE AntesMoverLinDocSII_DUA@1000000004(VAR LinDocSII@1000000001 : Record 88209);
+    BEGIN
+    END;
+
+    PROCEDURE AntesModificarDocSII_DUA@1000000005(VAR DocSII@1000000001 : Record 88208);
+    BEGIN
+    END;
+
+    PROCEDURE NS_FV_AntesPasarDocSII@1000000006(MovIVA@1000000000 : Record 254;VAR MemIntSII@1000000001 : Record 88202);
+    BEGIN
+        // No sujeto factura venta
+    END;
+
+    PROCEDURE NS_AV_AntesPasarDocSII@1000000007(MovIVA@1000000000 : Record 254;VAR MemIntSII@1000000001 : Record 88202);
+    BEGIN
+        // No sujeto abono venta
+    END;
+
+    PROCEDURE NS_FC_AntesPasarDocSII@1000000009(MovIVA@1000000000 : Record 254;VAR MemIntSII@1000000001 : Record 88202);
+    BEGIN
+        // No sujeto factura compra
+    END;
+
+    PROCEDURE NS_AC_AntesPasarDocSII@1000000008(MovIVA@1000000000 : Record 254;VAR MemIntSII@1000000001 : Record 88202);
+    BEGIN
+        // No sujeto abono compra
+    END;
+
+    BEGIN
+    END.
+  }
+}

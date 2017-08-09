@@ -1,0 +1,70 @@
+OBJECT Table 88203 Certificados SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=01/07/17;
+    Time=13:00:43;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    OnInsert=BEGIN
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnModify=BEGIN
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnDelete=BEGIN
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnRename=BEGIN
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    CaptionML=[ENU=SII certificates;
+               ESP=Certificados SII];
+  }
+  FIELDS
+  {
+    { 2   ;   ;Certificado         ;Code20        ;CaptionML=[ENU=Certificate;
+                                                              ESP=Certificado] }
+    { 3   ;   ;N§ serie            ;Code150       ;CaptionML=[ENU=Serial No.;
+                                                              ESP=N§ serie] }
+    { 23  ;   ;Global Dimension 1 Code;Code20     ;CaptionML=[ENU=Global Dimension 1 Code;
+                                                              ESP=Cod. Dim. Global 1] }
+    { 33  ;   ;Emisor              ;Text80        ;CaptionML=[ENU=Issuer;
+                                                              ESP=Emisor] }
+    { 34  ;   ;Nombre              ;Text250       ;CaptionML=[ENU=Name;
+                                                              ESP=Nombre] }
+    { 35  ;   ;Valido desde        ;Date          ;CaptionML=[ENU=Valid from;
+                                                              ESP=Valido desde] }
+    { 36  ;   ;Valido hasta        ;Date          ;CaptionML=[ENU=Valid to;
+                                                              ESP=Valido hasta] }
+    { 50000;  ;Comentario          ;Text80        ;CaptionML=[ENU=Comment;
+                                                              ESP=Comentario] }
+    { 50001;  ;Huella Digital      ;Text50        ;CaptionML=[ENU=Digital print;
+                                                              ESP=Huella Digital] }
+    { 50002;  ;Clave privada       ;Boolean       ;CaptionML=[ENU=Private key;
+                                                              ESP=Clave privada] }
+    { 55000;  ;CIF                 ;Text20        ;CaptionML=[ENU=VAT Number;
+                                                              ESP=CIF] }
+    { 55001;  ;RazonSocial         ;Text140       ;CaptionML=[ENU=Company name;
+                                                              ESP=RazonSocial] }
+  }
+  KEYS
+  {
+    {    ;Certificado                             ;Clustered=Yes }
+  }
+  CODE
+  {
+    VAR
+      FunPer@1000000000 : Codeunit 88201;
+
+    BEGIN
+    END.
+  }
+}

@@ -1,0 +1,1685 @@
+OBJECT Codeunit 88203 Generacion XML SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=28/07/17;
+    Time=14:59:38;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    Permissions=TableData 112=rm,
+                TableData 114=rm,
+                TableData 50004=ri;
+    OnRun=BEGIN
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      IniCertificado@1100000 : Code[20];
+      XMLDoc@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";
+      Comilla@1000000001 : TextConst 'ESP=""""';
+      XMLDoc2@1000000020 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";
+      TotalAmount1@1000000005 : Text[30];
+      TotalAmount2@1000000006 : Text[30];
+      gblCuota@1000000007 : Decimal;
+      MemFacturaE@1000000004 : TEMPORARY Record 88202;
+      FileName@1000000019 : Text[1024];
+      Sign@1000000022 : TextConst 'ESP=-';
+      xmlns_sii@1000000023 : TextConst 'ENU=https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd;ESP=https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd';
+      xmlns_siiLR@1000000024 : TextConst 'ENU=https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd;ESP=https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd';
+      schemaLocation@1000000025 : TextConst 'ENU=https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/sga/xsd/sii/SuministroLR_v0.1 I:\SII\6-VERS~1\0.3\SuministroLR.xsd';
+      Ejercicio@1000000026 : Text[30];
+      Periodo@1000000027 : Text[30];
+      InfEmp@1000000010 : Record 79;
+      CfgSII@1100288000 : Record 88201;
+      CurrNode@1000000021 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      NewChild@1000000014 : ARRAY [10] OF Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      FunSII@1000000003 : Codeunit 88201;
+      Envelop@1000000009 : TextConst 'ENU=http://schemas.xmlsoap.org/soap/envelope/;ESP=http://schemas.xmlsoap.org/soap/envelope/';
+      Version@1000000016 : TextConst 'ESP=1.0';
+      FunWS@1100288004 : Codeunit 88202;
+      GblSII@1100288006 : Codeunit 88200;
+      Node@1000000017 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      VersionPROD@1000000042 : TextConst 'ESP=1.0';
+      xmlns_sum@1000000028 : TextConst 'ENU=https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd;ESP=https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd';
+      xmlns_con@1000000018 : TextConst 'ENU=https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd;ESP=https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/ConsultaLR.xsd';
+      CodOperacion@1100288001 : ' ,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15';
+      COAsignada@1100288002 : Boolean;
+      TxtAsignacion@1100288003 : Text[250];
+      CO_Txt01@1100288005 : TextConst 'ESP=C¢digo Operaci¢n';
+      CO_EXPORT@1000000011 : TextConst 'ESP=02';
+      CO_IGIC_IPSI@1000000029 : TextConst 'ESP=08';
+      CO_UE@1000000002 : TextConst 'ESP=09';
+      CO_NOREA_AP@1000000033 : TextConst 'ESP=14';
+      IVAExento@1000000030 : TextConst 'ESP=0.00';
+      FACT_SIMPLIFICADA@1100288007 : TextConst 'ESP=F2';
+      RECT_SIMPLIFICADA@1000000032 : TextConst 'ESP=R5';
+      FACT_RESUMEN@1000000035 : TextConst 'ESP=F4';
+      RE_AGR@1000000031 : TextConst 'ESP=02';
+      ERROR_NIF@1100288008 : TextConst 'ESP=1117';
+      CertSII@1100288009 : Record 88203;
+      BIENES_UE@1000000034 : TextConst 'ESP=E5';
+      BIENES_NOUE@1000000038 : TextConst 'ESP=E2';
+      Total_EntregaBienes@1000000036 : Decimal;
+      Total_PrestacionServicios@1000000037 : Decimal;
+      CO_1S_E@1000000039 : TextConst 'ESP=16';
+      CO_1S_R@1000000040 : TextConst 'ESP=14';
+      DESC_1S@1000000041 : TextConst 'ESP=Registro del primer semestre';
+      Es1S2017@1000000043 : Boolean;
+      NIF_DESGLOSE_OPERACION@1000000008 : TextConst 'ESP=N';
+
+    LOCAL PROCEDURE "<<-----Cabeceras"@1000000045();
+    BEGIN
+    END;
+
+    PROCEDURE GenCabecera@1100288019(VAR Node@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";Tipo@1000000000 : Code[2];Accion@1000000002 : Text[80];Dim1Val@1100288000 : Code[20]);
+    VAR
+      qVersion@1000000003 : Code[20];
+    BEGIN
+      CLEAR(XMLDoc);
+      CREATE(XMLDoc);
+
+      GetCfg;
+      SetInfEmp(Dim1Val);
+
+      IF FunSII.DevEnPruebas THEN
+        qVersion := Version
+      ELSE
+        qVersion := VersionPROD;
+
+      AppendProcessingInstruction(XMLDoc,'xml','version="1.0" encoding="utf-8"');
+      AppendElement(XMLDoc, 'soapenv:Envelope', '', NewChild[1]);
+      AppendAttribute(NewChild[1], 'xmlns:soapenv', Envelop);
+      AppendAttribute(NewChild[1], 'xmlns:siiLR', xmlns_siiLR);
+      AppendAttribute(NewChild[1], 'xmlns:sii', xmlns_sii);
+
+      // Header
+      FindNode(XMLDoc,'soapenv:Envelope', CurrNode);
+      AppendElement(CurrNode, 'soapenv:Header', '', NewChild[1]);
+
+      // Body
+      AppendElement(CurrNode, 'soapenv:Body', '', NewChild[1]);
+        AppendElement(NewChild[1], 'siiLR:'+Accion, '', NewChild[2]);
+
+        // Cabecera
+        AppendElement(NewChild[2], 'sii:Cabecera', '', NewChild[3]);
+            AppendElement(NewChild[3], 'sii:IDVersionSii', qVersion, NewChild[4]);
+            AppendElement(NewChild[3], 'sii:Titular', '', NewChild[4]);
+                AppendElement(NewChild[4], 'sii:NombreRazon', ConvertStr40(InfEmp.Name), NewChild[5]);
+                IF CfgSII."NIF Representante" <> '' THEN
+                  AppendElement(NewChild[4], 'sii:NIFRepresentante', CfgSII."NIF Representante", NewChild[5]);
+                AppendElement(NewChild[4], 'sii:NIF', InfEmp."VAT Registration No.", NewChild[5]);
+            IF Tipo <> '' THEN
+              AppendElement(NewChild[3], 'sii:TipoComunicacion', Tipo, NewChild[4]);
+
+        // Factura
+        //AppendElement(NewChild[2], 'siiLR:'+Registro, '', NewChild[3]);
+        //Node := NewChild[3];
+        Node := NewChild[2];
+    END;
+
+    PROCEDURE GenerarCabConsulta@1000000008(pTipo@1100288002 : 'E,R,B,C,P';Accion@1000000002 : Text[80];Ejercicio@1000000000 : Code[10];Periodo@1000000003 : Code[10];TabDocSII@1000000001 : Record 88208);
+    VAR
+      qVersion@1000000004 : Code[20];
+    BEGIN
+      CLEAR(XMLDoc);
+      CREATE(XMLDoc);
+
+      GetCfg;
+
+      IF FunSII.DevEnPruebas THEN
+        qVersion := Version
+      ELSE
+        qVersion := VersionPROD;
+
+      WITH TabDocSII DO BEGIN
+        SetInfEmp("Global Dimension 1 Code");
+
+        AppendProcessingInstruction(XMLDoc,'xml','version="1.0" encoding="utf-8"');
+        AppendElement(XMLDoc, 'soapenv:Envelope', '', NewChild[1]);
+        AppendAttribute(NewChild[1], 'xmlns:soapenv', Envelop);
+        AppendAttribute(NewChild[1], 'xmlns:con', xmlns_con);
+        AppendAttribute(NewChild[1], 'xmlns:sum', xmlns_sum);
+
+        // Header
+        FindNode(XMLDoc,'soapenv:Envelope', CurrNode);
+        AppendElement(CurrNode, 'soapenv:Header', '', NewChild[1]);
+
+        // Body
+        AppendElement(CurrNode, 'soapenv:Body', '', NewChild[1]);
+          AppendElement(NewChild[1], 'con:'+Accion, '', NewChild[2]);
+
+          // Cabecera
+          AppendElement(NewChild[2], 'sum:Cabecera', '', NewChild[3]);
+              AppendElement(NewChild[3], 'sum:IDVersionSii', qVersion, NewChild[4]);
+              AppendElement(NewChild[3], 'sum:Titular', '', NewChild[4]);
+                  AppendElement(NewChild[4], 'sum:NombreRazon', ConvertStr40(InfEmp.Name), NewChild[5]);
+                  IF CfgSII."NIF Representante" <> '' THEN
+                    AppendElement(NewChild[4], 'sum:NIFRepresentante', CfgSII."NIF Representante", NewChild[5]);
+                  AppendElement(NewChild[4], 'sum:NIF', InfEmp."VAT Registration No.", NewChild[5]);
+
+          // Filtro
+          CASE pTipo OF
+            pTipo::E,pTipo::R,pTipo::B:
+              BEGIN
+                AppendElement(NewChild[2], 'con:FiltroConsulta', '', NewChild[3]);
+                  AppendElement(NewChild[3], 'sum:PeriodoImpositivo', '', NewChild[4]);
+                    AppendElement(NewChild[4], 'sum:Ejercicio', Ejercicio, NewChild[5]);
+                     AppendElement(NewChild[4], 'sum:Periodo', Periodo, NewChild[5]);
+              END;
+
+            pTipo::C:
+              BEGIN
+                AppendElement(NewChild[2], 'con:FiltroConsultaCobros', '', NewChild[3]);
+              END;
+
+            pTipo::P:
+              BEGIN
+                AppendElement(NewChild[2], 'con:FiltroConsultaPagos', '', NewChild[3]);
+              END;
+
+          END;
+          IF (NIF <> '') AND (RazonSocial <> '') THEN BEGIN
+            IF pTipo = pTipo::E THEN BEGIN
+              AppendElement(NewChild[3], 'con:Contraparte', '', NewChild[4]);
+                AppendElement(NewChild[4], 'sum:NombreRazon', RazonSocial, NewChild[5]);
+                 IF IDOtro THEN BEGIN
+                   AppendElement(NewChild[4], 'sum:IDOtro', '', NewChild[5]);
+                     AppendElement(NewChild[5], 'sum:CodigoPais', "Cod. pais", NewChild[6]);
+                     AppendElement(NewChild[5], 'sum:IDType', GetIDTipo(IDTipo,"Cod. pais"), NewChild[6]);
+                     AppendElement(NewChild[5], 'sum:ID', NIF, NewChild[6]);
+                 END ELSE
+                   AppendElement(NewChild[4], 'sum:NIF', NIF, NewChild[5]);
+            END;
+
+            IF (pTipo = pTipo::R) OR (pTipo = pTipo::B) OR (pTipo = pTipo::P) THEN BEGIN
+              AppendElement(NewChild[3], 'con:IDFactura', '', NewChild[4]);
+                AppendElement(NewChild[4], 'sum:IDEmisorFactura', '', NewChild[5]);
+                  AppendElement(NewChild[5], 'sum:NombreRazon', RazonSocial, NewChild[6]);
+                  IF IDOtro THEN BEGIN
+                    AppendElement(NewChild[5], 'sum:IDOtro', '', NewChild[6]);
+                      AppendElement(NewChild[6], 'sum:CodigoPais', "Cod. pais", NewChild[7]);
+                      AppendElement(NewChild[6], 'sum:IDType', GetIDTipo(IDTipo, "Cod. pais"), NewChild[7]);
+                      AppendElement(NewChild[6], 'sum:ID', NIF, NewChild[7]);
+                  END ELSE
+                    AppendElement(NewChild[5], 'sum:NIF', NIF, NewChild[6]);
+            END;
+
+            IF (pTipo = pTipo::P) THEN BEGIN
+              AppendElement(NewChild[4], 'sum:NumSerieFacturaEmisor', DocumentoTercero, NewChild[5]);
+              AppendElement(NewChild[4], 'sum:FechaExpedicionFacturaEmisor', Date2Sii("Fecha documento"), NewChild[5]);
+            END;
+          END;
+      END;
+    END;
+
+    LOCAL PROCEDURE "<<-----Emitidos"@1000000031();
+    BEGIN
+    END;
+
+    PROCEDURE EnviarDocEmitido@1000000021(TabDocSII@1000000000 : Record 88208;Tipo@1000000001 : Code[10]) : Text[1024];
+    BEGIN
+      GenCabecera(Node, Tipo, 'SuministroLRFacturasEmitidas', TabDocSII."Global Dimension 1 Code");
+      IF GenLinEmitido('RegistroLRFacturasEmitidas', TabDocSII, Node) THEN
+        EXIT(GenerarXML)
+      ELSE
+        EXIT('');
+    END;
+
+    PROCEDURE GenLinEmitido@1000000022(Registro@1000000003 : Text[80];TabDocSII@1000000000 : Record 88208;VAR Node@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode") : Boolean;
+    VAR
+      qNIF@1000000005 : Code[20];
+      NoIDent@1100288000 : Boolean;
+      ClaveOperacion@1000000002 : Code[10];
+      DesgloseOperacionNIF@1000000004 : Boolean;
+      FechaExpedicion@1000000006 : Date;
+    BEGIN
+      WITH TabDocSII DO BEGIN
+        GetCfg;
+        SetInfEmp(TabDocSII."Global Dimension 1 Code");
+
+        CogerPeriodoImpositivo(Fecha);
+        CalcImportes(TabDocSII);
+
+        IF Es1S2017 THEN BEGIN
+          ClaveOperacion := CO_1S_E;
+          TextoRegistro := DESC_1S;
+        END ELSE
+          ClaveOperacion := FORMAT("Clave operacion");
+
+        TiposImpuestos(FALSE, NMov, ClaveOperacion);
+
+        qNIF := NIF; // CogerNIF(0, Documento, NIF);
+
+        NoIDent := FALSE;
+        IF (TabDocSII."Codigo Error" = ERROR_NIF) THEN BEGIN
+          IDOtro := NOT FunWS.CalidadDatos(NIF, RazonSocial, TRUE, TabDocSII.NMov);
+          NoIDent := IDOtro;
+          IF NoIDent THEN
+            "Cod. pais" := 'ES';
+        END;
+
+        FechaExpedicion := Fecha;
+        IF CfgSII."Use document date in Sales" THEN
+          IF "Fecha documento" <> 0D THEN
+            FechaExpedicion := "Fecha documento";
+
+        IF EsTipoRectificativa("Tipo factura") THEN BEGIN
+         IF "Tipo factura rectificativa" = '' THEN
+           "Tipo factura rectificativa" := 'I';
+        END ELSE
+         "Tipo factura rectificativa" := '';
+
+      AppendElement(Node, 'siiLR:'+Registro, '', NewChild[1]);
+        AppendElement(NewChild[1], 'sii:PeriodoImpositivo', '', NewChild[2]);
+          AppendElement(NewChild[2], 'sii:Ejercicio', Ejercicio, NewChild[3]);
+          AppendElement(NewChild[2], 'sii:Periodo', Periodo, NewChild[3]);
+
+        AppendElement(NewChild[1], 'siiLR:IDFactura', '', NewChild[2]);
+          AppendElement(NewChild[2], 'sii:IDEmisorFactura', '', NewChild[3]);
+            AppendElement(NewChild[3], 'sii:NIF', InfEmp."VAT Registration No.", NewChild[4]);
+          IF "Tipo factura" = FACT_RESUMEN THEN BEGIN
+            AppendElement(NewChild[2], 'sii:NumSerieFacturaEmisor', "Factura resumen inicio", NewChild[3]);
+            AppendElement(NewChild[2], 'sii:NumSerieFacturaEmisorResumenFin', "Factura resumen fin", NewChild[3]);
+          END ELSE BEGIN
+            AppendElement(NewChild[2], 'sii:NumSerieFacturaEmisor', Documento, NewChild[3]);
+          END;
+          AppendElement(NewChild[2], 'sii:FechaExpedicionFacturaEmisor', Date2Sii(FechaExpedicion), NewChild[3]);
+        AppendElement(NewChild[1], 'siiLR:FacturaExpedida', '', NewChild[2]);
+          AppendElement(NewChild[2], 'sii:TipoFactura', "Tipo factura", NewChild[3]);
+
+          IF "Tipo factura rectificativa" <> '' THEN BEGIN
+            AppendElement(NewChild[2], 'sii:TipoRectificativa', "Tipo factura rectificativa", NewChild[3]);
+            IF "Factura corregida" <> '' THEN BEGIN
+              AppendElement(NewChild[2], 'sii:FacturasRectificadas', '', NewChild[3]);
+                AppendElement(NewChild[3], 'sii:IDFacturaRectificada', '', NewChild[4]);
+                  AppendElement(NewChild[4], 'sii:NumSerieFacturaEmisor', "Factura corregida", NewChild[5]);
+                  IF "Fecha factura corregida" <> 0D THEN
+                    AppendElement(NewChild[4], 'sii:FechaExpedicionFacturaEmisor', Date2Sii("Fecha factura corregida"),NewChild[5]);
+            END;
+            IF "Tipo factura rectificativa" <> 'I' THEN BEGIN
+              AppendElement(NewChild[2], 'sii:ImporteRectificacion', '', NewChild[3]);
+                AppendElement(NewChild[3], 'sii:BaseRectificada', ConvDec2Str("Base rectificada", 2), NewChild[4]);
+                AppendElement(NewChild[3], 'sii:CuotaRectificada', ConvDec2Str("Cuota rectificada", 2),NewChild[4]);
+                AppendElement(NewChild[3], 'sii:CuotaRecargoRectificado', ConvDec2Str("Recargo rectificada", 2),NewChild[4]);
+            END;
+          END;
+
+          IF ("Fecha operacion" <> FechaExpedicion) AND ("Fecha operacion" <> 0D) THEN
+            AppendElement(NewChild[2], 'sii:FechaOperacion', Date2Sii("Fecha operacion"), NewChild[3]);
+          AppendElement(NewChild[2], 'sii:ClaveRegimenEspecialOTrascendencia', ClaveOperacion, NewChild[3]);
+          IF NOT Es1S2017 THEN
+            AppendElement(NewChild[2], 'sii:ImporteTotal', TotalAmount1, NewChild[3]);
+          AppendElement(NewChild[2], 'sii:DescripcionOperacion', TextoRegistro, NewChild[3]);
+
+          IF TabDocSII."Situacion inmueble" <> '' THEN BEGIN
+            AppendElement(NewChild[2], 'sii:DatosInmueble', '', NewChild[3]);
+               AppendElement(NewChild[3], 'sii:DetalleInmueble', '', NewChild[4]);
+                 AppendElement(NewChild[4], 'sii:SituacionInmueble', "Situacion inmueble", NewChild[5]);
+                 AppendElement(NewChild[4], 'sii:ReferenciaCatastral', "Referencia catastral",NewChild[5]);
+          END;
+
+          IF TabDocSII."Emitida por terceros" = 'S' THEN
+            AppendElement(NewChild[2], 'sii:EmitidaPorTerceros', 'S', NewChild[3]);
+
+          IF ("Tipo factura" <> FACT_SIMPLIFICADA) AND ("Tipo factura" <> RECT_SIMPLIFICADA) AND
+             ("Tipo factura" <> FACT_RESUMEN) THEN BEGIN
+            AppendElement(NewChild[2], 'sii:Contraparte', '', NewChild[3]);
+              AppendElement(NewChild[3], 'sii:NombreRazon', ConvertStr40(RazonSocial), NewChild[4]);
+
+              IF NOT IDOtro THEN
+                AppendElement(NewChild[3], 'sii:NIF', qNIF, NewChild[4])
+              ELSE BEGIN
+                AppendElement(NewChild[3], 'sii:IDOtro', '', NewChild[4]);
+                  AppendElement(NewChild[4], 'sii:CodigoPais', "Cod. pais", NewChild[5]);
+                  AppendElement(NewChild[4], 'sii:IDType', IDType(IDTipo, "Cod. pais", NoIDent), NewChild[5]);
+                  AppendElement(NewChild[4], 'sii:ID', qNIF, NewChild[5]);
+              END;
+          END;
+
+          AppendElement(NewChild[2], 'sii:TipoDesglose', '', NewChild[3]);
+
+      // Aqu° habr† que poner las distintas opciones en base al tipo de operaci¢n
+
+          // IGIC o IPSI
+          IF (ClaveOperacion = CO_IGIC_IPSI) THEN BEGIN
+            AppendElement(NewChild[3], 'sii:DesgloseTipoOperacion', '', NewChild[4]);
+              AppendElement(NewChild[4], 'sii:Entrega', '', NewChild[5]);
+                AppendElement(NewChild[5], 'sii:NoSujeta', '',NewChild[6]);
+                  AppendElement(NewChild[6], 'sii:ImporteTAIReglasLocalizacion', TotalAmount1, NewChild[7]);
+          END ELSE BEGIN
+            DesgloseOperacionNIF := (COPYSTR(qNIF, 1, 1) = NIF_DESGLOSE_OPERACION);
+            IF (NOT IDOtro OR NoIDent) AND NOT DesgloseOperacionNIF THEN
+              DesgloseFactura("Causa Exenci¢n")
+            ELSE
+              DesgloseOperacion(PaisUE("Cod. pais"));
+          END;
+      END;
+
+      EXIT(TRUE);
+    END;
+
+    PROCEDURE BajaDocEmitido@1100288023(TabDocSII@1000000000 : Record 88208) : Text[1024];
+    BEGIN
+      GenCabecera(Node, '', 'BajaLRFacturasEmitidas', TabDocSII."Global Dimension 1 Code");
+      GenLinEmitidoBaja('RegistroLRBajaExpedidas', TabDocSII, Node);
+      EXIT(GenerarXML);
+    END;
+
+    PROCEDURE GenLinEmitidoBaja@1100288024(Registro@1000000004 : Text[80];TabDocSII@1000000000 : Record 88208;Node@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode");
+    VAR
+      ArchivoXML@1000000002 : Text[250];
+      RutaXML@1000000003 : Text[250];
+      NodeText@1000000016 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF87-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMText";
+      Vent@1000000034 : Dialog;
+      FechaExpedicion@1000000005 : Date;
+    BEGIN
+      GetCfg;
+      SetInfEmp(TabDocSII."Global Dimension 1 Code");
+
+      WITH TabDocSII DO BEGIN
+        FechaExpedicion := Fecha;
+        IF CfgSII."Use document date in Sales" THEN
+          IF "Fecha documento" <> 0D THEN
+            FechaExpedicion := "Fecha documento";
+
+        CogerPeriodoImpositivo(Fecha);
+        AppendElement(Node, 'siiLR:'+Registro, '', NewChild[1]);
+        AppendElement(NewChild[1], 'sii:PeriodoImpositivo', '', NewChild[2]);
+          AppendElement(NewChild[2], 'sii:Ejercicio', Ejercicio, NewChild[3]);
+          AppendElement(NewChild[2], 'sii:Periodo', Periodo, NewChild[3]);
+
+        AppendElement(NewChild[1], 'siiLR:IDFactura', '', NewChild[2]);
+          AppendElement(NewChild[2], 'sii:IDEmisorFactura', '', NewChild[3]);
+            AppendElement(NewChild[3], 'sii:NIF', InfEmp."VAT Registration No.", NewChild[4]);
+          AppendElement(NewChild[2], 'sii:NumSerieFacturaEmisor', Documento, NewChild[3]);
+          AppendElement(NewChild[2], 'sii:FechaExpedicionFacturaEmisor', Date2Sii(FechaExpedicion), NewChild[3]);
+
+      END;
+    END;
+
+    PROCEDURE ConsultarEmitidasEnviadas@1000000007(TabDocSII@1000000000 : Record 88208) : Text[1024];
+    BEGIN
+      WITH TabDocSII DO BEGIN
+        CogerPeriodoImpositivo(Fecha);
+        //GenerarCabConsulta(0, 'ConsultaLRFacturasEmitidas', Ejercicio, Periodo, NIF, RazonSocial, IDOtro, IDTipo, CodPais, Dim1Val);
+        GenerarCabConsulta(0, 'ConsultaLRFacturasEmitidas', Ejercicio, Periodo, TabDocSII);
+      END;
+      EXIT(GenerarXML);
+    END;
+
+    LOCAL PROCEDURE "<<-----Recibidos"@1000000032();
+    BEGIN
+    END;
+
+    PROCEDURE EnviarDocRecibido@1000000027(TabDocSII@1000000000 : Record 88208;Tipo@1000000001 : Code[10]) : Text[1024];
+    BEGIN
+      GenCabecera(Node, Tipo, 'SuministroLRFacturasRecibidas', TabDocSII."Global Dimension 1 Code");
+      IF GenLinRecibido('RegistroLRFacturasRecibidas', TabDocSII, Node) THEN
+        EXIT(GenerarXML)
+      ELSE
+        EXIT('');
+    END;
+
+    PROCEDURE GenLinRecibido@1000000028(Registro@1000000003 : Text[80];TabDocSII@1000000000 : Record 88208;Node@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode") : Boolean;
+    VAR
+      ClaveOperacion@1000000002 : Code[10];
+    BEGIN
+      WITH TabDocSII DO BEGIN
+        GetCfg;
+        SetInfEmp(TabDocSII."Global Dimension 1 Code");
+
+        IF Es1S2017 THEN
+          Fecha := TODAY;
+
+        CogerPeriodoImpositivo(Fecha);
+
+        CalcImportes(TabDocSII);
+
+        IF Es1S2017 THEN BEGIN
+          ClaveOperacion := CO_1S_R;
+          TextoRegistro := DESC_1S;
+        END ELSE
+          ClaveOperacion := FORMAT("Clave operacion");
+
+        TiposImpuestos(TRUE, NMov, ClaveOperacion);
+
+        IF EsTipoRectificativa("Tipo factura") THEN BEGIN
+          IF "Tipo factura rectificativa" = '' THEN
+            "Tipo factura rectificativa" := 'I';
+        END ELSE
+          "Tipo factura rectificativa" := '';
+
+      AppendElement(Node, 'siiLR:'+Registro, '', NewChild[1]);
+         AppendElement(NewChild[1], 'sii:PeriodoImpositivo', '', NewChild[2]);
+           AppendElement(NewChild[2], 'sii:Ejercicio', Ejercicio, NewChild[3]);
+           AppendElement(NewChild[2], 'sii:Periodo', Periodo, NewChild[3]);
+
+         AppendElement(NewChild[1], 'siiLR:IDFactura', '', NewChild[2]);
+           AppendElement(NewChild[2], 'sii:IDEmisorFactura', '', NewChild[3]);
+             IF NOT IDOtro THEN
+               AppendElement(NewChild[3], 'sii:NIF', NIF, NewChild[4])
+             ELSE BEGIN
+               AppendElement(NewChild[3], 'sii:IDOtro', '', NewChild[4]);
+                 AppendElement(NewChild[4], 'sii:CodigoPais', "Cod. pais", NewChild[5]);
+                 AppendElement(NewChild[4], 'sii:IDType', IDType(IDTipo, "Cod. pais", FALSE), NewChild[5]);
+                 AppendElement(NewChild[4], 'sii:ID', NIF, NewChild[5]);
+             END;
+           AppendElement(NewChild[2], 'sii:NumSerieFacturaEmisor', DocumentoTercero, NewChild[3]);
+           AppendElement(NewChild[2], 'sii:FechaExpedicionFacturaEmisor', Date2Sii("Fecha documento"), NewChild[3]);
+
+         AppendElement(NewChild[1], 'siiLR:FacturaRecibida', '', NewChild[2]);
+           AppendElement(NewChild[2], 'sii:TipoFactura', "Tipo factura", NewChild[3]);
+
+           IF "Tipo factura rectificativa" <> '' THEN BEGIN
+             AppendElement(NewChild[2], 'sii:TipoRectificativa', "Tipo factura rectificativa", NewChild[3]);
+             IF "Factura corregida" <> '' THEN BEGIN
+               AppendElement(NewChild[2], 'sii:FacturasRectificadas', '', NewChild[3]);
+                 AppendElement(NewChild[3], 'sii:IDFacturaRectificada', '', NewChild[4]);
+                   AppendElement(NewChild[4], 'sii:NumSerieFacturaEmisor', "Factura corregida", NewChild[5]);
+                   IF "Fecha factura corregida" <> 0D THEN
+                     AppendElement(NewChild[4], 'sii:FechaExpedicionFacturaEmisor', Date2Sii("Fecha factura corregida"),NewChild[5]);
+             END;
+             IF "Tipo factura rectificativa" <> 'I' THEN BEGIN
+               AppendElement(NewChild[2], 'sii:ImporteRectificacion', '', NewChild[3]);
+                 AppendElement(NewChild[3], 'sii:BaseRectificada', ConvDec2Str("Base rectificada", 2), NewChild[4]);
+                 AppendElement(NewChild[3], 'sii:CuotaRectificada', ConvDec2Str("Cuota rectificada", 2),NewChild[4]);
+                 AppendElement(NewChild[3], 'sii:CuotaRecargoRectificado', ConvDec2Str("Recargo rectificada", 2),NewChild[4]);
+             END;
+           END;
+
+           IF ("Fecha operacion" <> "Fecha documento")  AND ("Fecha operacion" <> 0D) THEN
+             AppendElement(NewChild[2], 'sii:FechaOperacion', Date2Sii("Fecha operacion"), NewChild[3]);
+           AppendElement(NewChild[2], 'sii:ClaveRegimenEspecialOTrascendencia', ClaveOperacion, NewChild[3]);
+           AppendElement(NewChild[2], 'sii:ImporteTotal', TotalAmount1, NewChild[3]);
+           AppendElement(NewChild[2], 'sii:DescripcionOperacion', TextoRegistro, NewChild[3]);
+
+           AppendElement(NewChild[2], 'sii:DesgloseFactura', '', NewChild[3]);
+             CLEAR(MemFacturaE);
+             MemFacturaE.SETCURRENTKEY(Tipo);
+             MemFacturaE.SETRANGE(Tipo, MemFacturaE.Tipo::Impuestos);
+
+             // Si es Inversi¢n del Sujeto pasivo
+             MemFacturaE.SETRANGE("Inversion sujeto pasivo", TRUE);
+             IF MemFacturaE.FIND('-') THEN BEGIN
+               AppendElement(NewChild[3], 'sii:InversionSujetoPasivo', '', NewChild[4]);
+               REPEAT
+                 AppendElement(NewChild[4], 'sii:DetalleIVA', '', NewChild[5]);
+                   AppendElement(NewChild[5],'sii:TipoImpositivo', MemFacturaE.IVA, NewChild[6]);
+                   AppendElement(NewChild[5],'sii:BaseImponible', ConvDec2Str(MemFacturaE.BaseIVA, 2),NewChild[6]);
+                   AppendElement(NewChild[5],'sii:CuotaSoportada', ConvDec2Str(MemFacturaE.ImporteIVA, 2),NewChild[6]);
+               UNTIL MemFacturaE.NEXT = 0;
+             END;
+
+             MemFacturaE.SETRANGE("Inversion sujeto pasivo", FALSE);
+             IF MemFacturaE.FIND('-') THEN BEGIN
+               AppendElement(NewChild[3], 'sii:DesgloseIVA', '', NewChild[4]);
+               REPEAT
+                 AppendElement(NewChild[4], 'sii:DetalleIVA', '', NewChild[5]);
+                 IF (ClaveOperacion  = RE_AGR) THEN BEGIN
+                   AppendElement(NewChild[5],'sii:BaseImponible', ConvDec2Str(MemFacturaE.BaseIVA, 2),NewChild[6]);
+                   AppendElement(NewChild[5],'sii:PorcentCompensacionREAGYP', MemFacturaE.IVA, NewChild[6]);
+                   AppendElement(NewChild[5],'sii:ImporteCompensacionREAGYP', ConvDec2Str(MemFacturaE.ImporteIVA, 2),NewChild[6]);
+                 END ELSE BEGIN
+                   IF NOT Es1S2017 THEN
+                     AppendElement(NewChild[5],'sii:TipoImpositivo', MemFacturaE.IVA, NewChild[6]);
+                   AppendElement(NewChild[5],'sii:BaseImponible', ConvDec2Str(MemFacturaE.BaseIVA, 2),NewChild[6]);
+                   IF NOT Es1S2017 THEN
+                     AppendElement(NewChild[5],'sii:CuotaSoportada', ConvDec2Str(MemFacturaE.ImporteIVA, 2),NewChild[6]);
+                 END;
+               UNTIL MemFacturaE.NEXT = 0;
+             END;
+
+           AppendElement(NewChild[2], 'sii:Contraparte', '', NewChild[3]);
+             AppendElement(NewChild[3], 'sii:NombreRazon', ConvertStr40(RazonSocial), NewChild[4]);
+             IF NOT IDOtro THEN
+               AppendElement(NewChild[3], 'sii:NIF', NIF, NewChild[4])
+             ELSE BEGIN
+               AppendElement(NewChild[3], 'sii:IDOtro', '', NewChild[4]);
+                 AppendElement(NewChild[4], 'sii:CodigoPais', "Cod. pais", NewChild[5]);
+                 AppendElement(NewChild[4], 'sii:IDType', IDType(IDTipo, "Cod. pais",FALSE), NewChild[5]);
+                 AppendElement(NewChild[4], 'sii:ID', NIF, NewChild[5]);
+             END;
+
+           IF CfgSII."Use creation date as posting" THEN
+             IF "Creation date" <> 0D THEN
+               Fecha := "Creation date";
+           IF Es1S2017 THEN
+             Fecha := TODAY;
+           AppendElement(NewChild[2], 'sii:FechaRegContable', Date2Sii(Fecha), NewChild[3]);
+           IF Es1S2017 THEN
+             TotalAmount2 := '0.00';
+           AppendElement(NewChild[2], 'sii:CuotaDeducible', TotalAmount2, NewChild[3]);
+
+      END;
+
+      EXIT(TRUE);
+    END;
+
+    PROCEDURE BajaDocRecibido@1100288001(TabDocSII@1000000000 : Record 88208) : Text[1024];
+    BEGIN
+      GenCabecera(Node, '', 'BajaLRFacturasRecibidas', TabDocSII."Global Dimension 1 Code");
+      GenLinRecibidoBaja('RegistroLRBajaRecibidas', TabDocSII, Node);
+      EXIT(GenerarXML);
+    END;
+
+    PROCEDURE GenLinRecibidoBaja@1100288030(Registro@1000000002 : Text[80];TabDocSII@1000000000 : Record 88208;Node@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode");
+    BEGIN
+      GetCfg;
+      SetInfEmp(TabDocSII."Global Dimension 1 Code");
+
+      WITH TabDocSII DO BEGIN
+        CogerPeriodoImpositivo(Fecha);
+
+        AppendElement(Node, 'siiLR:'+Registro, '', NewChild[1]);
+        AppendElement(NewChild[1], 'sii:PeriodoImpositivo', '', NewChild[2]);
+          AppendElement(NewChild[2], 'sii:Ejercicio', Ejercicio, NewChild[3]);
+          AppendElement(NewChild[2], 'sii:Periodo', Periodo, NewChild[3]);
+
+        AppendElement(NewChild[1], 'siiLR:IDFactura', '', NewChild[2]);
+          AppendElement(NewChild[2], 'sii:IDEmisorFactura', '', NewChild[3]);
+            AppendElement(NewChild[3], 'sii:NombreRazon', ConvertStr40(RazonSocial), NewChild[4]);
+            IF NOT IDOtro THEN
+              AppendElement(NewChild[3], 'sii:NIF', NIF, NewChild[4])
+            ELSE BEGIN
+              AppendElement(NewChild[3], 'sii:IDOtro', '', NewChild[4]);
+                AppendElement(NewChild[4], 'sii:CodigoPais', "Cod. pais", NewChild[5]);
+                AppendElement(NewChild[4], 'sii:IDType', IDType(IDTipo, "Cod. pais", FALSE), NewChild[5]);
+                AppendElement(NewChild[4], 'sii:ID', NIF, NewChild[5]);
+            END;
+          AppendElement(NewChild[2], 'sii:NumSerieFacturaEmisor', DocumentoTercero, NewChild[3]);
+          AppendElement(NewChild[2], 'sii:FechaExpedicionFacturaEmisor', Date2Sii("Fecha documento"), NewChild[3]);
+
+      END;
+    END;
+
+    PROCEDURE ConsultarRecibidasEnviadas@1100288000(TabDocSII@1000000000 : Record 88208) : Text[1024];
+    BEGIN
+      WITH TabDocSII DO BEGIN
+        CogerPeriodoImpositivo(Fecha);
+        GenerarCabConsulta(1, 'ConsultaLRFacturasRecibidas', Ejercicio, Periodo, TabDocSII);
+      END;
+      EXIT(GenerarXML);
+    END;
+
+    LOCAL PROCEDURE "<<-----BinenesInversion"@1000000035();
+    BEGIN
+    END;
+
+    PROCEDURE EnviarDocBienInversion@1000000001(TabDocSII@1000000000 : Record 88208;Tipo@1000000001 : Code[10]) : Text[1024];
+    BEGIN
+      GenCabecera(Node, Tipo, 'SuministroLRBienesInversion', TabDocSII."Global Dimension 1 Code");
+      IF GenLinBienInversion('RegistroLRBienesInversion', TabDocSII, Node) THEN
+        EXIT(GenerarXML)
+      ELSE
+        EXIT('');
+    END;
+
+    PROCEDURE GenLinBienInversion@1000000009(Registro@1000000002 : Text[80];TabDocSII@1000000000 : Record 88208;Node@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode") : Boolean;
+    VAR
+      RefDocu@1100000 : RecordRef;
+      Nacional@1100001 : Boolean;
+      EsUE@1000000004 : Boolean;
+      qNIF@1000000005 : Code[20];
+      Year@1100288000 : Integer;
+    BEGIN
+      WITH TabDocSII DO BEGIN
+        GetCfg;
+        SetInfEmp(TabDocSII."Global Dimension 1 Code");
+
+        CogerPeriodoImpositivoAnual(Fecha);
+
+        qNIF := NIF; //CogerNIF(2, Documento, NIF);
+
+        AppendElement(Node, 'siiLR:'+Registro, '', NewChild[1]);
+         AppendElement(NewChild[1], 'sii:PeriodoImpositivo', '', NewChild[2]);
+           AppendElement(NewChild[2], 'sii:Ejercicio', Ejercicio, NewChild[3]);
+           AppendElement(NewChild[2], 'sii:Periodo', Periodo, NewChild[3]);
+
+         AppendElement(NewChild[1], 'siiLR:IDFactura', '', NewChild[2]);
+           AppendElement(NewChild[2], 'sii:IDEmisorFactura', '', NewChild[3]);
+             AppendElement(NewChild[3], 'sii:NombreRazon', ConvertStr40(RazonSocial), NewChild[4]);
+             IF NOT IDOtro THEN
+               AppendElement(NewChild[3], 'sii:NIF', qNIF, NewChild[4])
+             ELSE BEGIN
+               AppendElement(NewChild[3], 'sii:IDOtro', '', NewChild[4]);
+                 AppendElement(NewChild[4], 'sii:CodigoPais', "Cod. pais", NewChild[5]);
+                 AppendElement(NewChild[4], 'sii:IDType', IDType(IDTipo, "Cod. pais", FALSE), NewChild[5]);
+                 AppendElement(NewChild[4], 'sii:ID', qNIF, NewChild[5]);
+             END;
+           AppendElement(NewChild[2], 'sii:NumSerieFacturaEmisor', DocumentoTercero, NewChild[3]);
+           AppendElement(NewChild[2], 'sii:FechaExpedicionFacturaEmisor', Date2Sii("Fecha documento"), NewChild[3]);
+
+         AppendElement(NewChild[1], 'siiLR:BienesInversion', '', NewChild[2]);
+           AppendElement(NewChild[2], 'sii:IdentificacionBien', "Identificacion Bien", NewChild[3]);
+           AppendElement(NewChild[2], 'sii:FechaInicioUtilizacion', Date2Sii("Fecha Inicio Utilizacion"), NewChild[3]);
+           AppendElement(NewChild[2], 'sii:ProrrataAnualDefinitiva', ConvDec2Str("Prorrata anual definitiva", 2), NewChild[3]);
+
+      END;
+
+      EXIT(TRUE);
+    END;
+
+    PROCEDURE BajaDocBienInversion@1000000003(TabDocSII@1000000000 : Record 88208) : Text[1024];
+    BEGIN
+      GenCabecera(Node, '', 'BajaLRBienesInversion', TabDocSII."Global Dimension 1 Code");
+      GenLinRecibidoBaja('RegistroLRBajaBienesInversion', TabDocSII, Node);
+      EXIT(GenerarXML);
+    END;
+
+    PROCEDURE ConsultarBienesInvEnviados@1100288003(TabDocSII@1000000000 : Record 88208) : Text[1024];
+    BEGIN
+      WITH TabDocSII DO BEGIN
+        CogerPeriodoImpositivoAnual(Fecha);
+        GenerarCabConsulta(2, 'ConsultaLRBienesInversion', Ejercicio, Periodo, TabDocSII);
+      END;
+      EXIT(GenerarXML);
+    END;
+
+    LOCAL PROCEDURE "<<-----Cobros"@1000000036();
+    BEGIN
+    END;
+
+    PROCEDURE EnviarCobroEmitidas@1000000012(TabDocSII@1000000000 : Record 88208;Tipo@1000000001 : Code[10]) : Text[1024];
+    BEGIN
+      GenCabecera(Node, Tipo, 'SuministroLRCobrosEmitidas', TabDocSII."Global Dimension 1 Code");
+      IF GenLinCobroEmitidas('RegistroLRCobros', TabDocSII, Node) THEN
+        EXIT(GenerarXML)
+      ELSE
+        EXIT('');
+    END;
+
+    PROCEDURE GenLinCobroEmitidas@1000000011(Registro@1000000002 : Text[80];TabDocSII@1000000000 : Record 88208;Node@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode") : Boolean;
+    VAR
+      RefDocu@1100000 : RecordRef;
+      Nacional@1100001 : Boolean;
+      EsUE@1000000004 : Boolean;
+      qNIF@1000000005 : Code[20];
+      Year@1100288000 : Integer;
+    BEGIN
+      WITH TabDocSII DO BEGIN
+        GetCfg;
+        SetInfEmp(TabDocSII."Global Dimension 1 Code");
+
+        CALCFIELDS(Base, Cuota);
+        IF "Medio de pago/cobro" = '' THEN
+          "Medio de pago/cobro" := '04';
+
+        AppendElement(Node, 'siiLR:'+Registro, '', NewChild[1]);
+         AppendElement(NewChild[1], 'siiLR:IDFactura', '', NewChild[2]);
+           AppendElement(NewChild[2], 'sii:IDEmisorFactura', '', NewChild[3]);
+             AppendElement(NewChild[3], 'sii:NombreRazon', ConvertStr40(RazonSocial), NewChild[4]);
+             IF NOT IDOtro THEN
+               AppendElement(NewChild[3], 'sii:NIF', NIF, NewChild[4])
+             ELSE BEGIN
+               AppendElement(NewChild[3], 'sii:IDOtro', '', NewChild[4]);
+                 AppendElement(NewChild[4], 'sii:CodigoPais', "Cod. pais", NewChild[5]);
+                 AppendElement(NewChild[4], 'sii:IDType', IDType(IDTipo, "Cod. pais", FALSE), NewChild[5]);
+                 AppendElement(NewChild[4], 'sii:ID', NIF, NewChild[5]);
+             END;
+           AppendElement(NewChild[2], 'sii:NumSerieFacturaEmisor', Documento, NewChild[3]);
+           AppendElement(NewChild[2], 'sii:FechaExpedicionFacturaEmisor', Date2Sii(Fecha), NewChild[3]);
+
+         AppendElement(NewChild[1], 'siiLR:Cobros', '', NewChild[2]);
+           AppendElement(NewChild[2], 'sii:Cobro', '', NewChild[3]);
+             AppendElement(NewChild[3], 'sii:Fecha', Date2Sii(Fecha), NewChild[4]);
+             AppendElement(NewChild[3], 'sii:Importe', ConvDec2Str(Base+Cuota, 2), NewChild[4]);
+             AppendElement(NewChild[3], 'sii:Medio', TabDocSII."Medio de pago/cobro", NewChild[4]);
+
+      END;
+
+      EXIT(TRUE);
+    END;
+
+    PROCEDURE ConsultarCobros@1000000019(TabDocSII@1000000000 : Record 88208) : Text[1024];
+    BEGIN
+      WITH TabDocSII DO BEGIN
+        CogerPeriodoImpositivo(Fecha);
+        GenerarCabConsulta(3, 'ConsultaCobros', Ejercicio, Periodo, TabDocSII);
+      END;
+      EXIT(GenerarXML);
+    END;
+
+    LOCAL PROCEDURE "<<-----Pagos"@1000000038();
+    BEGIN
+    END;
+
+    PROCEDURE EnviarPagoRecibidas@1000000016(TabDocSII@1000000000 : Record 88208;Tipo@1000000001 : Code[10]) : Text[1024];
+    BEGIN
+      GenCabecera(Node, Tipo, 'SuministroLRPagosRecibidas', TabDocSII."Global Dimension 1 Code");
+      IF GenLinPagoRecibidas('RegistroLRPagos', TabDocSII, Node) THEN
+        EXIT(GenerarXML)
+      ELSE
+        EXIT('');
+    END;
+
+    PROCEDURE GenLinPagoRecibidas@1000000010(Registro@1000000002 : Text[80];TabDocSII@1000000000 : Record 88208;Node@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode") : Boolean;
+    VAR
+      RefDocu@1100000 : RecordRef;
+      Nacional@1100001 : Boolean;
+      EsUE@1000000004 : Boolean;
+      qNIF@1000000005 : Code[20];
+      Year@1100288000 : Integer;
+    BEGIN
+      WITH TabDocSII DO BEGIN
+        GetCfg;
+        SetInfEmp(TabDocSII."Global Dimension 1 Code");
+
+        CALCFIELDS(Base, Cuota);
+        IF "Medio de pago/cobro" = '' THEN
+          "Medio de pago/cobro" := '04';
+
+        AppendElement(Node, 'siiLR:'+Registro, '', NewChild[1]);
+         AppendElement(NewChild[1], 'siiLR:IDFactura', '', NewChild[2]);
+           AppendElement(NewChild[2], 'sii:IDEmisorFactura', '', NewChild[3]);
+             AppendElement(NewChild[3], 'sii:NombreRazon', ConvertStr40(RazonSocial), NewChild[4]);
+             IF NOT IDOtro THEN
+               AppendElement(NewChild[3], 'sii:NIF', NIF, NewChild[4])
+             ELSE BEGIN
+               AppendElement(NewChild[3], 'sii:IDOtro', '', NewChild[4]);
+                 AppendElement(NewChild[4], 'sii:CodigoPais', "Cod. pais", NewChild[5]);
+                 AppendElement(NewChild[4], 'sii:IDType', IDType(IDTipo, "Cod. pais", FALSE), NewChild[5]);
+                 AppendElement(NewChild[4], 'sii:ID', NIF, NewChild[5]);
+             END;
+           AppendElement(NewChild[2], 'sii:NumSerieFacturaEmisor', DocumentoTercero, NewChild[3]);
+           AppendElement(NewChild[2], 'sii:FechaExpedicionFacturaEmisor', Date2Sii("Fecha documento"), NewChild[3]);
+
+         AppendElement(NewChild[1], 'siiLR:Pagos', '', NewChild[2]);
+           AppendElement(NewChild[2], 'sii:Pago', '', NewChild[3]);
+             AppendElement(NewChild[3], 'sii:Fecha', Date2Sii(Fecha), NewChild[4]);
+             AppendElement(NewChild[3], 'sii:Importe', ConvDec2Str(Base+Cuota, 2), NewChild[4]);
+             AppendElement(NewChild[3], 'sii:Medio', "Medio de pago/cobro", NewChild[4]);
+
+      END;
+
+      EXIT(TRUE);
+    END;
+
+    PROCEDURE ConsultarPagos@1000000018(TabDocSII@1000000000 : Record 88208) : Text[1024];
+    BEGIN
+      WITH TabDocSII DO BEGIN
+        CogerPeriodoImpositivo(Fecha);
+        GenerarCabConsulta(4, 'ConsultaPagos', Ejercicio, Periodo, TabDocSII);
+      END;
+      EXIT(GenerarXML);
+    END;
+
+    LOCAL PROCEDURE "<<-----OpIntracomunitarias"@1000000047();
+    BEGIN
+    END;
+
+    PROCEDURE EnviarOpIntracomunitaria@1000000046(TabDocSII@1000000000 : Record 88208;Tipo@1000000001 : Code[10]) : Text[1024];
+    BEGIN
+      GenCabecera(Node, Tipo, 'SuministroLRDetOperacionIntracomunitaria', TabDocSII."Global Dimension 1 Code");
+      IF GenLinOpIntracomunitaria('RegistroLRDetOperacionIntracomunitaria', TabDocSII, Node) THEN
+        EXIT(GenerarXML)
+      ELSE
+        EXIT('');
+    END;
+
+    PROCEDURE GenLinOpIntracomunitaria@1000000044(Registro@1000000002 : Text[80];TabDocSII@1000000000 : Record 88208;Node@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode") : Boolean;
+    VAR
+      Year@1100288000 : Integer;
+      NIF1@1000000003 : Code[20];
+      NIF2@1000000004 : Code[20];
+      IDOtro1@1000000005 : Boolean;
+      IDOtro2@1000000006 : Boolean;
+      RazonSocial1@1000000007 : Text[120];
+      RazonSocial2@1000000008 : Text[120];
+    BEGIN
+      WITH TabDocSII DO BEGIN
+        GetCfg;
+        SetInfEmp(TabDocSII."Global Dimension 1 Code");
+
+        CogerPeriodoImpositivo(Fecha);
+
+        IF TipoSII = TipoSII::E THEN BEGIN
+          NIF1 := InfEmp."VAT Registration No.";
+          IDOtro1 := FALSE;
+          RazonSocial1 := ConvertStr40(InfEmp.Name);
+          NIF2 := NIF;
+          IDOtro2 := IDOtro;
+          RazonSocial2 := ConvertStr40(RazonSocial);
+        END ELSE BEGIN
+          NIF1 := NIF;
+          IDOtro1 := IDOtro;
+          RazonSocial1  := ConvertStr40(RazonSocial);
+          NIF2 := InfEmp."VAT Registration No.";
+          IDOtro2 := FALSE;
+          RazonSocial2 := ConvertStr40(InfEmp.Name);
+        END;
+
+        AppendElement(Node, 'siiLR:'+Registro, '', NewChild[1]);
+         AppendElement(NewChild[1], 'sii:PeriodoImpositivo', '', NewChild[2]);
+           AppendElement(NewChild[2], 'sii:Ejercicio', Ejercicio, NewChild[3]);
+           AppendElement(NewChild[2], 'sii:Periodo', Periodo, NewChild[3]);
+
+         AppendElement(NewChild[1], 'siiLR:IDFactura', '', NewChild[2]);
+           AppendElement(NewChild[2], 'sii:IDEmisorFactura', '', NewChild[3]);
+             AppendElement(NewChild[3], 'sii:NombreRazon', RazonSocial1, NewChild[4]);
+             IF NOT IDOtro1 THEN
+               AppendElement(NewChild[3], 'sii:NIF', NIF1, NewChild[4])
+             ELSE BEGIN
+               AppendElement(NewChild[3], 'sii:IDOtro', '', NewChild[4]);
+                 AppendElement(NewChild[4], 'sii:CodigoPais', "Cod. pais", NewChild[5]);
+                 AppendElement(NewChild[4], 'sii:IDType', IDType(IDTipo, "Cod. pais", FALSE), NewChild[5]);
+                 AppendElement(NewChild[4], 'sii:ID', NIF1, NewChild[5]);
+             END;
+           AppendElement(NewChild[2], 'sii:NumSerieFacturaEmisor', Documento, NewChild[3]);
+           AppendElement(NewChild[2], 'sii:FechaExpedicionFacturaEmisor', Date2Sii(Fecha), NewChild[3]);
+
+         AppendElement(NewChild[1], 'siiLR:Contraparte', '', NewChild[2]);
+           AppendElement(NewChild[2], 'sii:NombreRazon', RazonSocial2, NewChild[3]);
+           IF NOT IDOtro2 THEN
+             AppendElement(NewChild[2], 'sii:NIF', NIF2, NewChild[3])
+           ELSE BEGIN
+             AppendElement(NewChild[2], 'sii:IDOtro', '', NewChild[3]);
+               AppendElement(NewChild[3], 'sii:CodigoPais', "Cod. pais", NewChild[4]);
+               AppendElement(NewChild[3], 'sii:IDType', IDType(IDTipo, "Cod. pais",FALSE), NewChild[4]);
+               AppendElement(NewChild[3], 'sii:ID', NIF2, NewChild[4]);
+           END;
+
+          AppendElement(NewChild[1], 'siiLR:OperacionIntracomunitaria', '', NewChild[2]);
+            AppendElement(NewChild[2], 'sii:TipoOperacion', "Tipo operacion intracomu.", NewChild[3]);
+            AppendElement(NewChild[2], 'sii:ClaveDeclarado', "Clave declarado intracomu.", NewChild[3]);
+            AppendElement(NewChild[2], 'sii:EstadoMiembro', "Cod. pais", NewChild[3]);
+            AppendElement(NewChild[2], 'sii:DescripcionBienes', "Identificacion Bien", NewChild[3]);
+            AppendElement(NewChild[2], 'sii:DireccionOperador', DireccionOperador, NewChild[3]);
+
+      END;
+
+      EXIT(TRUE);
+    END;
+
+    PROCEDURE BajaOpIntracomunitaria@1000000043(TabDocSII@1000000000 : Record 88208) : Text[1024];
+    BEGIN
+      GenCabecera(Node, '', 'BajaLRDetOperacionIntracomunitaria', TabDocSII."Global Dimension 1 Code");
+      GenLinRecibidoBaja('RegistroLRBajaDetOperacionIntracomunitaria', TabDocSII, Node);
+      EXIT(GenerarXML);
+    END;
+
+    PROCEDURE ConsultarOpIntracomunitaria@1000000040(TabDocSII@1000000000 : Record 88208) : Text[1024];
+    BEGIN
+      WITH TabDocSII DO BEGIN
+        CogerPeriodoImpositivo(Fecha);
+        GenerarCabConsulta(2, 'ConsultaLRDetOperIntracomunitarias', Ejercicio, Periodo, TabDocSII);
+      END;
+      EXIT(GenerarXML);
+    END;
+
+    LOCAL PROCEDURE "<<-----CobrosMetalico"@1000000050();
+    BEGIN
+    END;
+
+    PROCEDURE EnviarCobrosMetalico@1000000049(TabDocSII@1000000000 : Record 88208;Tipo@1000000001 : Code[10]) : Text[1024];
+    BEGIN
+      GenCabecera(Node, Tipo, 'SuministroLRCobrosMetalico', TabDocSII."Global Dimension 1 Code");
+      IF GenLinCobrosMetalico('RegistroLRCobrosMetalico', TabDocSII, Node) THEN
+        EXIT(GenerarXML)
+      ELSE
+        EXIT('');
+    END;
+
+    PROCEDURE GenLinCobrosMetalico@1000000048(Registro@1000000002 : Text[80];TabDocSII@1000000000 : Record 88208;Node@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode") : Boolean;
+    BEGIN
+      WITH TabDocSII DO BEGIN
+        GetCfg;
+        SetInfEmp(TabDocSII."Global Dimension 1 Code");
+
+        CogerPeriodoImpositivoAnual(Fecha);
+
+        AppendElement(Node, 'siiLR:'+Registro, '', NewChild[1]);
+         AppendElement(NewChild[1], 'sii:PeriodoImpositivo', '', NewChild[2]);
+           AppendElement(NewChild[2], 'sii:Ejercicio', Ejercicio, NewChild[3]);
+           AppendElement(NewChild[2], 'sii:Periodo', Periodo, NewChild[3]);
+
+         AppendElement(NewChild[1], 'siiLR:Contraparte', '', NewChild[2]);
+           AppendElement(NewChild[2], 'sii:NombreRazon', ConvertStr40(RazonSocial), NewChild[3]);
+           IF NOT IDOtro THEN
+             AppendElement(NewChild[2], 'sii:NIF', NIF, NewChild[3])
+           ELSE BEGIN
+             AppendElement(NewChild[2], 'sii:IDOtro', '', NewChild[3]);
+               AppendElement(NewChild[3], 'sii:CodigoPais', "Cod. pais", NewChild[4]);
+               AppendElement(NewChild[3], 'sii:IDType', IDType(IDTipo, "Cod. pais",FALSE), NewChild[4]);
+               AppendElement(NewChild[3], 'sii:ID', NIF, NewChild[4]);
+           END;
+
+          AppendElement(NewChild[1], 'siiLR:ImporteTotal', ConvDec2Str("Cobro Metalico", 2), NewChild[2]);
+
+      END;
+
+      EXIT(TRUE);
+    END;
+
+    PROCEDURE BajaCobrosMetalico@1000000034(TabDocSII@1000000000 : Record 88208) : Text[1024];
+    BEGIN
+      GenCabecera(Node, '', 'BajaLRCobrosMetalico', TabDocSII."Global Dimension 1 Code");
+      GenLinCobrosMetalicoBaja('RegistroLRBajaCobrosMetalico', TabDocSII, Node);
+      EXIT(GenerarXML);
+    END;
+
+    PROCEDURE GenLinCobrosMetalicoBaja@1000000061(Registro@1000000002 : Text[80];TabDocSII@1000000000 : Record 88208;Node@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode") : Boolean;
+    BEGIN
+      WITH TabDocSII DO BEGIN
+        GetCfg;
+        SetInfEmp(TabDocSII."Global Dimension 1 Code");
+
+        CogerPeriodoImpositivoAnual(Fecha);
+
+        AppendElement(Node, 'siiLR:'+Registro, '', NewChild[1]);
+         AppendElement(NewChild[1], 'sii:PeriodoImpositivo', '', NewChild[2]);
+           AppendElement(NewChild[2], 'sii:Ejercicio', Ejercicio, NewChild[3]);
+           AppendElement(NewChild[2], 'sii:Periodo', Periodo, NewChild[3]);
+
+         AppendElement(NewChild[1], 'siiLR:Contraparte', '', NewChild[2]);
+           AppendElement(NewChild[2], 'sii:NombreRazon', ConvertStr40(RazonSocial), NewChild[3]);
+           IF NOT IDOtro THEN
+             AppendElement(NewChild[2], 'sii:NIF', NIF, NewChild[3])
+           ELSE BEGIN
+             AppendElement(NewChild[2], 'sii:IDOtro', '', NewChild[3]);
+               AppendElement(NewChild[3], 'sii:CodigoPais', "Cod. pais", NewChild[4]);
+               AppendElement(NewChild[3], 'sii:IDType', IDType(IDTipo, "Cod. pais",FALSE), NewChild[4]);
+               AppendElement(NewChild[3], 'sii:ID', NIF, NewChild[4]);
+           END;
+
+      END;
+
+      EXIT(TRUE);
+    END;
+
+    PROCEDURE ConsultarCobrosMetalico@1000000033(TabDocSII@1000000000 : Record 88208) : Text[1024];
+    BEGIN
+      WITH TabDocSII DO BEGIN
+        CogerPeriodoImpositivoAnual(Fecha);
+        GenerarCabConsulta(2, 'ConsultaLRCobrosMetalico', Ejercicio, Periodo, TabDocSII);
+      END;
+      EXIT(GenerarXML);
+    END;
+
+    LOCAL PROCEDURE "<<-----Desglose"@1000000041();
+    BEGIN
+    END;
+
+    PROCEDURE DesgloseFactura@1000000037(CausaExencion@1100288000 : Code[10]);
+    VAR
+      CodSujeta@1000000000 : Code[10];
+    BEGIN
+      AppendElement(NewChild[3], 'sii:DesgloseFactura', '', NewChild[4]);
+      CLEAR(MemFacturaE);
+      MemFacturaE.SETCURRENTKEY(Tipo);
+      MemFacturaE.SETRANGE(Tipo, MemFacturaE.Tipo::Impuestos);
+      MemFacturaE.SETFILTER("Tipo IVA", '<>%1', MemFacturaE."Tipo IVA"::"No sujeto");
+      IF MemFacturaE.FIND('-') THEN BEGIN
+        AppendElement(NewChild[4], 'sii:Sujeta', '', NewChild[5]);
+
+        // Sujeta y Exenta
+        MemFacturaE.SETFILTER("Causa exencion", '<>%1', '');
+        IF MemFacturaE.FIND('-') THEN BEGIN
+          AppendElement(NewChild[5], 'sii:Exenta', '', NewChild[6]);
+          REPEAT
+            AppendElement(NewChild[6], 'sii:CausaExencion', MemFacturaE."Causa exencion", NewChild[7]);      //  <- Causa Exenci¢n E2
+            AppendElement(NewChild[6], 'sii:BaseImponible', ConvDec2Str(MemFacturaE.BaseIVA,2), NewChild[7]);
+          UNTIL MemFacturaE.NEXT = 0;
+        END;
+
+        // Sujeta y no Exenta
+        MemFacturaE.SETFILTER("Causa exencion", '=%1', '');
+        IF MemFacturaE.FIND('-') THEN BEGIN
+          IF SujetaNoExenta(MemFacturaE) THEN BEGIN
+            AppendElement(NewChild[5], 'sii:NoExenta', '', NewChild[6]);
+              AppendElement(NewChild[6], 'sii:TipoNoExenta', MemFacturaE.Sujeta_NoExenta, NewChild[7]);
+              AppendElement(NewChild[6], 'sii:DesgloseIVA', '', NewChild[7]);
+              REPEAT
+                AppendElement(NewChild[7], 'sii:DetalleIVA', '', NewChild[8]);
+                  IF NOT Es1S2017 THEN
+                    AppendElement(NewChild[8],'sii:TipoImpositivo',  MemFacturaE.IVA, NewChild[9]);
+                  AppendElement(NewChild[8],'sii:BaseImponible', ConvDec2Str(MemFacturaE.BaseIVA, 2),NewChild[9]);
+                  IF NOT Es1S2017 THEN BEGIN
+                    AppendElement(NewChild[8],'sii:CuotaRepercutida', ConvDec2Str(MemFacturaE.ImporteIVA, 2),NewChild[9]);
+                    IF MemFacturaE.ImporteRE <> 0 THEN BEGIN
+                      AppendElement(NewChild[8],'sii:TipoRecargoEquivalencia',MemFacturaE.RE,NewChild[9]);
+                      AppendElement(NewChild[8],'sii:CuotaRecargoEquivalencia',ConvDec2Str(MemFacturaE.ImporteRE,2), NewChild[9]);
+                    END;
+                  END;
+              UNTIL MemFacturaE.NEXT = 0;
+          END;
+        END;
+      END;
+
+      // No Sujeto
+      MemFacturaE.SETRANGE("Causa exencion");
+      MemFacturaE.SETRANGE("Tipo IVA", MemFacturaE."Tipo IVA"::"No sujeto");
+      IF MemFacturaE.FIND('-') THEN BEGIN
+        AppendElement(NewChild[4], 'sii:NoSujeta', '', NewChild[5]);
+        REPEAT
+          IF NoSujetaLocal(MemFacturaE) THEN
+            AppendElement(NewChild[5], 'sii:ImporteTAIReglasLocalizacion', ConvDec2Str(MemFacturaE.BaseIVA,2), NewChild[6])
+          ELSE
+            AppendElement(NewChild[5], 'sii:ImportePorArticulos7_14_Otros', ConvDec2Str(MemFacturaE.BaseIVA,2), NewChild[6])
+        UNTIL MemFacturaE.NEXT = 0;
+      END;
+    END;
+
+    PROCEDURE DesgloseOperacion@1100288017(EsUE@1000000000 : Boolean);
+    VAR
+      CausaExencion@1000000001 : Code[10];
+    BEGIN
+      AppendElement(NewChild[3], 'sii:DesgloseTipoOperacion', '', NewChild[4]);
+      CLEAR(MemFacturaE);
+      MemFacturaE.SETCURRENTKEY(Tipo);
+      MemFacturaE.SETRANGE(Tipo, MemFacturaE.Tipo::Impuestos);
+      MemFacturaE.SETRANGE(Service, TRUE);
+      IF MemFacturaE.FIND('-') THEN BEGIN
+        AppendElement(NewChild[4], 'sii:PrestacionServicios', '', NewChild[5]);
+        DesgloseOperacion2;
+      END;
+      MemFacturaE.SETRANGE(Service, FALSE);
+      IF MemFacturaE.FIND('-') THEN BEGIN
+        AppendElement(NewChild[4], 'sii:Entrega', '', NewChild[5]);
+        DesgloseOperacion2;
+      END;
+    END;
+
+    PROCEDURE DesgloseOperacion2@1000000062();
+    VAR
+      CodSujeta@1000000000 : Code[10];
+    BEGIN
+      MemFacturaE.SETFILTER("Tipo IVA", '<>%1', MemFacturaE."Tipo IVA"::"No sujeto");
+      IF MemFacturaE.FIND('-') THEN BEGIN
+        AppendElement(NewChild[5], 'sii:Sujeta', '', NewChild[6]);
+
+        // Sujeta y Exenta
+        MemFacturaE.SETFILTER("Causa exencion", '<>%1', '');
+        IF MemFacturaE.FIND('-') THEN BEGIN
+          AppendElement(NewChild[6], 'sii:Exenta', '', NewChild[7]);
+          REPEAT
+            AppendElement(NewChild[7], 'sii:CausaExencion', MemFacturaE."Causa exencion", NewChild[8]);      //  <- Causa Exenci¢n E2
+            AppendElement(NewChild[7], 'sii:BaseImponible', ConvDec2Str(MemFacturaE.BaseIVA,2), NewChild[8]);
+          UNTIL MemFacturaE.NEXT = 0;
+        END;
+
+        // Sujeta y no Exenta
+        MemFacturaE.SETFILTER("Causa exencion", '=%1', '');
+        IF MemFacturaE.FIND('-') THEN BEGIN
+          IF SujetaNoExenta(MemFacturaE) THEN BEGIN
+            AppendElement(NewChild[6], 'sii:NoExenta', '', NewChild[7]);
+              AppendElement(NewChild[7], 'sii:TipoNoExenta', MemFacturaE.Sujeta_NoExenta, NewChild[8]);
+              AppendElement(NewChild[7], 'sii:DesgloseIVA', '', NewChild[8]);
+              REPEAT
+                AppendElement(NewChild[8], 'sii:DetalleIVA', '', NewChild[9]);
+                  IF NOT Es1S2017 THEN
+                    AppendElement(NewChild[9],'sii:TipoImpositivo',  MemFacturaE.IVA, NewChild[10]);
+                  AppendElement(NewChild[9],'sii:BaseImponible', ConvDec2Str(MemFacturaE.BaseIVA, 2),NewChild[10]);
+                  IF NOT Es1S2017 THEN BEGIN
+                    AppendElement(NewChild[9],'sii:CuotaRepercutida', ConvDec2Str(MemFacturaE.ImporteIVA, 2),NewChild[10]);
+                    IF MemFacturaE.ImporteRE <> 0 THEN BEGIN
+                      AppendElement(NewChild[9],'sii:TipoRecargoEquivalencia',MemFacturaE.RE,NewChild[10]);
+                      AppendElement(NewChild[9],'sii:CuotaRecargoEquivalencia',ConvDec2Str(MemFacturaE.ImporteRE,2), NewChild[10]);
+                    END;
+                  END;
+              UNTIL MemFacturaE.NEXT = 0;
+          END;
+        END;
+      END;
+
+      // No Sujeto
+      MemFacturaE.SETRANGE("Causa exencion");
+      MemFacturaE.SETRANGE("Tipo IVA", MemFacturaE."Tipo IVA"::"No sujeto");
+      IF MemFacturaE.FIND('-') THEN BEGIN
+        AppendElement(NewChild[5], 'sii:NoSujeta', '', NewChild[6]);
+        REPEAT
+          IF NoSujetaLocal(MemFacturaE) THEN
+            AppendElement(NewChild[6], 'sii:ImporteTAIReglasLocalizacion', ConvDec2Str(MemFacturaE.BaseIVA,2), NewChild[7])
+          ELSE
+            AppendElement(NewChild[6], 'sii:ImportePorArticulos7_14_Otros', ConvDec2Str(MemFacturaE.BaseIVA,2), NewChild[7])
+        UNTIL MemFacturaE.NEXT = 0;
+      END;
+      MemFacturaE.SETRANGE("Tipo IVA");
+    END;
+
+    LOCAL PROCEDURE "<<-----Agrupados"@1000000042();
+    BEGIN
+    END;
+
+    PROCEDURE GenCabEmitido@1000000020();
+    BEGIN
+      GenCabecera(Node, 'A0', 'SuministroLRFacturasEmitidas', '');
+    END;
+
+    PROCEDURE GenDetEmitido@1000000023(TabDocSII@1000000000 : Record 88208);
+    BEGIN
+      GenLinEmitido('RegistroLRFacturasEmitidas', TabDocSII, Node);
+    END;
+
+    PROCEDURE GenCabRecibido@1000000026();
+    BEGIN
+      GenCabecera(Node, 'A0', 'SuministroLRFacturasRecibidas', '');
+    END;
+
+    PROCEDURE GenDetRecibido@1000000029(TabDocSII@1000000000 : Record 88208);
+    BEGIN
+      GenLinRecibido('RegistroLRFacturasRecibidas', TabDocSII, Node);
+    END;
+
+    PROCEDURE GenCabBienInversion@1000000052();
+    BEGIN
+      GenCabecera(Node, 'A0', 'SuministroLRBienesInversion', '');
+    END;
+
+    PROCEDURE GenDetBienInversion@1000000051(TabDocSII@1000000000 : Record 88208);
+    BEGIN
+      GenLinBienInversion('RegistroLRBienesInversion', TabDocSII, Node);
+    END;
+
+    PROCEDURE GenCabCobroEmitidas@1000000060();
+    BEGIN
+      GenCabecera(Node, '', 'SuministroLRCobrosEmitidas', '');
+    END;
+
+    PROCEDURE GenDetCobroEmitidas@1000000059(TabDocSII@1000000000 : Record 88208);
+    BEGIN
+      GenLinCobroEmitidas('RegistroLRCobros', TabDocSII, Node);
+    END;
+
+    PROCEDURE GenCabPagoRecibidas@1000000058();
+    BEGIN
+      GenCabecera(Node, '', 'SuministroLRPagosRecibidas', '');
+    END;
+
+    PROCEDURE GenDetPagoRecibidas@1000000057(TabDocSII@1000000000 : Record 88208);
+    BEGIN
+      GenLinPagoRecibidas('RegistroLRPagos', TabDocSII, Node);
+    END;
+
+    PROCEDURE GenCabOpIntracomunitaria@1000000054();
+    BEGIN
+      GenCabecera(Node, 'A0', 'SuministroLRDetOperacionIntracomunitaria', '');
+    END;
+
+    PROCEDURE GenDetOpIntracomunitaria@1000000053(TabDocSII@1000000000 : Record 88208);
+    BEGIN
+      GenLinOpIntracomunitaria('RegistroLRDetOperacionIntracomunitaria', TabDocSII, Node);
+    END;
+
+    PROCEDURE GenCabCobrosMetalico@1000000056();
+    BEGIN
+      GenCabecera(Node, 'A0', 'SuministroLRCobrosMetalico', '');
+    END;
+
+    PROCEDURE GenDetCobrosMetalico@1000000055(TabDocSII@1000000000 : Record 88208);
+    BEGIN
+      GenLinCobrosMetalico('RegistroLRCobrosMetalico', TabDocSII, Node);
+    END;
+
+    LOCAL PROCEDURE "<<--------XML"@1100288004();
+    BEGIN
+    END;
+
+    PROCEDURE GenerarXML@1000000014() : Text[1024];
+    BEGIN
+      FileName := FunSII.ClientTempFileName('', 'XML');
+      XMLDoc.save(FileName);
+      CLEAR(XMLDoc);
+      EXIT(FileName);
+    END;
+
+    PROCEDURE AppendProcessingInstruction@1100007(Parent@1100000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";Target@1100001 : Text[80];Data@1100002 : Text[250]);
+    VAR
+      ProcessingInstruction@1100003 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF89-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMProcessingInstruction";
+    BEGIN
+      ProcessingInstruction := XMLDoc.createProcessingInstruction(Target,Data);
+      Parent.appendChild(ProcessingInstruction);
+    END;
+
+    PROCEDURE AppendElement@1100009(Parent@1100000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";Name@1100001 : Text[80];Value@1100002 : Text[250];VAR Element@1100003 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF86-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMElement");
+    BEGIN
+      Element := XMLDoc.createElement(Name);
+      IF Value <> '' THEN
+        Element.text := Value;
+      Parent.appendChild(Element);
+    END;
+
+    PROCEDURE AppendElementBefore@1000000015(Parent@1100000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";Name@1100001 : Text[80];Value@1100002 : Text[250];VAR Element@1100003 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF86-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMElement";Before@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF86-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMElement");
+    BEGIN
+      Element := XMLDoc.createElement(Name);
+      IF Value <> '' THEN
+        Element.text := Value;
+      Parent.insertBefore(Element, Before);
+    END;
+
+    PROCEDURE AppendAttribute@1100010(Parent@1100000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF86-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMElement";Name@1100001 : Text[80];Value@1100002 : Text[250]);
+    BEGIN
+      Parent.setAttribute(Name,Value);
+    END;
+
+    PROCEDURE RemoveAttribute@1000000002(Parent@1100000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF86-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMElement";Name@1100001 : Text[80]);
+    BEGIN
+      Parent.removeAttribute(Name);
+    END;
+
+    PROCEDURE FindNode@3(XMLRootNode@1000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";NodePath@1001 : Text[250];VAR FoundXMLNode@1002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode") : Boolean;
+    BEGIN
+      IF ISCLEAR(XMLRootNode) THEN
+        EXIT(FALSE);
+
+      FoundXMLNode := XMLRootNode.selectSingleNode(NodePath);
+
+      IF ISCLEAR(FoundXMLNode) THEN
+        EXIT(FALSE)
+      ELSE
+        EXIT(TRUE);
+    END;
+
+    LOCAL PROCEDURE "<<------Varios"@1100288005();
+    BEGIN
+    END;
+
+    LOCAL PROCEDURE CalcImportes@1000000030(TabDocSII@1000000000 : Record 88208);
+    VAR
+      qEmpresa@1000000001 : Text[30];
+      LinDocSII@1000000002 : Record 88209;
+    BEGIN
+      WITH TabDocSII DO BEGIN
+        qEmpresa := GblSII.GetGblEmpresa;
+
+        IF qEmpresa <> '' THEN
+          CHANGECOMPANY(qEmpresa);
+
+        CALCFIELDS(Base, Cuota);
+        TotalAmount1 := ConvDec2Str(Base+Cuota, 2);
+        TotalAmount2 := ConvDec2Str(Cuota, 2);
+      END;
+    END;
+
+    LOCAL PROCEDURE TiposImpuestos@1000000006(Recibido@1000000001 : Boolean;NumMov@1000000000 : Integer;ClaveOperacion@1000000009 : Code[10]) : Boolean;
+    VAR
+      MemFacturaE2@1000000006 : TEMPORARY Record 88202;
+      i@1000000003 : Integer;
+      qEmpresa@1000000008 : Text[30];
+      LinDocSII@1000000007 : Record 88209;
+      AcumCuota@1000000004 : Decimal;
+      AcumCuota2@1000000010 : Decimal;
+      AcumCuotaReversion@1000000002 : Decimal;
+      AcumBase@1000000005 : Decimal;
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+
+      IF qEmpresa <> '' THEN BEGIN
+        LinDocSII.CHANGECOMPANY(qEmpresa);
+      END;
+
+      CLEAR(MemFacturaE);
+      MemFacturaE.DELETEALL;
+      i := 0;
+
+      LinDocSII.SETRANGE(NMovDoc, NumMov);
+      IF LinDocSII.FIND('-') THEN REPEAT
+        i := i + 1;
+        CLEAR(MemFacturaE2);
+        MemFacturaE2.NMov := i;
+        MemFacturaE2.Tipo := MemFacturaE2.Tipo::Impuestos;
+        MemFacturaE2.TaxTypeCode := ClaveOperacion;
+        MemFacturaE2."Tipo IVA" := LinDocSII."Tipo IVA";
+        MemFacturaE2.Sujeta_NoExenta := LinDocSII.Sujeta_NoExenta;
+        MemFacturaE2."Inversion sujeto pasivo" := LinDocSII."Inversion sujeto pasivo";
+        MemFacturaE2."Causa exencion" := LinDocSII."Causa exencion";
+        MemFacturaE2.Service := LinDocSII.Service;
+        MemFacturaE2."Tipo No Sujeto" := LinDocSII."Tipo No Sujeto";
+
+        IF (LinDocSII."%IVA" <> 0) AND (MemFacturaE2."Tipo IVA" = MemFacturaE2."Tipo IVA"::Normal) THEN BEGIN
+          IF LinDocSII.Sujeta_NoExenta = '' THEN
+            MemFacturaE2.Sujeta_NoExenta := 'S1'
+          ELSE
+            MemFacturaE2.Sujeta_NoExenta := LinDocSII.Sujeta_NoExenta;
+        END;
+
+        IF NOT LinDocSII."Inversion sujeto pasivo" THEN BEGIN
+          IF (LinDocSII."%IVA" = 0) AND (MemFacturaE2."Tipo IVA" = MemFacturaE2."Tipo IVA"::Normal) THEN BEGIN
+            IF (LinDocSII."Tipo No Sujeto" = LinDocSII."Tipo No Sujeto"::" ") THEN BEGIN
+              MemFacturaE2."Tipo IVA" := MemFacturaE2."Tipo IVA"::Exento;
+              IF MemFacturaE2."Causa exencion" = '' THEN BEGIN
+                IF ClaveOperacion = CO_EXPORT THEN
+                  MemFacturaE2."Causa exencion" := 'E2'
+                ELSE
+                  MemFacturaE2."Causa exencion" := 'E1';     // <----------- Causa exenci¢n por defecto
+              END;
+            END ELSE BEGIN
+              MemFacturaE2."Tipo IVA" := MemFacturaE2."Tipo IVA"::"No sujeto";
+              MemFacturaE2."Causa exencion" := '';
+            END;
+          END;
+        END;
+
+        IF (LinDocSII."Tipo IVA" = LinDocSII."Tipo IVA"::Reversi¢n) THEN
+          IF MemFacturaE2."Causa exencion" = '' THEN
+            MemFacturaE2."Causa exencion" := 'E5';
+
+        MemFacturaE2.IVA := ConvDec2Str(LinDocSII."%IVA", 2);
+        MemFacturaE2.BaseIVA := LinDocSII.Base;
+
+        //Importe IVA
+        MemFacturaE2.ImporteIVA := LinDocSII.Cuota;
+
+        // Recargo de equivalencia
+        IF (LinDocSII."%RE" <> 0) THEN BEGIN
+          MemFacturaE2.RE := ConvDec2Str(LinDocSII."%RE", 2);
+          MemFacturaE2.ImporteRE := LinDocSII.ImporteRE;
+          AcumCuota := AcumCuota + LinDocSII.ImporteRE;
+          AcumCuota2 := AcumCuota2 + LinDocSII.ImporteRE;
+        END ELSE BEGIN
+          MemFacturaE2.RE := ConvDec2Str(0, 2);
+        END;
+
+        IF Recibido THEN BEGIN
+          AcumCuota := AcumCuota + LinDocSII."Cuota deducible";
+          IF (LinDocSII."Tipo IVA" = LinDocSII."Tipo IVA"::Reversi¢n) THEN
+            AcumCuotaReversion := AcumCuotaReversion + LinDocSII."Cuota deducible";
+        END ELSE BEGIN
+          AcumCuota := AcumCuota + LinDocSII.Cuota;
+          IF (LinDocSII."Tipo IVA" = LinDocSII."Tipo IVA"::Reversi¢n) THEN
+            AcumCuotaReversion := AcumCuotaReversion + LinDocSII.Cuota;
+        END;
+
+        AcumCuota2 := AcumCuota2 + LinDocSII.Cuota;
+
+        AcumBase  := AcumBase + LinDocSII.Base;
+
+        IF Es1S2017 AND NOT LinDocSII."Inversion sujeto pasivo" THEN BEGIN
+          MemFacturaE2.Sujeta_NoExenta  := 'S1';
+          MemFacturaE2.IVA := '';
+          MemFacturaE2.RE := '';
+          MemFacturaE2."Tipo IVA" := MemFacturaE2."Tipo IVA"::Normal;
+      //    MemFacturaE2."Inversion sujeto pasivo" := FALSE;
+          MemFacturaE2."Causa exencion" := '';
+        END;
+
+        MemFacturaE2.BaseIVA    := MemFacturaE2.BaseIVA + LinDocSII."Base no realizada";
+        AcumBase  := AcumBase +  + LinDocSII."Base no realizada";
+        MemFacturaE2.ImporteIVA := MemFacturaE2.ImporteIVA + LinDocSII."Importe no realizado";
+        AcumCuota := AcumCuota + LinDocSII."Importe no realizado";
+        AcumCuota2 := AcumCuota2 + LinDocSII."Importe no realizado";
+        MemFacturaE.SETRANGE("Tipo No Sujeto", MemFacturaE2."Tipo No Sujeto");
+        IF NOT LinDocSII.Retencion THEN BEGIN
+          MemFacturaE.SETRANGE(IVA, MemFacturaE2.IVA);
+          MemFacturaE.SETRANGE(RE, MemFacturaE2.RE);
+          MemFacturaE.SETRANGE("Tipo IVA", MemFacturaE2."Tipo IVA");
+          MemFacturaE.SETRANGE("Inversion sujeto pasivo", MemFacturaE2."Inversion sujeto pasivo");
+          MemFacturaE.SETRANGE(Service, MemFacturaE2.Service);
+          MemFacturaE.SETRANGE("Causa exencion", MemFacturaE2."Causa exencion");
+          IF MemFacturaE.FIND('-') THEN BEGIN
+            MemFacturaE.BaseIVA    := MemFacturaE.BaseIVA + MemFacturaE2.BaseIVA;
+            MemFacturaE.ImporteIVA := MemFacturaE.ImporteIVA + MemFacturaE2.ImporteIVA;
+            MemFacturaE.ImporteRE  := MemFacturaE.ImporteRE + MemFacturaE2.ImporteRE;
+            MemFacturaE.MODIFY;
+          END ELSE BEGIN
+            MemFacturaE := MemFacturaE2;
+            MemFacturaE.INSERT;
+          END;
+        END;
+
+      UNTIL LinDocSII.NEXT =0;
+
+      CLEAR(MemFacturaE);
+      Total_EntregaBienes := 0;
+      Total_PrestacionServicios := 0;
+      IF MemFacturaE.FIND('-') THEN REPEAT
+        IF MemFacturaE.Service THEN
+          Total_PrestacionServicios := Total_PrestacionServicios + MemFacturaE.BaseIVA
+        ELSE
+          Total_EntregaBienes := Total_EntregaBienes +  + MemFacturaE.BaseIVA;
+      UNTIL MemFacturaE.NEXT = 0;
+
+      TotalAmount1  := ConvDec2Str(AcumBase+AcumCuota2-AcumCuotaReversion, 2);
+      gblCuota      := AcumCuota;
+      TotalAmount2  := ConvDec2Str(AcumCuota, 2);
+    END;
+
+    PROCEDURE CogerPeriodoImpositivo@1000000000(Fecha@1000000000 : Date);
+    BEGIN
+      Ejercicio := FORMAT(Fecha, 0, '<Year4>');
+      Periodo := FORMAT(Fecha, 0, '<Month,2>');
+      Es1S2017 := (Fecha < 010717D);
+    END;
+
+    PROCEDURE CogerPeriodoImpositivoAnual@1100288002(Fecha@1000000000 : Date);
+    BEGIN
+      Ejercicio := FORMAT(Fecha, 0, '<Year4>');
+      Periodo := '0A';
+    END;
+
+    PROCEDURE ConvDec2Str@1000000004(qDec@1000000000 : Decimal;qNmDec@1000000001 : Integer) : Text[30];
+    VAR
+      rnd@1000000002 : Decimal;
+    BEGIN
+      IF qNmDec = 0 THEN
+        rnd := 1
+      ELSE
+        rnd := 1 / POWER(10 ,qNmDec);
+      qDec := ROUND(qDec, rnd);
+
+      EXIT(CONVERTSTR(FORMAT(qDec, 0, '<Sign><Integer><Decimals,'+FORMAT(qNmDec+1)+'>'), ',', '.'));
+    END;
+
+    PROCEDURE Date2Txt@1000000005(qFecha@1000000000 : Date) : Text[30];
+    BEGIN
+      EXIT(FORMAT(qFecha, 0, '<Year4>-<Month,2>-<Day,2>'));
+    END;
+
+    PROCEDURE Date2Sii@1000000039(qFecha@1000000000 : Date) : Text[30];
+    BEGIN
+      EXIT(FORMAT(qFecha, 0, '<Day,2>-<Month,2>-<Year4>'));
+    END;
+
+    PROCEDURE IDType@1100003(IDTipo@1000000001 : Code[10];CodPais@1000000000 : Code[10];NoIdent@1100288001 : Boolean) : Code[10];
+    BEGIN
+      // L4 -> Tipos de Identificaci¢n en el pa°s de residencia
+      // 02 NIF-IVA
+      // 03 PASAPORTE
+      // 04 DOCUMENTO OFICIAL DE IDENTIFICACI‡N EXPEDIDO POR EL PAIS O TERRITORIO DE RESIDENCIA
+      // 05 CERTIFICADO DE RESIDENCIA
+      // 06 OTRO DOCUMENTO PROBATORIO
+      // 07 No identificado
+
+      IF IDTipo <> '' THEN
+        EXIT(IDTipo);
+
+      IF NoIdent THEN
+        EXIT('07');
+
+      IF PaisUE(CodPais) THEN
+        EXIT('02')
+      ELSE
+        EXIT('06');
+    END;
+
+    PROCEDURE GetIDTipo@1100288008(IDTipo@1100288000 : Code[10];CodPais@1100000 : Code[10]) : Code[10];
+    BEGIN
+      // L4 -> Tipos de Identificaci¢n en el pa°s de residencia
+      // 02 NIF-IVA
+      // 03 PASAPORTE
+      // 04 DOCUMENTO OFICIAL DE IDENTIFICACI‡N EXPEDIDO POR EL PAIS O TERRITORIO DE RESIDENCIA
+      // 05 CERTIFICADO DE RESIDENCIA
+      // 06 OTRO DOCUMENTO PROBATORIO
+      // 07 No identificado
+
+      IF IDTipo <> '' THEN
+        EXIT(IDTipo);
+
+      IF PaisUE(CodPais) THEN
+        EXIT('02')
+      ELSE
+        EXIT('06');
+    END;
+
+    PROCEDURE PaisUE@1100288009(Codigo@1100288000 : Code[10]) : Boolean;
+    BEGIN
+      EXIT(Codigo IN ['DE','AT','BE','BG','CZ','CY','HR','DK','SK','SI','EE','FI','FR','GR',
+                      'HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','GB','RO','SE']);
+    END;
+
+    PROCEDURE EsTipoRectificativa@1000000063(Parametro@1000000000 : Code[10]) : Boolean;
+    BEGIN
+      EXIT(COPYSTR(Parametro, 1, 1)='R');
+    END;
+
+    PROCEDURE ClaveREoTrans@1100001(pRefDocu@1100000 : RecordRef;CodOperacion@1100288002 : ' ,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15') : Code[10];
+    VAR
+      FactVta@1100001 : Record 112;
+      AboVta@1100002 : Record 114;
+      FactCom@1100288000 : Record 122;
+      AboCom@1100288001 : Record 124;
+    BEGIN
+      EXIT(FORMAT(CodOperacion));
+
+      {
+      CASE pRefDocu.NUMBER OF
+          112:
+          BEGIN
+            pRefDocu.SETTABLE(FactVta);
+            IF Exportacion(FactVta."Bill-to Country/Region Code") THEN
+              EXIT('02')
+            ELSE
+              EXIT('01');
+          END;
+        122:
+          BEGIN
+            pRefDocu.SETTABLE(FactCom);
+            IF Exportacion(FactCom."Pay-to Country/Region Code") THEN
+              EXIT('02')
+            ELSE
+              EXIT('01');
+          END;
+
+      END
+      }
+    END;
+
+    PROCEDURE Sujeta@1000000025(MemFacturaE@1000000000 : TEMPORARY Record 88202) : Boolean;
+    BEGIN
+      EXIT(MemFacturaE."Tipo IVA" <> MemFacturaE."Tipo IVA"::"No sujeto");
+    END;
+
+    PROCEDURE SujetaNoExenta@1100013(MemFacturaE@1000000000 : TEMPORARY Record 88202) : Boolean;
+    VAR
+      FactVta@1100002 : Record 112;
+      AboVta@1100001 : Record 114;
+    BEGIN
+      EXIT((MemFacturaE."Tipo IVA" = MemFacturaE."Tipo IVA"::Normal) OR
+          (MemFacturaE."Tipo IVA" = MemFacturaE."Tipo IVA"::Reversi¢n) OR
+          (MemFacturaE."Tipo IVA" = MemFacturaE."Tipo IVA"::Total));
+    END;
+
+    PROCEDURE SujetaExenta@1100016(MemFacturaE@1000000000 : TEMPORARY Record 88202) : Boolean;
+    VAR
+      FactVta@1100002 : Record 112;
+      AboVta@1100001 : Record 114;
+    BEGIN
+      EXIT(MemFacturaE."Tipo IVA" = MemFacturaE."Tipo IVA"::Exento);
+    END;
+
+    PROCEDURE NoSujetaLocal@1000000024(MemFacturaE@1000000000 : TEMPORARY Record 88202) : Boolean;
+    BEGIN
+      IF MemFacturaE."Tipo No Sujeto" = MemFacturaE."Tipo No Sujeto"::Articulo7_14 THEN
+        EXIT(FALSE)
+      ELSE
+        EXIT((MemFacturaE.TaxTypeCode=CO_IGIC_IPSI) OR
+             (MemFacturaE.TaxTypeCode=CO_EXPORT) OR
+             (MemFacturaE.TaxTypeCode=CO_UE) OR
+             (MemFacturaE."Tipo No Sujeto" = MemFacturaE."Tipo No Sujeto"::ReglasLocalizacion));
+    END;
+
+    PROCEDURE GetCfg@1000000013();
+    VAR
+      qEmpresa@1000000000 : Text[30];
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+
+      IF qEmpresa <> '' THEN BEGIN
+        InfEmp.CHANGECOMPANY(qEmpresa);
+        CfgSII.CHANGECOMPANY(qEmpresa);
+      END;
+
+      InfEmp.GET;
+
+      CfgSII.GET;
+    END;
+
+    PROCEDURE SetInfEmp@1100288020(Dim1CodeVal@1100288000 : Code[20]);
+    VAR
+      qEmpresa@1000000000 : Text[30];
+    BEGIN
+      IF Dim1CodeVal = '' THEN
+        EXIT;
+
+      qEmpresa := GblSII.GetGblEmpresa;
+
+      IF qEmpresa <> '' THEN
+        CertSII.CHANGECOMPANY(qEmpresa);
+
+      CertSII.SETRANGE("Global Dimension 1 Code", Dim1CodeVal);
+      IF CertSII.FIND('-') THEN BEGIN
+        InfEmp."VAT Registration No." := CertSII.CIF;
+        InfEmp.Name                   := COPYSTR(CertSII.RazonSocial, 1, MAXSTRLEN(InfEmp.Name));
+      END;
+    END;
+
+    PROCEDURE ConvertStr40@1100288022(StrIn@1100288000 : Text[1024]) : Text[120];
+    VAR
+      Pos@1100288002 : Integer;
+      StrOut@1100000 : Text[1024];
+    BEGIN
+      // Convertir & en &amp;
+      StrOut := StrIn;
+      Pos := STRPOS(StrIn, '&');
+      IF Pos > 0 THEN BEGIN
+        StrOut := '';
+        WHILE (Pos > 0) DO BEGIN
+          StrOut := StrOut + COPYSTR(StrIn, 1, Pos-1)+'&amp;';
+          StrIn := COPYSTR(StrIn, Pos+1);
+          Pos := STRPOS(StrIn, '&');
+        END;
+        StrOut := StrOut + StrIn;
+      END;
+
+      // Convertir < en &lt;
+      Pos := STRPOS(StrOut, '<');
+      WHILE (Pos > 0) DO BEGIN
+        StrOut := COPYSTR(StrOut, 1, Pos-1)+'&lt;'+COPYSTR(StrOut, Pos+1);
+        Pos := STRPOS(StrOut, '<');
+      END;
+
+      EXIT(COPYSTR(StrOut, 1, 120));
+    END;
+
+    EVENT XMLDoc@1000000000::ondataavailable@198();
+    BEGIN
+    END;
+
+    EVENT XMLDoc@1000000000::onreadystatechange@-609();
+    BEGIN
+    END;
+
+    EVENT XMLDoc2@1000000020::ondataavailable@198();
+    BEGIN
+    END;
+
+    EVENT XMLDoc2@1000000020::onreadystatechange@-609();
+    BEGIN
+    END;
+
+    BEGIN
+    {
+      En este m¢dulo s¢lo generamos los XML necesarios para cada uno de lo supuestos
+
+      La informaci¢n necesaria se generar† en el m¢dulo de Clasificaci¢n (cu 88204)
+
+      Al que llamaremos con un registro de la tabla "Mem. int. SII" (88202) y que
+      nos devolver† todos los valores que necesitamos cumplimentar.
+    }
+    END.
+  }
+}

@@ -1,0 +1,260 @@
+OBJECT Form 88206 Env¡os SII por Empresa
+{
+  OBJECT-PROPERTIES
+  {
+    Date=26/06/17;
+    Time=16:29:06;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    Width=16390;
+    Height=8360;
+    Editable=Yes;
+    SaveValues=Yes;
+    InsertAllowed=No;
+    DeleteAllowed=No;
+    ModifyAllowed=No;
+    SourceTable=Table15;
+    DataCaptionExpr='';
+    DataCaptionFields=No.;
+    OnOpenForm=BEGIN
+                 //SETRANGE("Date Filter", 010117D, 31129999D);
+                 BuscaPerio('');
+               END;
+
+    OnActivateForm=BEGIN
+                     CurrForm.LinsDispProdAlma.FORM.ActualizarEmpresa(FALSE);
+                   END;
+
+    OnDeactivateForm=BEGIN
+                       CurrForm.LinsDispProdAlma.FORM.ActualizarEmpresa(TRUE);
+                     END;
+
+    OnAfterGetRecord=BEGIN
+                       BuscaPerio('');
+                       ActlzSubForm;
+                     END;
+
+  }
+  CONTROLS
+  {
+    { 2   ;TabControl   ;220  ;220  ;15730;2090 ;HorzGlue=Both;
+                                                 PageNamesML=ESP=Opciones }
+    { 4   ;TextBox      ;3850 ;990  ;3630 ;440  ;ParentControl=2;
+                                                 InPage=0;
+                                                 CaptionML=[ENU=Date filter;
+                                                            ESP=Filtro fecha];
+                                                 SourceExpr="Date Filter" }
+    { 3   ;Label        ;440  ;990  ;3300 ;440  ;ParentControl=4;
+                                                 InPage=0 }
+    { 9   ;CommandButton;13750;7700 ;2200 ;550  ;HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 PushAction=FormHelp }
+    { 26  ;CommandButton;5610 ;7700 ;550  ;550  ;VertGlue=Bottom;
+                                                 FocusOnClick=No;
+                                                 ShowCaption=No;
+                                                 BitmapPos=Center;
+                                                 AutoRepeat=Yes;
+                                                 Bitmap=16;
+                                                 ToolTipML=ESP=Periodo siguiente;
+                                                 OnPush=BEGIN
+                                                          BuscaPerio('>=');
+                                                          ActlzSubForm;
+                                                        END;
+                                                         }
+    { 27  ;CommandButton;5060 ;7700 ;550  ;550  ;VertGlue=Bottom;
+                                                 FocusOnClick=No;
+                                                 ShowCaption=No;
+                                                 BitmapPos=Center;
+                                                 AutoRepeat=Yes;
+                                                 Bitmap=15;
+                                                 ToolTipML=ESP=Periodo anterior;
+                                                 OnPush=BEGIN
+                                                          BuscaPerio('<=');
+                                                          ActlzSubForm;
+                                                        END;
+                                                         }
+    { 28  ;OptionButton ;2970 ;7700 ;550  ;550  ;VertGlue=Bottom;
+                                                 FocusOnClick=No;
+                                                 ShowCaption=No;
+                                                 Border=Yes;
+                                                 BitmapPos=Center;
+                                                 Bitmap=14;
+                                                 ToolTipML=ESP=Periodo;
+                                                 SourceExpr=LongPeriodoProd;
+                                                 OptionValue=Periodo;
+                                                 OnPush=BEGIN
+                                                          BuscaPerio('');
+                                                          ActlzSubForm;
+                                                        END;
+                                                         }
+    { 29  ;OptionButton ;2420 ;7700 ;550  ;550  ;VertGlue=Bottom;
+                                                 FocusOnClick=No;
+                                                 ShowCaption=No;
+                                                 Border=Yes;
+                                                 BitmapPos=Center;
+                                                 Bitmap=13;
+                                                 ToolTipML=ESP=A¤o;
+                                                 SourceExpr=LongPeriodoProd;
+                                                 OptionValue=A¤o;
+                                                 OnPush=BEGIN
+                                                          BuscaPerio('');
+                                                          ActlzSubForm;
+                                                        END;
+                                                         }
+    { 30  ;OptionButton ;1870 ;7700 ;550  ;550  ;VertGlue=Bottom;
+                                                 FocusOnClick=No;
+                                                 ShowCaption=No;
+                                                 Border=Yes;
+                                                 BitmapPos=Center;
+                                                 Bitmap=12;
+                                                 ToolTipML=ESP=Trimestre;
+                                                 SourceExpr=LongPeriodoProd;
+                                                 OptionValue=Trimestre;
+                                                 OnPush=BEGIN
+                                                          BuscaPerio('');
+                                                          ActlzSubForm;
+                                                        END;
+                                                         }
+    { 31  ;OptionButton ;1320 ;7700 ;550  ;550  ;VertGlue=Bottom;
+                                                 FocusOnClick=No;
+                                                 ShowCaption=No;
+                                                 Border=Yes;
+                                                 BitmapPos=Center;
+                                                 Bitmap=11;
+                                                 ToolTipML=ESP=Mes;
+                                                 SourceExpr=LongPeriodoProd;
+                                                 OptionValue=Mes;
+                                                 OnPush=BEGIN
+                                                          BuscaPerio('');
+                                                          ActlzSubForm;
+                                                        END;
+                                                         }
+    { 32  ;OptionButton ;770  ;7700 ;550  ;550  ;VertGlue=Bottom;
+                                                 FocusOnClick=No;
+                                                 ShowCaption=No;
+                                                 Border=Yes;
+                                                 BitmapPos=Center;
+                                                 Bitmap=10;
+                                                 ToolTipML=ESP=Semana;
+                                                 SourceExpr=LongPeriodoProd;
+                                                 OptionValue=Semana;
+                                                 OnPush=BEGIN
+                                                          BuscaPerio('');
+                                                          ActlzSubForm;
+                                                        END;
+                                                         }
+    { 33  ;OptionButton ;220  ;7700 ;550  ;550  ;VertGlue=Bottom;
+                                                 FocusOnClick=No;
+                                                 ShowCaption=No;
+                                                 Border=Yes;
+                                                 BitmapPos=Center;
+                                                 Bitmap=9;
+                                                 ToolTipML=ESP=D¡a;
+                                                 SourceExpr=LongPeriodoProd;
+                                                 OptionValue=D¡a;
+                                                 OnPush=BEGIN
+                                                          BuscaPerio('');
+                                                          ActlzSubForm;
+                                                        END;
+                                                         }
+    { 34  ;OptionButton ;3740 ;7700 ;550  ;550  ;VertGlue=Bottom;
+                                                 FocusOnClick=No;
+                                                 ShowCaption=No;
+                                                 Border=Yes;
+                                                 BitmapPos=Center;
+                                                 Bitmap=18;
+                                                 ToolTipML=ESP=Saldo periodo;
+                                                 SourceExpr=TipImporte;
+                                                 OptionValue=Saldo periodo;
+                                                 OnPush=BEGIN
+                                                          BuscaPerio('');
+                                                          ActlzSubForm;
+                                                        END;
+                                                         }
+    { 35  ;OptionButton ;4290 ;7700 ;550  ;550  ;VertGlue=Bottom;
+                                                 FocusOnClick=No;
+                                                 ShowCaption=No;
+                                                 Border=Yes;
+                                                 BitmapPos=Center;
+                                                 Bitmap=19;
+                                                 ToolTipML=ESP=Saldo a la fecha;
+                                                 SourceExpr=TipImporte;
+                                                 OptionValue=Acumulado hasta fecha;
+                                                 OnPush=BEGIN
+                                                          BuscaPerio('');
+                                                          ActlzSubForm;
+                                                        END;
+                                                         }
+    { 1   ;SubForm      ;220  ;2420 ;15730;4950 ;Name=LinsDispProdAlma;
+                                                 HorzGlue=Both;
+                                                 VertGlue=Both;
+                                                 Editable=No;
+                                                 Border=No;
+                                                 BorderWidth=Hairline;
+                                                 SubFormID=Form88207 }
+    { 5   ;CommandButton;8910 ;7700 ;2200 ;550  ;HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 Default=Yes;
+                                                 PushAction=LookupOK;
+                                                 InvalidActionAppearance=Hide;
+                                                 OnPush=VAR
+                                                          Almac‚n@1000000001 : Record 14;
+                                                        BEGIN
+                                                          CurrForm.LinsDispProdAlma.FORM.GETRECORD(Almac‚n);
+                                                          UltAlmacen := Almac‚n.Code;
+                                                        END;
+                                                         }
+    { 6   ;CommandButton;11330;7700 ;2200 ;550  ;HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 PushAction=LookupCancel;
+                                                 InvalidActionAppearance=Hide }
+  }
+  CODE
+  {
+    VAR
+      Calendario@1000000000 : Record 2000000007;
+      LongPeriodoProd@1000000001 : 'D¡a,Semana,Mes,Trimestre,A¤o,Periodo';
+      TipImporte@1000000002 : 'Saldo periodo,Acumulado hasta fecha';
+      UltAlmacen@1000000003 : Code[10];
+      ConfVtas@1000000004 : Record 311;
+      LinVentasAnt@1000000005 : Record 37;
+      Producto2@1000000006 : Record 27;
+      CdadDispoInicial@1000000007 : Decimal;
+      NoProd@1000000008 : Code[20];
+      SaldoProdNuevo@1000000009 : Decimal;
+      SaldoProdAnter@1000000010 : Decimal;
+      SaldoProd@1000000011 : Decimal;
+      CdadPorUdadMedida@1000000012 : Decimal;
+      CodUdadMedida@1000000013 : Code[10];
+
+    LOCAL PROCEDURE BuscaPerio@2(BusqTexto@1000000000 : Code[10]);
+    VAR
+      GestionFormPeriodo@1000000001 : Codeunit 359;
+    BEGIN
+      IF GETFILTER("Date Filter") <> '' THEN BEGIN
+        Calendario.SETFILTER("Period Start",GETFILTER("Date Filter"));
+        IF NOT GestionFormPeriodo.FindDate('+',Calendario,LongPeriodoProd) THEN
+          GestionFormPeriodo.FindDate('+',Calendario,LongPeriodoProd::D¡a);
+        Calendario.SETRANGE("Period Start");
+      END;
+      GestionFormPeriodo.FindDate(BusqTexto,Calendario,LongPeriodoProd);
+      IF TipImporte = TipImporte::"Saldo periodo" THEN BEGIN
+        SETRANGE("Date Filter",Calendario."Period Start",Calendario."Period End");
+        IF GETRANGEMIN("Date Filter") = GETRANGEMAX("Date Filter") THEN
+          SETRANGE("Date Filter",GETRANGEMIN("Date Filter"));
+      END ELSE
+        SETRANGE("Date Filter",0D,Calendario."Period End");
+    END;
+
+    PROCEDURE ActlzSubForm@1();
+    BEGIN
+      CurrForm.LinsDispProdAlma.FORM.Def(Rec, LongPeriodoProd,TipImporte);
+    END;
+
+    BEGIN
+    END.
+  }
+}

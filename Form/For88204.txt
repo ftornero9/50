@@ -1,0 +1,410 @@
+OBJECT Form 88204 Config. SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=06/08/17;
+    Time=11:19:47;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    Width=16720;
+    Height=9570;
+    CaptionML=[ENU=SII config.;
+               ESP=Config. SII];
+    SourceTable=Table88201;
+    OnOpenForm=VAR
+                 PermRang@1000000000 : Record 2000000044;
+               BEGIN
+                 RESET;
+                 IF NOT GET THEN
+                   INSERT;
+
+                 PermRang.RESET;
+                 PermRang.SETRANGE("Object Type",PermRang."Object Type"::Codeunit);
+                 PermRang.SETFILTER(From,'<=%1',88205);
+                 PermRang.SETFILTER(PermRang."To",'>=%1',88205);
+                 //CurrForm."Cargar certificados".VISIBLE(PermRang.FIND('-'));
+
+                 ActualizaCamposDesc;
+
+                 // Certificados
+                 CurrForm.Password.EDITABLE(NOT Enabled);
+                 CurrForm."ID Certificado".EDITABLE(NOT Enabled);
+               END;
+
+  }
+  CONTROLS
+  {
+    { 1100288000;TabControl;220;220 ;16390;8470 ;HorzGlue=Both;
+                                                 VertGlue=Both;
+                                                 PageNamesML=[ENU=General,External,XML,Certificate,Dates,Description;
+                                                              ESP=General,Externo,XML,Certificado,Fechas,Descripci¢n] }
+    { 1100288001;TextBox;3850 ;2090 ;5500 ;440  ;ParentControl=1100288000;
+                                                 InPage=0;
+                                                 SourceExpr="ID Certificado" }
+    { 1100288002;Label  ;440  ;2090 ;3300 ;440  ;ParentControl=1100288001 }
+    { 1100288003;TextBox;3850 ;2640 ;8800 ;440  ;ParentControl=1100288000;
+                                                 InPage=0;
+                                                 SourceExpr="Nombre certificado";
+                                                 OnAssistEdit=VAR
+                                                                NomFich@1000000003 : Text[1024];
+                                                                FunSII@1000000002 : Codeunit 88201;
+                                                                Certificado@1000000001 : Code[50];
+                                                                Tabla@1000000000 : Record 88203;
+                                                              BEGIN
+                                                                NomFich := FunSII.OpenFile('Elegir fichero', '', 1, '*:TXT', 0);
+                                                                IF NomFich <> '' THEN BEGIN
+                                                                  Certificado := FunSII.CogerCertificado(NomFich, TRUE, Tabla);
+                                                                  IF Certificado <> '' THEN BEGIN
+                                                                    "ID Certificado"      := Certificado;
+                                                                    "Nombre certificado"  := Tabla.Nombre;
+                                                                    "Huella digital"      := Tabla."Huella Digital";
+                                                                    "Valido desde"        := Tabla."Valido desde";
+                                                                    "Valido hasta"        := Tabla."Valido hasta";
+                                                                  END;
+                                                                END;
+                                                              END;
+                                                               }
+    { 1100288004;Label  ;440  ;2640 ;3300 ;440  ;ParentControl=1100288003 }
+    { 1100288005;TextBox;3850 ;3190 ;8800 ;440  ;ParentControl=1100288000;
+                                                 InPage=0;
+                                                 SourceExpr="Huella digital" }
+    { 1100288006;Label  ;440  ;3190 ;3300 ;440  ;ParentControl=1100288005 }
+    { 1100288007;TextBox;3850 ;3740 ;1700 ;440  ;ParentControl=1100288000;
+                                                 InPage=0;
+                                                 SourceExpr="Valido desde" }
+    { 1100288008;Label  ;440  ;3740 ;3300 ;440  ;ParentControl=1100288007 }
+    { 1100288009;TextBox;3850 ;4290 ;1700 ;440  ;ParentControl=1100288000;
+                                                 InPage=0;
+                                                 SourceExpr="Valido hasta" }
+    { 1100288010;Label  ;440  ;4290 ;3300 ;440  ;ParentControl=1100288009 }
+    { 1100288016;TextBox;3850 ;4840 ;2750 ;440  ;ParentControl=1100288000;
+                                                 InPage=0;
+                                                 SourceExpr="Rol SII" }
+    { 1100288017;Label  ;440  ;4840 ;3300 ;440  ;ParentControl=1100288016 }
+    { 1100288020;TextBox;3850 ;990  ;2750 ;440  ;Enabled=No;
+                                                 ParentControl=1100288000;
+                                                 InPage=0;
+                                                 SourceExpr="NIF Empresa" }
+    { 1100288021;Label  ;440  ;990  ;3300 ;440  ;ParentControl=1100288020 }
+    { 1000000000;TextBox;3850 ;1540 ;5500 ;440  ;Enabled=No;
+                                                 ParentControl=1100288000;
+                                                 InPage=0;
+                                                 SourceExpr="Raz¢n social" }
+    { 1000000001;Label  ;440  ;1540 ;3300 ;440  ;ParentControl=1000000000 }
+    { 1000000002;CheckBox;3850;7040 ;440  ;440  ;Visible=No;
+                                                 ParentControl=1100288000;
+                                                 InPage=0;
+                                                 ShowCaption=No;
+                                                 SourceExpr="Agrupar env¡os" }
+    { 1000000003;Label  ;440  ;7040 ;3300 ;440  ;Visible=No;
+                                                 ParentControl=1000000002 }
+    { 1100288022;CheckBox;3850;6270 ;440  ;550  ;ParentControl=1100288000;
+                                                 InPage=0;
+                                                 ShowCaption=No;
+                                                 SourceExpr="No procesar movs. IVA aut." }
+    { 1100288023;Label  ;440  ;6050 ;3300 ;770  ;ParentControl=1100288022;
+                                                 MultiLine=Yes }
+    { 1000000038;CheckBox;3850;7920 ;440  ;440  ;ParentControl=1100288000;
+                                                 InPage=0;
+                                                 ShowCaption=No;
+                                                 FontBold=Yes;
+                                                 SourceExpr="No procesar 1S 2017" }
+    { 1000000039;Label  ;440  ;7920 ;3300 ;440  ;ParentControl=1000000038;
+                                                 FontBold=Yes }
+    { 1000000042;TextBox;3850 ;5390 ;2750 ;440  ;ParentControl=1100288000;
+                                                 InPage=0;
+                                                 SourceExpr="Rol modificacion SII" }
+    { 1000000043;Label  ;440  ;5390 ;3300 ;440  ;ParentControl=1000000042 }
+    { 1000000016;CheckBox;3960;1100 ;440  ;440  ;ParentControl=1100288000;
+                                                 InPage=1;
+                                                 ShowCaption=No;
+                                                 SourceExpr="Gesti¢n externa env¡os" }
+    { 1000000017;Label  ;550  ;1100 ;3300 ;440  ;ParentControl=1000000016 }
+    { 1000000018;TextBox;3960 ;1650 ;5500 ;440  ;ParentControl=1100288000;
+                                                 InPage=1;
+                                                 SourceExpr="Ruta XML envios externos" }
+    { 1000000037;Label  ;550  ;1650 ;3300 ;440  ;ParentControl=1000000018 }
+    { 1100288014;CheckBox;3960;1100 ;440  ;440  ;ParentControl=1100288000;
+                                                 InPage=2;
+                                                 ShowCaption=No;
+                                                 SourceExpr="No guardar XML respuesta" }
+    { 1100288015;Label  ;550  ;1100 ;3300 ;440  ;ParentControl=1100288014 }
+    { 1100288018;CheckBox;3960;1650 ;440  ;440  ;ParentControl=1100288000;
+                                                 InPage=2;
+                                                 ShowCaption=No;
+                                                 SourceExpr="No guardar XML envio" }
+    { 1100288019;Label  ;550  ;1650 ;3300 ;440  ;ParentControl=1100288018 }
+    { 1100288024;CheckBox;3960;2310 ;440  ;440  ;ParentControl=1100288000;
+                                                 InPage=2;
+                                                 ShowCaption=No;
+                                                 SourceExpr="Guardar XML en ficheros" }
+    { 1100288025;Label  ;550  ;2310 ;3300 ;440  ;ParentControl=1100288024 }
+    { 1100288026;TextBox;3960 ;2860 ;6380 ;440  ;ParentControl=1100288000;
+                                                 InPage=2;
+                                                 SourceExpr="Ruta XML envio" }
+    { 1100288027;Label  ;550  ;2860 ;3300 ;440  ;ParentControl=1100288026 }
+    { 1100288028;TextBox;3960 ;3410 ;6380 ;440  ;ParentControl=1100288000;
+                                                 InPage=2;
+                                                 SourceExpr="Ruta XML respuesta" }
+    { 1100288029;Label  ;550  ;3410 ;3300 ;440  ;ParentControl=1100288028 }
+    { 1000000055;TextBox;5280 ;5170 ;5500 ;440  ;ParentControl=1100288000;
+                                                 InPage=2;
+                                                 SourceExpr="Path for tempfiles" }
+    { 1000000056;Label  ;550  ;5170 ;4620 ;440  ;ParentControl=1000000055 }
+    { 1100288032;TextBox;3850 ;1100 ;5500 ;440  ;ParentControl=1100288000;
+                                                 InPage=3;
+                                                 SourceExpr=Password }
+    { 1100288033;Label  ;440  ;1100 ;3300 ;440  ;ParentControl=1100288032 }
+    { 1100288034;CheckBox;3850;1760 ;440  ;440  ;ParentControl=1100288000;
+                                                 InPage=3;
+                                                 ShowCaption=No;
+                                                 SourceExpr=Enabled }
+    { 1100288035;Label  ;440  ;1760 ;3300 ;440  ;ParentControl=1100288034 }
+    { 1100288036;MenuButton;440;2530;2200 ;550  ;ParentControl=1100288000;
+                                                 InPage=3;
+                                                 CaptionML=[ENU=Certificate;
+                                                            ESP=Certificado];
+                                                 Menu=MENUITEMS
+                                                 {
+                                                   { ID=1100288011;
+                                                     CaptionML=[ENU=Import;
+                                                                ESP=Importar];
+                                                     OnPush=BEGIN
+                                                              ImportCertificate;
+                                                              // Certificados
+                                                              CurrForm.Password.EDITABLE(NOT Enabled);
+                                                              CurrForm."ID Certificado".EDITABLE(NOT Enabled);
+                                                            END;
+                                                             }
+                                                   { ID=1100288012;
+                                                     CaptionML=[ENU=Delete;
+                                                                ESP=Borrar];
+                                                     OnPush=BEGIN
+                                                              DeleteCertificate;
+                                                              // Certificados
+                                                              CurrForm.Password.EDITABLE(NOT Enabled);
+                                                            END;
+                                                             }
+                                                   { ID=1100288030;
+                                                     MenuItemType=Separator }
+                                                   { ID=1100288031;
+                                                     CaptionML=ESP=Comprobar;
+                                                     OnPush=BEGIN
+                                                              CheckLoadUnLoadCert;
+                                                            END;
+                                                             }
+                                                 }
+                                                  }
+    { 1000000005;Frame  ;550  ;1100 ;8140 ;2640 ;Name=Emitidas;
+                                                 ParentControl=1100288000;
+                                                 InPage=4;
+                                                 CaptionML=[ENU=Sales;
+                                                            ESP=Emitidas] }
+    { 1000000052;CheckBox;4180;1980 ;440  ;440  ;ParentControl=1000000005;
+                                                 InFrame=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr="Use document date in Sales" }
+    { 1000000047;Label  ;770  ;1650 ;3300 ;770  ;ParentControl=1000000052;
+                                                 MultiLine=Yes }
+    { 1000000053;TextBox;4180 ;2970 ;4290 ;440  ;ParentControl=1000000005;
+                                                 InFrame=Yes;
+                                                 SourceExpr="Document date" }
+    { 1000000054;Label  ;770  ;2970 ;3300 ;440  ;ParentControl=1000000053 }
+    { 1000000057;Frame  ;550  ;4510 ;8140 ;2860 ;Name=Recibidas;
+                                                 ParentControl=1100288000;
+                                                 InPage=4;
+                                                 CaptionML=[ENU=Purchases;
+                                                            ESP=Recibidas] }
+    { 1000000048;TextBox;4180 ;6380 ;4290 ;440  ;ParentControl=1000000057;
+                                                 InFrame=Yes;
+                                                 SourceExpr="Creation date" }
+    { 1000000049;Label  ;770  ;6380 ;3300 ;440  ;ParentControl=1000000048 }
+    { 1000000050;CheckBox;4180;5490 ;440  ;440  ;ParentControl=1000000057;
+                                                 InFrame=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr="Use creation date as posting" }
+    { 1000000051;Label  ;770  ;5060 ;3300 ;880  ;ParentControl=1000000050;
+                                                 MultiLine=Yes }
+    { 1000000008;Frame  ;440  ;1210 ;15950;4290 ;ParentControl=1100288000;
+                                                 InPage=5;
+                                                 CaptionML=ESP=Selec. descripci¢n }
+    { 1000000006;TextBox;4070 ;1760 ;4070 ;440  ;ParentControl=1000000008;
+                                                 InFrame=Yes;
+                                                 SourceExpr="Descripcion Factura venta";
+                                                 OnValidate=BEGIN
+                                                              ActualizaCamposDesc;
+                                                            END;
+                                                             }
+    { 1000000007;Label  ;660  ;1760 ;3300 ;440  ;ParentControl=1000000006 }
+    { 1000000009;TextBox;4070 ;2420 ;2750 ;440  ;ParentControl=1000000008;
+                                                 InFrame=Yes;
+                                                 SourceExpr="Tipo l¡nea factura Venta" }
+    { 1000000010;Label  ;660  ;2420 ;3300 ;440  ;ParentControl=1000000009 }
+    { 1000000019;TextBox;4070 ;3630 ;4070 ;440  ;ParentControl=1000000008;
+                                                 InFrame=Yes;
+                                                 SourceExpr="Descripcion Abono venta";
+                                                 OnValidate=BEGIN
+                                                              ActualizaCamposDesc;
+                                                            END;
+                                                             }
+    { 1000000020;Label  ;660  ;3630 ;3300 ;440  ;ParentControl=1000000019 }
+    { 1000000021;TextBox;4070 ;4290 ;2750 ;440  ;ParentControl=1000000008;
+                                                 InFrame=Yes;
+                                                 SourceExpr="Tipo l¡nea abono Venta" }
+    { 1000000022;Label  ;660  ;4290 ;3300 ;440  ;ParentControl=1000000021 }
+    { 1000000023;CheckBox;4070;4840 ;440  ;440  ;ParentControl=1000000008;
+                                                 InFrame=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr="Con cantidad en abono venta" }
+    { 1000000024;Label  ;660  ;4840 ;3300 ;440  ;ParentControl=1000000023 }
+    { 1000000025;TextBox;11990;1760 ;4070 ;440  ;ParentControl=1000000008;
+                                                 InFrame=Yes;
+                                                 SourceExpr="Descripcion Factura compra";
+                                                 OnValidate=BEGIN
+                                                              ActualizaCamposDesc;
+                                                            END;
+                                                             }
+    { 1000000026;Label  ;8580 ;1760 ;3300 ;440  ;ParentControl=1000000025 }
+    { 1000000027;TextBox;11990;2420 ;2750 ;440  ;ParentControl=1000000008;
+                                                 InFrame=Yes;
+                                                 SourceExpr="Tipo l¡nea factura compra" }
+    { 1000000028;Label  ;8580 ;2420 ;3300 ;440  ;ParentControl=1000000027 }
+    { 1000000029;CheckBox;11990;2970;440  ;440  ;ParentControl=1000000008;
+                                                 InFrame=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr="Con cantidad en factura compra" }
+    { 1000000030;Label  ;8580 ;2970 ;3300 ;440  ;ParentControl=1000000029 }
+    { 1000000031;TextBox;11990;3630 ;4070 ;440  ;ParentControl=1000000008;
+                                                 InFrame=Yes;
+                                                 SourceExpr="Descripcion Abono compra";
+                                                 OnValidate=BEGIN
+                                                              ActualizaCamposDesc;
+                                                            END;
+                                                             }
+    { 1000000032;Label  ;8580 ;3630 ;3300 ;440  ;ParentControl=1000000031 }
+    { 1000000033;TextBox;11990;4290 ;2750 ;440  ;ParentControl=1000000008;
+                                                 InFrame=Yes;
+                                                 SourceExpr="Tipo l¡nea abono compra" }
+    { 1000000034;Label  ;8580 ;4290 ;3300 ;440  ;ParentControl=1000000033 }
+    { 1000000035;CheckBox;11990;4840;440  ;440  ;ParentControl=1000000008;
+                                                 InFrame=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr="Con cantidad en abono compra" }
+    { 1000000036;Label  ;8580 ;4840 ;3300 ;440  ;ParentControl=1000000035 }
+    { 1000000011;CheckBox;4070;2970 ;440  ;440  ;ParentControl=1000000008;
+                                                 InFrame=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr="Con cantidad en factura venta" }
+    { 1000000012;Label  ;660  ;2970 ;3300 ;440  ;ParentControl=1000000011 }
+    { 1100288013;CommandButton;14410;8800;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 PushAction=FormHelp }
+    { 1000000013;MenuButton;11990;8800;2200;550 ;HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 CaptionML=ESP=Datos;
+                                                 Menu=MENUITEMS
+                                                 {
+                                                   { ID=1000000040;
+                                                     CaptionML=ESP=Series }
+                                                   { ID=1000000014;
+                                                     PushAction=RunObject;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Emtidas;
+                                                     RunObject=Form 88200;
+                                                     RunFormView=WHERE(Tipo registro=CONST(Series),
+                                                                       Tipo=CONST(E)) }
+                                                   { ID=1000000015;
+                                                     PushAction=RunObject;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Recibidas;
+                                                     RunObject=Form 88200;
+                                                     RunFormView=WHERE(Tipo registro=CONST(Series),
+                                                                       Tipo=CONST(R)) }
+                                                   { ID=1000000041;
+                                                     PushAction=RunObject;
+                                                     CaptionML=ESP=Clientes;
+                                                     RunObject=Form 88200;
+                                                     RunFormView=WHERE(Tipo registro=CONST(Clientes)) }
+                                                   { ID=1000000044;
+                                                     CaptionML=ESP=Excluir Series SII }
+                                                   { ID=1000000045;
+                                                     PushAction=RunObject;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Emitdas;
+                                                     RunObject=Form 88200;
+                                                     RunFormView=WHERE(Tipo registro=CONST(Excluir),
+                                                                       Tipo=CONST(E)) }
+                                                   { ID=1000000046;
+                                                     PushAction=RunObject;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Recibidas;
+                                                     RunObject=Form 88200;
+                                                     RunFormView=WHERE(Tipo registro=CONST(Excluir),
+                                                                       Tipo=CONST(R)) }
+                                                   { ID=1100288037;
+                                                     MenuItemType=Separator }
+                                                   { ID=1100288038;
+                                                     CaptionML=ESP=Respuesta AEAT }
+                                                   { ID=1100288041;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Ver }
+                                                   { ID=1100288039;
+                                                     MenuLevel=2;
+                                                     CaptionML=ESP=XML;
+                                                     OnPush=BEGIN
+                                                              FunSII.VerResAEAT('XML');
+                                                            END;
+                                                             }
+                                                   { ID=1100288040;
+                                                     MenuLevel=2;
+                                                     CaptionML=ESP=HTML;
+                                                     OnPush=BEGIN
+                                                              FunSII.VerResAEAT('HTML');
+                                                            END;
+                                                             }
+                                                   { ID=1100288042;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Exportar;
+                                                     OnPush=BEGIN
+                                                              CALCFIELDS("XML respuesta");
+                                                              IF "XML respuesta".HASVALUE THEN
+                                                                "XML respuesta".EXPORT('RespuestaAEAT.xml', TRUE);
+                                                            END;
+                                                             }
+                                                 }
+                                                  }
+  }
+  CODE
+  {
+    VAR
+      ComprobarCert@1100288000 : TextConst;
+      FunSII@1100288001 : Codeunit 88201;
+
+    PROCEDURE ActualizaCamposDesc@1000000000();
+    BEGIN
+      CurrForm."Tipo l¡nea factura Venta".VISIBLE("Descripcion Factura venta" = "Descripcion Factura venta"::"Primera linea documento");
+      CurrForm."Con cantidad en factura venta".VISIBLE
+         ("Descripcion Factura venta" = "Descripcion Factura venta"::"Primera linea documento");
+
+      CurrForm."Tipo l¡nea abono Venta".VISIBLE("Descripcion Abono venta" = "Descripcion Abono venta"::"Primera linea documento");
+      CurrForm."Con cantidad en abono venta".VISIBLE
+         ("Descripcion Abono venta" = "Descripcion Abono venta"::"Primera linea documento");
+
+      CurrForm."Tipo l¡nea factura compra".VISIBLE
+         ("Descripcion Factura compra" = "Descripcion Factura compra"::"Primera linea documento");
+      CurrForm."Con cantidad en factura compra".VISIBLE
+         ("Descripcion Factura compra" = "Descripcion Factura compra"::"Primera linea documento");
+
+      CurrForm."Tipo l¡nea abono compra".VISIBLE("Descripcion Abono compra" = "Descripcion Abono compra"::"Primera linea documento");
+      CurrForm."Con cantidad en abono compra".VISIBLE
+         ("Descripcion Abono compra" = "Descripcion Abono compra"::"Primera linea documento");
+    END;
+
+    BEGIN
+    END.
+  }
+}

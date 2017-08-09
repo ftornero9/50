@@ -1,0 +1,621 @@
+OBJECT Form 88209 Documentos recibidos SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=01/08/17;
+    Time=13:28:17;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    Width=16500;
+    Height=7370;
+    CaptionML=[ENU=SII received documents;
+               ESP=Documentos recibidos SII];
+    InsertAllowed=No;
+    DeleteAllowed=No;
+    TableBoxID=1000000000;
+    SourceTable=Table88208;
+    SourceTableView=SORTING(TipoSII,Bien de inversion,Tipo,Documento,Fecha)
+                    WHERE(TipoSII=CONST(R),
+                          Tipo=FILTER(Factura|Pago),
+                          Bien de inversion=CONST(No));
+    OnOpenForm=BEGIN
+                 IF FunSII.EjecutarProcesoAutMovsIVA THEN BEGIN
+                   ProcesarMovsIVA.USEREQUESTFORM(FALSE);
+                   ProcesarMovsIVA.RUN;
+                 END;
+               END;
+
+  }
+  CONTROLS
+  {
+    { 1000000000;TableBox;220 ;220  ;16060;5500 ;HorzGlue=Both;
+                                                 VertGlue=Both;
+                                                 HeadingHeight=1210;
+                                                 InlineEditing=Yes }
+    { 1000000091;TextBox;0    ;660  ;823  ;440  ;Editable=No;
+                                                 ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Tipo }
+    { 1000000092;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000091;
+                                                 InColumnHeading=Yes }
+    { 1000000001;TextBox;0    ;0    ;2583 ;0    ;Editable=No;
+                                                 ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Documento }
+    { 1000000002;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000001;
+                                                 InColumnHeading=Yes }
+    { 1000000003;TextBox;0    ;0    ;1700 ;0    ;Editable=No;
+                                                 ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Fecha }
+    { 1000000004;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000003;
+                                                 InColumnHeading=Yes }
+    { 1000000083;TextBox;4498 ;660  ;1700 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Creation date" }
+    { 1000000084;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000083;
+                                                 InColumnHeading=Yes }
+    { 1000000093;TextBox;4286 ;770  ;1700 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Fecha operacion" }
+    { 1000000094;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000093;
+                                                 InColumnHeading=Yes }
+    { 1000000075;CheckBox;3493;1210 ;1157 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr="No enviar" }
+    { 1000000076;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000075;
+                                                 InColumnHeading=Yes }
+    { 1000000005;TextBox;0    ;0    ;2267 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=NIF }
+    { 1000000006;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000005;
+                                                 InColumnHeading=Yes }
+    { 1000000073;CheckBox;6403;1760 ;1018 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr=IDOtro }
+    { 1000000074;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000073;
+                                                 InColumnHeading=Yes }
+    { 1000000095;TextBox;12250;660  ;867  ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=IDTipo }
+    { 1000000096;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000095;
+                                                 InColumnHeading=Yes }
+    { 1000000017;TextBox;0    ;0    ;1100 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Cod. pais" }
+    { 1000000018;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000017;
+                                                 InColumnHeading=Yes }
+    { 1100288010;CheckBox;8784;880  ;1085 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr="Factura DUA" }
+    { 1100288011;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288010;
+                                                 InColumnHeading=Yes }
+    { 1000000061;TextBox;7964 ;1430 ;1700 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Tipo factura" }
+    { 1000000062;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000061;
+                                                 InColumnHeading=Yes }
+    { 1000000007;TextBox;0    ;0    ;4400 ;0    ;HorzGlue=Both;
+                                                 ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=RazonSocial }
+    { 1000000008;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000007;
+                                                 InColumnHeading=Yes }
+    { 1000000069;TextBox;12330;990  ;3027 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=DocumentoTercero }
+    { 1000000070;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000069;
+                                                 InColumnHeading=Yes }
+    { 1000000071;TextBox;16730;990  ;1700 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Fecha documento" }
+    { 1000000072;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000071;
+                                                 InColumnHeading=Yes }
+    { 1000000013;TextBox;0    ;0    ;1700 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=NumTercero }
+    { 1000000014;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000013;
+                                                 InColumnHeading=Yes }
+    { 1000000037;TextBox;26908;2750 ;1937 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Estado env¡o" }
+    { 1000000038;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000037;
+                                                 InColumnHeading=Yes }
+    { 1000000049;TextBox;45108;2750 ;1436 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Tipo envio" }
+    { 1000000050;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000049;
+                                                 InColumnHeading=Yes }
+    { 1000000051;TextBox;45658;2750 ;1700 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Env¡os }
+    { 1000000052;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000051;
+                                                 InColumnHeading=Yes }
+    { 1000000015;TextBox;0    ;0    ;4400 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=TextoRegistro }
+    { 1000000016;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000015;
+                                                 InColumnHeading=Yes }
+    { 1000000019;TextBox;0    ;0    ;1700 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Clave operacion" }
+    { 1000000020;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000019;
+                                                 InColumnHeading=Yes }
+    { 1000000085;TextBox;2884 ;880  ;1006 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Lineas documento" }
+    { 1000000086;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000085;
+                                                 InColumnHeading=Yes }
+    { 1000000021;TextBox;0    ;0    ;2200 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Base }
+    { 1000000022;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000021;
+                                                 InColumnHeading=Yes }
+    { 1000000035;TextBox;14288;1980 ;2200 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Cuota }
+    { 1000000036;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000035;
+                                                 InColumnHeading=Yes }
+    { 1000000087;TextBox;41037;990  ;1778 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Cuota deducible" }
+    { 1000000088;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000087;
+                                                 InColumnHeading=Yes }
+    { 1000000079;TextBox;38682;1210 ;2200 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Base no realizada" }
+    { 1000000080;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000079;
+                                                 InColumnHeading=Yes }
+    { 1000000081;TextBox;40882;1210 ;2200 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Cuota no realizada" }
+    { 1000000082;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000081;
+                                                 InColumnHeading=Yes }
+    { 1000000063;TextBox;30824;1540 ;1436 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Tipo factura rectificativa" }
+    { 1000000064;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000063;
+                                                 InColumnHeading=Yes }
+    { 1000000065;TextBox;32524;1540 ;2090 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Factura corregida" }
+    { 1000000066;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000065;
+                                                 InColumnHeading=Yes }
+    { 1000000067;TextBox;34224;1540 ;1700 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Fecha factura corregida" }
+    { 1000000068;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000067;
+                                                 InColumnHeading=Yes }
+    { 1000000097;TextBox;55854;550  ;1839 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Base rectificada" }
+    { 1000000098;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000097;
+                                                 InColumnHeading=Yes }
+    { 1000000099;TextBox;58054;550  ;1870 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Cuota rectificada" }
+    { 1000000100;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000099;
+                                                 InColumnHeading=Yes }
+    { 1000000089;TextBox;53049;660  ;1536 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Medio de pago/cobro" }
+    { 1000000090;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000089;
+                                                 InColumnHeading=Yes }
+    { 1000000053;CheckBox;10001;660 ;1700 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr="Bien de inversion" }
+    { 1000000054;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000053;
+                                                 InColumnHeading=Yes }
+    { 1000000055;TextBox;30560;1210 ;4400 ;440  ;Visible=No;
+                                                 ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Identificacion Bien" }
+    { 1000000056;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000055;
+                                                 InColumnHeading=Yes }
+    { 1000000057;TextBox;34766;660  ;1700 ;440  ;Visible=No;
+                                                 ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Fecha Inicio Utilizacion" }
+    { 1000000058;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000057;
+                                                 InColumnHeading=Yes }
+    { 1000000059;TextBox;36466;660  ;1356 ;440  ;Visible=No;
+                                                 ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Prorrata anual definitiva" }
+    { 1000000060;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000059;
+                                                 InColumnHeading=Yes }
+    { 1000000039;TextBox;27458;2750 ;2750 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Timestamp presentaci¢n" }
+    { 1000000040;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000039;
+                                                 InColumnHeading=Yes }
+    { 1000000041;TextBox;30208;2750 ;1700 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Tipo comunicaci¢n" }
+    { 1000000042;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000041;
+                                                 InColumnHeading=Yes }
+    { 1000000043;TextBox;31908;2750 ;4400 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=CSV }
+    { 1000000044;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000043;
+                                                 InColumnHeading=Yes }
+    { 1100288002;TextBox;67019;1320 ;2352 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Estado cuadre" }
+    { 1100288003;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288002;
+                                                 InColumnHeading=Yes }
+    { 1100288004;TextBox;67569;1320 ;2200 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Timestamp cuadre" }
+    { 1100288005;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288004;
+                                                 InColumnHeading=Yes }
+    { 1000000045;TextBox;36308;2750 ;4400 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Codigo Error" }
+    { 1000000046;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000045;
+                                                 InColumnHeading=Yes }
+    { 1000000047;TextBox;40708;2750 ;4400 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Descripcion Error" }
+    { 1000000048;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000047;
+                                                 InColumnHeading=Yes }
+    { 1000000023;CommandButton;4400;6600;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 Default=Yes;
+                                                 PushAction=LookupOK;
+                                                 InvalidActionAppearance=Hide }
+    { 1000000024;CommandButton;6820;6600;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 Cancel=Yes;
+                                                 PushAction=LookupCancel;
+                                                 InvalidActionAppearance=Hide }
+    { 1000000025;CommandButton;14080;6600;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 PushAction=FormHelp }
+    { 1000000009;MenuButton;9240;6600;2200;550  ;HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 CaptionML=ESP=Acciones;
+                                                 Menu=MENUITEMS
+                                                 {
+                                                   { ID=1000000012;
+                                                     CaptionML=[ENU=Send;
+                                                                ESP=Enviar];
+                                                     OnPush=BEGIN
+                                                              qEmpresa := GblSII.GetGblEmpresa;
+                                                              IF qEmpresa <> '' THEN BEGIN
+                                                                CfgSII.CHANGECOMPANY(qEmpresa);
+                                                                qRec.CHANGECOMPANY(qEmpresa);
+                                                              END;
+
+                                                              CfgSII.GET;
+                                                              CfgSII."Agrupar env¡os" := FALSE;
+
+                                                              IF CfgSII."Agrupar env¡os" OR CfgSII."Gesti¢n externa env¡os" THEN BEGIN
+                                                                tmpDocSII.DELETEALL;
+                                                                DT := CURRENTDATETIME;
+                                                                CurrForm.SETSELECTIONFILTER(qRec);
+
+                                                                // FACTURAS
+                                                                qRec.SETRANGE(Tipo, Tipo::Factura);
+                                                                IF qRec.FIND('-') THEN BEGIN
+                                                                  REPEAT
+                                                                    tmpDocSII.NMov := qRec.NMov;
+                                                                    tmpDocSII.INSERT;
+                                                                  UNTIL qRec.NEXT = 0;
+                                                                  IF CfgSII."Agrupar env¡os" THEN
+                                                                    FunSII.EnviarRecibidosAgrupados(tmpDocSII)
+                                                                  ELSE BEGIN
+                                                                    FileName := FunSII.GenXMLRecibidosAgrupados(tmpDocSII, 2);
+                                                                    IF FileName <> '' THEN
+                                                                      MESSAGE(Text002, FileName);
+                                                                  END;
+                                                                END;
+
+                                                                // PAGOS
+                                                                tmpDocSII.DELETEALL;
+                                                                qRec.SETRANGE(Tipo, Tipo::Pago);
+                                                                IF qRec.FIND('-') THEN BEGIN
+                                                                  REPEAT
+                                                                    tmpDocSII.NMov := qRec.NMov;
+                                                                    tmpDocSII.INSERT;
+                                                                  UNTIL qRec.NEXT = 0;
+                                                                  IF CfgSII."Agrupar env¡os" THEN
+                                                                    FunSII.EnviarPagoRecibidasAgrupados(tmpDocSII)
+                                                                  ELSE BEGIN
+                                                                    FileName := FunSII.GenXMLPagoRecibidasAgrupados(tmpDocSII, 2);
+                                                                    IF FileName <> '' THEN
+                                                                      MESSAGE(Text002, FileName);
+                                                                  END;
+                                                                END;
+                                                              END  ELSE BEGIN
+                                                                CurrForm.SETSELECTIONFILTER(qRec);
+                                                                IF qRec.FIND('-') THEN  REPEAT
+                                                                  IF qRec.Tipo = qRec.Tipo::Factura THEN
+                                                                    FunSII.EnviarDocRecibido(qRec);
+                                                                  IF qRec.Tipo = qRec.Tipo::Pago THEN
+                                                                    FunSII.EnviarPagoRecibidas(qRec);
+                                                                UNTIL qRec.NEXT = 0;
+                                                              END;
+                                                            END;
+                                                             }
+                                                   { ID=1000000078;
+                                                     MenuItemType=Separator }
+                                                   { ID=1100288007;
+                                                     CaptionML=[ENU=Checkout;
+                                                                ESP=Contrastar] }
+                                                   { ID=1100288008;
+                                                     MenuLevel=1;
+                                                     CaptionML=[ENU=Period;
+                                                                ESP=Periodo];
+                                                     OnPush=BEGIN
+                                                              NIF := '';
+                                                              RazonSocial := '';
+                                                              FunSII.ContrastarDocRecibidos(Rec);
+                                                            END;
+                                                             }
+                                                   { ID=1100288009;
+                                                     MenuLevel=1;
+                                                     CaptionML=[ENU=Period & VAT No;
+                                                                ESP=Periodo y NIF];
+                                                     OnPush=BEGIN
+                                                              FunSII.ContrastarDocRecibidos(Rec);
+                                                            END;
+                                                             }
+                                                   { ID=1100288006;
+                                                     MenuItemType=Separator }
+                                                   { ID=1000000026;
+                                                     CaptionML=ESP=Consultar }
+                                                   { ID=1100288000;
+                                                     MenuLevel=1;
+                                                     CaptionML=[ENU=Period;
+                                                                ESP=Periodo];
+                                                     OnPush=BEGIN
+                                                              IF Tipo = Tipo::Factura THEN BEGIN
+                                                                NIF := '';
+                                                                RazonSocial := '';
+                                                                FunSII.ConDocRecibidosEnviados(Rec);
+                                                              END;
+
+                                                              IF Tipo = Tipo::Pago THEN
+                                                                FunSII.ConPagoRecibidas(Rec);
+                                                            END;
+                                                             }
+                                                   { ID=1100288001;
+                                                     MenuLevel=1;
+                                                     CaptionML=[ENU=Period & VAT No;
+                                                                ESP=Periodo y NIF];
+                                                     OnPush=BEGIN
+                                                              IF Tipo = Tipo::Factura THEN
+                                                                FunSII.ConDocRecibidosEnviados(Rec);
+
+                                                              IF Tipo = Tipo::Pago THEN
+                                                                FunSII.ConPagoRecibidas(Rec);
+                                                            END;
+                                                             }
+                                                   { ID=1000000077;
+                                                     CaptionML=[ENU=Refresh;
+                                                                ESP=Refrescar];
+                                                     OnPush=VAR
+                                                              qRec@1000000000 : Record 88208;
+                                                            BEGIN
+                                                               qEmpresa := GblSII.GetGblEmpresa;
+                                                              IF qEmpresa <> '' THEN
+                                                                qRec.CHANGECOMPANY(qEmpresa);
+
+                                                              CurrForm.SETSELECTIONFILTER(qRec);
+                                                              IF qRec.FIND('-') THEN  REPEAT
+                                                                FunSII.RefrescarDocSII(qRec);
+                                                              UNTIL qRec.NEXT = 0;
+                                                            END;
+                                                             }
+                                                   { ID=1000000027;
+                                                     MenuItemType=Separator }
+                                                   { ID=1000000028;
+                                                     CaptionML=ESP=XML }
+                                                   { ID=1000000029;
+                                                     MenuLevel=1;
+                                                     CaptionML=[ENU=View;
+                                                                ESP=Ver];
+                                                     OnPush=BEGIN
+                                                              qEmpresa := GblSII.GetGblEmpresa;
+                                                              IF qEmpresa <> '' THEN BEGIN
+                                                                CfgSII.CHANGECOMPANY(qEmpresa);
+                                                                qRec.CHANGECOMPANY(qEmpresa);
+                                                              END;
+
+                                                              CfgSII.GET;
+                                                              IF CfgSII."Agrupar env¡os" OR CfgSII."Gesti¢n externa env¡os" THEN BEGIN
+                                                                tmpDocSII.DELETEALL;
+                                                                CurrForm.SETSELECTIONFILTER(qRec);
+                                                                qRec.SETRANGE(Tipo, Tipo::Factura);
+                                                                IF qRec.FIND('-') THEN BEGIN
+                                                                  REPEAT
+                                                                    tmpDocSII.NMov := qRec.NMov;
+                                                                    tmpDocSII.INSERT;
+                                                                  UNTIL qRec.NEXT = 0;
+                                                                  FunSII.GenXMLRecibidosAgrupados(tmpDocSII, 0);
+                                                                END;
+
+                                                                qRec.SETRANGE(Tipo, Tipo::Pago);
+                                                                IF qRec.FIND('-') THEN BEGIN
+                                                                  tmpDocSII.DELETEALL;
+                                                                  REPEAT
+                                                                    tmpDocSII.NMov := qRec.NMov;
+                                                                    tmpDocSII.INSERT;
+                                                                  UNTIL qRec.NEXT = 0;
+                                                                  FunSII.GenXMLPagoRecibidasAgrupados(tmpDocSII, 0);
+                                                                END;
+
+                                                              END  ELSE BEGIN
+                                                                IF Tipo = Tipo::Factura THEN
+                                                                  FunSII.GenerarXMLDocRecibido(Rec, FALSE);
+                                                                IF Tipo = Tipo::Pago THEN
+                                                                  FunSII.GenerarXMLPagoRecibidas(Rec, FALSE);
+                                                              END;
+                                                            END;
+                                                             }
+                                                   { ID=1000000030;
+                                                     MenuLevel=1;
+                                                     CaptionML=[ENU=Export;
+                                                                ESP=Exportar];
+                                                     OnPush=BEGIN
+                                                              qEmpresa := GblSII.GetGblEmpresa;
+                                                              IF qEmpresa <> '' THEN BEGIN
+                                                                CfgSII.CHANGECOMPANY(qEmpresa);
+                                                                qRec.CHANGECOMPANY(qEmpresa);
+                                                              END;
+
+                                                              CfgSII.GET;
+                                                              IF CfgSII."Agrupar env¡os" OR CfgSII."Gesti¢n externa env¡os" THEN BEGIN
+                                                                tmpDocSII.DELETEALL;
+                                                                CurrForm.SETSELECTIONFILTER(qRec);
+                                                                qRec.SETRANGE(Tipo, Tipo::Factura);
+                                                                IF qRec.FIND('-') THEN BEGIN
+                                                                  REPEAT
+                                                                    tmpDocSII.NMov := qRec.NMov;
+                                                                    tmpDocSII.INSERT;
+                                                                  UNTIL qRec.NEXT = 0;
+                                                                  FunSII.GenXMLRecibidosAgrupados(tmpDocSII, 1);
+                                                                END;
+
+                                                                qRec.SETRANGE(Tipo, Tipo::Pago);
+                                                                IF qRec.FIND('-') THEN BEGIN
+                                                                  tmpDocSII.DELETEALL;
+                                                                  REPEAT
+                                                                    tmpDocSII.NMov := qRec.NMov;
+                                                                    tmpDocSII.INSERT;
+                                                                  UNTIL qRec.NEXT = 0;
+                                                                  FunSII.GenXMLPagoRecibidasAgrupados(tmpDocSII, 1);
+                                                                END;
+
+                                                              END  ELSE BEGIN
+                                                                IF Tipo = Tipo::Factura THEN
+                                                                  FunSII.GenerarXMLDocRecibido(Rec, TRUE);
+                                                                IF Tipo = Tipo::Pago THEN
+                                                                  FunSII.GenerarXMLPagoRecibidas(Rec, TRUE);
+                                                              END;
+                                                            END;
+                                                             }
+                                                   { ID=1000000031;
+                                                     MenuItemType=Separator }
+                                                   { ID=1000000032;
+                                                     CaptionML=[ENU=Check VAT No;
+                                                                ESP=Comprobar NIF];
+                                                     OnPush=VAR
+                                                              qRec@1100288000 : Record 88208;
+                                                            BEGIN
+                                                              qEmpresa := GblSII.GetGblEmpresa;
+                                                              IF qEmpresa <> '' THEN
+                                                                qRec.CHANGECOMPANY(qEmpresa);
+
+                                                              CurrForm.SETSELECTIONFILTER(qRec);
+                                                              IF qRec.FIND('-') THEN  REPEAT
+                                                                WSSII.CalidadDatos(qRec.NIF, qRec.RazonSocial, FALSE, qRec.NMov);
+                                                              UNTIL qRec.NEXT = 0;
+                                                            END;
+                                                             }
+                                                   { ID=1000000033;
+                                                     MenuItemType=Separator }
+                                                   { ID=1000000034;
+                                                     CaptionML=[ENU=Void send;
+                                                                ESP=Anular];
+                                                     OnPush=VAR
+                                                              qRec@1100288000 : Record 88208;
+                                                            BEGIN
+                                                              qEmpresa := GblSII.GetGblEmpresa;
+                                                              IF qEmpresa <> '' THEN BEGIN
+                                                                qRec.CHANGECOMPANY(qEmpresa);
+                                                              END;
+
+                                                              IF CONFIRM(Text001, FALSE) THEN BEGIN
+                                                                DT := CURRENTDATETIME;
+                                                                CurrForm.SETSELECTIONFILTER(qRec);
+                                                                IF qRec.FIND('-') THEN  REPEAT
+                                                                  FunSII.AnularDocRecibido(qRec, DT);
+                                                                UNTIL qRec.NEXT = 0;
+                                                              END;
+                                                            END;
+                                                             }
+                                                   { ID=1000000101;
+                                                     MenuItemType=Separator }
+                                                   { ID=1000000102;
+                                                     CaptionML=ESP=Marcar como bien de inversion;
+                                                     OnPush=BEGIN
+                                                              FunSII.CambiarBienInversionDocSII(Rec);
+                                                            END;
+                                                             }
+                                                 }
+                                                  }
+    { 1000000010;CommandButton;1320;6600;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 Visible=No;
+                                                 CaptionML=ESP=Datos;
+                                                 OnPush=VAR
+                                                          DocuSII@1000000000 : Record 88205;
+                                                          qEmpresa@1000000001 : Text[30];
+                                                        BEGIN
+                                                          {
+                                                          qEmpresa := GblSII.GetGblEmpresa;
+                                                          IF qEmpresa <> '' THEN
+                                                            DocuSII.CHANGECOMPANY(qEmpresa);
+
+                                                          IF NOT DocuSII.GET(DocuSII.Tipo::FV, Documento) THEN BEGIN
+                                                            DocuSII.INIT;
+                                                            DocuSII.Tipo      := DocuSII.Tipo::FV;
+                                                            DocuSII.Documento := "N§";
+                                                            DocuSII.Fecha     := "Fecha registro";
+                                                            DocuSII.INSERT;
+                                                          END;
+
+                                                          DocuSII.SETRANGE(Tipo, DocuSII.Tipo::FV);
+                                                          DocuSII.SETRANGE(Documento, "N§");
+                                                          FORM.RUN(FORM::"Documentos SII", DocuSII);
+                                                          }
+                                                        END;
+                                                         }
+    { 1000000011;CommandButton;11660;6600;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 CaptionML=ESP=&Navegar;
+                                                 OnPush=BEGIN
+                                                          Navegar;
+                                                        END;
+                                                         }
+    { 1000000103;Label  ;220  ;5940 ;15950;440  ;HorzGlue=Both;
+                                                 VertGlue=Bottom;
+                                                 HorzAlign=Center;
+                                                 ForeColor=255;
+                                                 FontBold=Yes;
+                                                 CaptionML=ESP=PULSAR F2 PARA EDITAR }
+  }
+  CODE
+  {
+    VAR
+      qEmpresa@1000000000 : Text[30];
+      GblSII@1000000001 : Codeunit 88200;
+      FunSII@1000000002 : Codeunit 88201;
+      WSSII@1000000003 : Codeunit 88202;
+      ProcesarMovsIVA@1100288000 : Report 88201;
+      qRec@1000000005 : Record 88208;
+      tmpDocSII@1000000006 : TEMPORARY Record 88208;
+      CfgSII@1000000007 : Record 88201;
+      DT@1000000008 : DateTime;
+      FileName@1000000009 : Text[1024];
+      Text001@1000000011 : TextConst 'ENU=Run void process;ESP=Ejecutar proceso de anulaci¢n';
+      Text002@1000000010 : TextConst 'ENU=File %1, created.;ESP=Fichero %1, creado.';
+
+    BEGIN
+    END.
+  }
+}

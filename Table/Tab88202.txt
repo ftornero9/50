@@ -1,0 +1,127 @@
+OBJECT Table 88202 Mem. int. SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=25/07/17;
+    Time=16:41:30;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+  }
+  FIELDS
+  {
+    { 1   ;   ;NMov                ;Integer        }
+    { 2   ;   ;Tipo                ;Option        ;OptionString=Impuestos,Lineas }
+    { 3   ;   ;TaxTypeCode         ;Code10         }
+    { 5   ;   ;IVA                 ;Code20         }
+    { 6   ;   ;Tipo documento      ;Option        ;OptionString=[ ,Pago,Factura,Abono,Docs.inter‚s,Recordatorio,Efecto] }
+    { 10  ;   ;%IVA                ;Decimal        }
+    { 11  ;   ;%RE                 ;Decimal        }
+    { 14  ;   ;Service             ;Boolean       ;CaptionML=[ENU=Service;
+                                                              ESP=Servicio] }
+    { 39  ;   ;Grupo registro IVA neg.;Code20     ;TableRelation="VAT Business Posting Group" }
+    { 40  ;   ;Grupo registro IVA prod.;Code20    ;TableRelation="VAT Product Posting Group" }
+    { 43  ;   ;Global Dimension 1 Code;Code20      }
+    { 50000;  ;RE                  ;Code10         }
+    { 75000;  ;BaseIVA             ;Decimal        }
+    { 75001;  ;ImporteIVA          ;Decimal        }
+    { 75002;  ;ImporteRE           ;Decimal        }
+    { 75003;  ;Tipo IVA            ;Option        ;CaptionML=ESP=Tipo IVA;
+                                                   OptionCaptionML=ESP=Normal,Reversi¢n,Total,Impto. venta,No sujeto,Exento;
+                                                   OptionString=Normal,Reversi¢n,Total,Impto. venta,No sujeto,Exento }
+    { 75006;  ;Importe no realizado;Decimal       ;AutoFormatType=1 }
+    { 75007;  ;Base no realizada   ;Decimal       ;AutoFormatType=1 }
+    { 76000;  ;OrigenImporteIVA    ;Decimal        }
+    { 80000;  ;Texto error         ;Text250        }
+    { 80001;  ;Codigo Error        ;Text30        ;Editable=No }
+    { 80002;  ;IDOtro              ;Boolean       ;Description=Indica que el identificador no es un CIF/NIF }
+    { 81001;  ;TaxRate             ;Code20        ;Description=FacturaE }
+    { 81002;  ;TotalAmount1        ;Code20        ;Description=TaxableBase,FacturaE }
+    { 81003;  ;EquivalentInEuros1  ;Code20        ;Description=FacturaE }
+    { 81004;  ;TotalAmount2        ;Code20        ;Description=TaxAmount,FacturaE }
+    { 81005;  ;EquivalentInEuros2  ;Code20        ;Description=FacturaE }
+    { 81006;  ;TotalAmount3        ;Code20        ;Description=SpecialTaxableBase,FacturaE }
+    { 81007;  ;EquivalentInEuros3  ;Code20        ;Description=FacturaE }
+    { 81008;  ;TotalAmount4        ;Code20        ;Description=SpecialTaxAmount,FacturaE }
+    { 81009;  ;EquivalentInEuros4  ;Code20        ;Description=FacturaE;
+                                                   Editable=No }
+    { 81010;  ;EquivalenceSurcharge;Code10        ;Description=FacturaE }
+    { 81011;  ;TotalAmount5        ;Code20        ;Description=EquivalenceSurchargeAmount,FacturaE }
+    { 81012;  ;EquivalentInEuros5  ;Code20        ;Description=FacturaE }
+    { 90001;  ;Sujeta_NoExenta     ;Code10        ;Description=S1,S2 }
+    { 90002;  ;Causa exencion      ;Code10        ;Description=E1,E2,E3,E4,E5,E6 }
+    { 95000;  ;TipoSII             ;Option        ;OptionCaptionML=ESP=E,R;
+                                                   OptionString=E,R }
+    { 95001;  ;TipoDocumento       ;Option        ;OptionCaptionML=[ENU=Factura,Pago,OpInt;
+                                                                    ESP=Factura,Pago,OpInt];
+                                                   OptionString=Factura,Pago,OpInt }
+    { 95002;  ;Documento           ;Code20         }
+    { 95003;  ;Fecha               ;Date           }
+    { 95004;  ;NIF                 ;Code20         }
+    { 95005;  ;RazonSocial         ;Text120        }
+    { 95006;  ;DocumentoTercero    ;Text35         }
+    { 95007;  ;Fecha documento     ;Date           }
+    { 95008;  ;NumTercero          ;Code20         }
+    { 95009;  ;TextoRegistro       ;Text100        }
+    { 95010;  ;Cod. divisa         ;Code20         }
+    { 95011;  ;Factor divisa       ;Decimal        }
+    { 95012;  ;Cod. pais           ;Code10         }
+    { 95013;  ;Tipo factura rectificativa;Code10  ;Description=S,I }
+    { 95014;  ;Factura corregida   ;Code35         }
+    { 95015;  ;Fecha factura corregida;Date        }
+    { 95016;  ;Numero DUA          ;Text50         }
+    { 95017;  ;Fecha DUA           ;Date           }
+    { 95018;  ;Situacion inmueble  ;Code10        ;Description=1,2,3,4 }
+    { 95019;  ;Referencia catastral;Text50         }
+    { 95020;  ;Tipo factura        ;Code10         }
+    { 95021;  ;Clave operacion     ;Option        ;OptionCaptionML=ESP=" ,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15";
+                                                   OptionString=[ ,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15] }
+    { 95022;  ;Emitida por terceros;Code10        ;Description=S,N }
+    { 95023;  ;Medio de pago/cobro ;Code10        ;Description=01,02,03,04 }
+    { 95024;  ;Tipo operacion intracomu.;Code10   ;Description=A,B }
+    { 95025;  ;Clave declarado intracomu.;Code10  ;Description=D,R }
+    { 95026;  ;Inversion sujeto pasivo;Boolean     }
+    { 95027;  ;Bien inversion      ;Boolean        }
+    { 95028;  ;Identificacion Bien ;Text40         }
+    { 95029;  ;Fecha Inicio Utilizacion;Date       }
+    { 95030;  ;Prorrata anual definitiva;Decimal  ;DecimalPlaces=2:2;
+                                                   MinValue=0;
+                                                   MaxValue=9.999;
+                                                   BlankZero=Yes }
+    { 95031;  ;Base rectificada    ;Decimal        }
+    { 95032;  ;Cuota rectificada   ;Decimal        }
+    { 95033;  ;Recargo rectificada ;Decimal        }
+    { 95034;  ;Criterio de IVA de caja;Boolean     }
+    { 95035;  ;No enviar           ;Boolean        }
+    { 95036;  ;DUA                 ;Boolean        }
+    { 95037;  ;Retencion           ;Boolean        }
+    { 95038;  ;No enviar linea     ;Boolean        }
+    { 95039;  ;DireccionOperador   ;Text120       ;Description=Determinadas Adquisiciones Intracomunitarias }
+    { 95040;  ;Fecha operacion     ;Date           }
+    { 95043;  ;Tipo No Sujeto      ;Option        ;CaptionML=[ENU=No Taxable VAT Type;
+                                                              ESP=Tipo No Sujeto];
+                                                   OptionCaptionML=[ENU=" ,ReglasLocalizacion,Articulo7_14";
+                                                                    ESP=" ,ReglasLocalizacion,Articulo7_14"];
+                                                   OptionString=[ ,ReglasLocalizacion,Articulo7_14] }
+    { 95049;  ;Creation date       ;Date          ;CaptionML=[ENU=Creation date;
+                                                              ESP=Fecha creacion] }
+    { 95060;  ;Factura resumen inicio;Code20      ;Description=TipoFactura = F4 }
+    { 95061;  ;Factura resumen fin ;Code20        ;Description=TipoFactura = F4 }
+    { 95065;  ;DocumentoPago       ;Text35         }
+    { 96000;  ;NMov IVA            ;Integer        }
+    { 96001;  ;NMov IVA no realizado;Integer       }
+  }
+  KEYS
+  {
+    {    ;NMov                                    ;Clustered=Yes }
+    {    ;Tipo                                     }
+  }
+  CODE
+  {
+
+    BEGIN
+    END.
+  }
+}

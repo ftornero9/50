@@ -1,0 +1,3051 @@
+OBJECT Codeunit 88201 Funciones SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=06/08/17;
+    Time=11:11:38;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      Comilla@1000000001 : TextConst 'ESP=""""';
+      Text001@1000000009 : TextConst 'ESP=No se ha seleccionado un Certificado para firmar.';
+      ClientTempPath@1000000000 : Text[1024];
+      Text009@1000000004 : TextConst 'ENU=All Files (*.*)|*.*;ESP=Todos los archivos (*.*)|*.*';
+      FunWS@1100288000 : Codeunit 88202;
+      FunXML@1100288001 : Codeunit 88203;
+      Text015@1100288002 : TextConst 'ESP=Su usuario no tiene autorizaci¢n para realizar esta acci¢n.';
+      TextAnulado@1000000006 : TextConst 'ESP=Anulado';
+      GblSII@1100288004 : Codeunit 88200;
+      qEmpresa@1100288003 : Text[30];
+      TextSalvar@1000000005 : TextConst 'ESP=Guardar fichero XML';
+      TextC01@1000000026 : TextConst 'ESP="== Certifi"';
+      TextC01G@1000000036 : TextConst 'ESP="== Zerti"';
+      TextC01B@1000000025 : TextConst 'ESP="=="';
+      TextC02@1000000024 : TextConst 'ESP=mero de serie:';
+      TextC02E@1000000023 : TextConst 'ESP=Serial Number:';
+      TextC02G@1000000030 : TextConst 'ESP=Seriennummer:';
+      TextC03@1000000022 : TextConst 'ESP=Emisor:';
+      TextC03E@1000000021 : TextConst 'ESP=Issuer:';
+      TextC03G@1000000031 : TextConst 'ESP=Aussteller:';
+      TextC04@1000000020 : TextConst 'ESP="O="';
+      TextC05@1000000019 : TextConst 'ESP=NotBefore:';
+      TextC05G@1100288005 : TextConst 'ESP=Nicht vor:';
+      TextC06@1000000018 : TextConst 'ESP=NotAfter:';
+      TextC06G@1100288006 : TextConst 'ESP=Nicht nach:';
+      TextC07@1000000017 : TextConst 'ESP=Sujeto:';
+      TextC07A@1000000016 : TextConst 'ESP=Asunto:';
+      TextC07E@1000000015 : TextConst 'ESP=Subject:';
+      TextC07G@1000000034 : TextConst 'ESP=Antragsteller:';
+      TextC08@1000000014 : TextConst 'ESP="CN="';
+      TextC09@1000000013 : TextConst 'ESP=Prueba de cifrado satisfactoria';
+      TextC09E@1000000012 : TextConst 'ESP=Encryption test passed';
+      TextC09G@1000000035 : TextConst 'ESP=Das Testen der Signature wurde erfolgreich abgeschlossen';
+      TextC10@1000000011 : TextConst 'ESP=Hash de cert(sha1):';
+      TextC10E@1000000010 : TextConst 'ESP=Cert Hash(sha1):';
+      TextC10G@1000000037 : TextConst 'ESP=Zertifikathash(sha1):';
+      TextC11@1000000008 : TextConst 'ESP=La clave privada no se puede exportar';
+      TextC11E@1000000007 : TextConst 'ESP=Private key is NOT exportable';
+      TextC11G@1000000032 : TextConst 'ESP=Der private SchlÅssel ist NICHT exportierbar';
+      TextC12@1000000028 : TextConst 'ESP=Se ha pasado la prueba de firma';
+      TextC12E@1000000027 : TextConst 'ESP=Se ha pasado la prueba de firma';
+      TextC12G@1000000033 : TextConst 'ESP=Das Testen der Signature wurde erfolgreich abgeschlossen';
+      TextNIF@1000000003 : TextConst 'ESP=CIF';
+      TextNIF2@1000000002 : TextConst 'ESP=(R:';
+      FunPS1@1000000029 : Codeunit 88204;
+
+    PROCEDURE CogerCertificado@1000000013(Fichero@1000000007 : Text[1024];qConfirmacion@1000000005 : Boolean;VAR TablaCert@1000000008 : Record 88203) CertElegido : Code[20];
+    VAR
+      qFile@1000000006 : File;
+      Tabla@1100006 : TEMPORARY Record 88203;
+      lin@1100005 : Text[1024];
+      qPos@1100004 : Integer;
+      Creado@1100003 : Boolean;
+      qFecha@1100002 : Date;
+      StrComp@1000000003 : Text[100];
+      Leidos@1000000009 : Integer;
+      NumCert@1000000000 : Code[10];
+    BEGIN
+      qFile.TEXTMODE(TRUE);
+      IF qFile.OPEN(Fichero) THEN BEGIN
+        Tabla.LOCKTABLE;
+        Tabla.DELETEALL;
+        Creado := FALSE;
+        NumCert := '0';
+        WHILE qFile.POS < qFile.LEN DO BEGIN
+          Leidos := qFile.READ(lin);
+          // Certificado
+          qPos := STRPOS(lin, TextC01);
+          IF qPos = 0 THEN BEGIN
+            StrComp := TextC01G;
+            qPos := STRPOS(lin, StrComp);
+          END;
+          IF qPos <> 0 THEN BEGIN
+            lin := COPYSTR(lin, qPos+STRLEN(TextC01));
+            qPos := STRPOS(lin, TextC01B);
+            IF qPos <> 0 THEN BEGIN
+              Tabla.INIT;
+              Tabla.Certificado := DELCHR(COPYSTR(lin, 1, qPos-1));
+              Creado := TRUE;
+            END;
+          END;
+
+          // N£mero de serie
+          StrComp := TextC02;
+          qPos := STRPOS(lin, StrComp);
+          IF qPos = 0 THEN BEGIN
+            StrComp := TextC02E;
+            qPos := STRPOS(lin, StrComp);
+          END;
+          IF qPos = 0 THEN BEGIN
+            StrComp := TextC02G;
+            qPos := STRPOS(lin, StrComp);
+          END;
+          IF qPos <> 0 THEN BEGIN
+            lin := DELCHR(COPYSTR(lin, qPos+STRLEN(StrComp)));
+            IF Creado THEN BEGIN
+              // Cogemos los £ltimos 16 caracteres
+              IF STRLEN(lin) > 16 THEN
+                lin := COPYSTR(lin, STRLEN(lin)-15);
+              Tabla."Nß serie" := lin;
+            END;
+          END;
+
+          // Emisor
+          StrComp := TextC03;
+          qPos := STRPOS(lin, StrComp);
+          IF qPos = 0 THEN BEGIN
+            StrComp := TextC03E;
+            qPos := STRPOS(lin, StrComp);
+          END;
+          IF qPos = 0 THEN BEGIN
+            StrComp := TextC03G;
+            qPos := STRPOS(lin, StrComp);
+          END;
+          IF qPos <> 0 THEN BEGIN
+            lin := COPYSTR(lin, qPos+STRLEN(StrComp));
+            qPos := STRPOS(lin, TextC04);
+            IF qPos <> 0 THEN BEGIN
+              lin := COPYSTR(lin, qPos+STRLEN(TextC04));
+              IF Creado THEN BEGIN
+                qPos := STRPOS(lin, ',');
+                IF qPos <> 0 THEN
+                  lin := COPYSTR(lin, 1, qPos-1);
+                Tabla.Emisor := COPYSTR(lin, 1, MAXSTRLEN(Tabla.Emisor));
+              END;
+            END;
+          END;
+
+          // Valido desde
+          qPos := STRPOS(lin, TextC05);
+          IF qPos <> 0 THEN BEGIN
+            lin := COPYSTR(lin, qPos+STRLEN(TextC05)+1, 10);
+            IF Creado THEN BEGIN
+              IF EVALUATE(qFecha, lin) THEN
+                Tabla."Valido desde" := qFecha;
+            END;
+          END ELSE BEGIN
+            qPos := STRPOS(lin, TextC05G);
+            IF qPos <> 0 THEN BEGIN
+              lin := COPYSTR(lin, qPos+STRLEN(TextC05G)+1, 10);
+              IF Creado THEN BEGIN
+                lin := CONVERTSTR(lin, '.', '/');
+                IF EVALUATE(qFecha, lin) THEN
+                  Tabla."Valido desde" := qFecha;
+              END;
+            END;
+          END;
+
+          // Valido hasta
+          qPos := STRPOS(lin, TextC06);
+          IF qPos <> 0 THEN BEGIN
+            lin := COPYSTR(lin, qPos+STRLEN(TextC06)+1, 10);
+            IF Creado THEN BEGIN
+              IF EVALUATE(qFecha, lin) THEN
+                Tabla."Valido hasta" := qFecha;
+            END;
+          END ELSE BEGIN
+            qPos := STRPOS(lin, TextC06G);
+            IF qPos <> 0 THEN BEGIN
+              lin := COPYSTR(lin, qPos+STRLEN(TextC06G)+1, 10);
+              IF Creado THEN BEGIN
+                lin := CONVERTSTR(lin, '.', '/');
+                IF EVALUATE(qFecha, lin) THEN
+                  Tabla."Valido hasta" := qFecha;
+              END;
+            END;
+          END;
+
+          // Sujeto
+          StrComp := TextC07;
+          qPos := STRPOS(lin, StrComp);
+          IF qPos = 0 THEN BEGIN
+            StrComp := TextC07E;
+            qPos := STRPOS(lin, StrComp);
+          END;
+          IF qPos = 0 THEN BEGIN
+            StrComp := TextC07G;
+            qPos := STRPOS(lin, StrComp);
+          END;
+          IF qPos = 0 THEN BEGIN
+            StrComp := TextC07A;
+            qPos := STRPOS(lin, StrComp);
+          END;
+          IF qPos <> 0 THEN BEGIN
+            lin := COPYSTR(lin, qPos+STRLEN(StrComp));
+            qPos := STRPOS(lin, TextC08);
+            IF qPos <> 0 THEN BEGIN
+              lin := COPYSTR(lin, qPos+STRLEN(TextC08));
+              IF Creado THEN BEGIN
+                qPos := STRPOS(lin, ',');
+                IF qPos <> 0 THEN
+                  lin := COPYSTR(lin, 1, qPos-1);
+                Tabla.Nombre := COPYSTR(lin, 1, MAXSTRLEN(Tabla.Nombre));
+              END;
+            END ELSE BEGIN
+              qPos := STRPOS(lin, TextC04);
+              IF qPos <> 0 THEN BEGIN
+                lin := COPYSTR(lin, qPos+STRLEN(TextC04));
+                IF Creado THEN BEGIN
+                  qPos := STRPOS(lin, ',');
+                  IF qPos <> 0 THEN
+                    lin := COPYSTR(lin, 1, qPos-1);
+                  Tabla.Nombre := COPYSTR(lin, 1, MAXSTRLEN(Tabla.Nombre));
+                END;
+              END;
+            END;
+
+            // NIF
+            StrComp := TextNIF;
+            qPos := STRPOS(Tabla.Nombre, StrComp);
+            IF qPos <> 0 THEN
+              Tabla.CIF := DELCHR(COPYSTR(Tabla.Nombre, qPos+4, 10))
+            ELSE BEGIN
+              StrComp := TextNIF2;
+              qPos := STRPOS(Tabla.Nombre, StrComp);
+              IF qPos <> 0 THEN
+                Tabla.CIF := DELCHR(COPYSTR(Tabla.Nombre, qPos+4, 9));
+            END;
+
+            Tabla.INSERT;
+            Creado := FALSE;
+          END;
+
+          // Prueba de Cifrado
+          StrComp := TextC09;
+          qPos := STRPOS(lin, StrComp);
+          IF qPos = 0 THEN BEGIN
+            StrComp := TextC09E;
+            qPos := STRPOS(lin, StrComp);
+          END;
+          IF qPos = 0 THEN BEGIN
+            StrComp := TextC09G;
+            qPos := STRPOS(lin, StrComp);
+          END;
+
+          IF qPos <> 0 THEN BEGIN
+            Tabla.Comentario := COPYSTR(lin, 1, MAXSTRLEN(Tabla.Comentario));
+            IF NOT Tabla.INSERT THEN
+              Tabla.MODIFY;
+          END;
+
+          // Hash de cert
+          StrComp := TextC10;
+          qPos := STRPOS(lin, StrComp);
+          IF qPos = 0 THEN BEGIN
+            StrComp := TextC10E;
+            qPos := STRPOS(lin, StrComp);
+          END;
+          IF qPos = 0 THEN BEGIN
+            StrComp := TextC10G;
+            qPos := STRPOS(lin, StrComp);
+          END;
+          IF qPos <> 0 THEN BEGIN
+            Tabla."Huella Digital" := DELCHR(COPYSTR(lin, STRLEN(StrComp)+1, MAXSTRLEN(Tabla.Comentario)));
+            IF NOT Tabla.INSERT THEN
+              Tabla.MODIFY;
+          END;
+
+          // Clave privada
+          StrComp := UPPERCASE(TextC11);
+          qPos := STRPOS(UPPERCASE(lin), StrComp);
+          IF qPos = 0 THEN BEGIN
+            StrComp := UPPERCASE(TextC11E);
+            qPos := STRPOS(UPPERCASE(lin), StrComp);
+          END;
+          IF qPos = 0 THEN BEGIN
+            StrComp := UPPERCASE(TextC11G);
+            qPos := STRPOS(UPPERCASE(lin), StrComp);
+          END;
+          IF qPos = 0 THEN BEGIN
+            StrComp := UPPERCASE(TextC12);
+            qPos := STRPOS(UPPERCASE(lin), StrComp);
+          END;
+          IF qPos = 0 THEN BEGIN
+            StrComp := UPPERCASE(TextC12G);
+            qPos := STRPOS(UPPERCASE(lin), StrComp);
+          END;
+          IF qPos <> 0 THEN BEGIN
+            Tabla."Clave privada" := TRUE;
+            IF NOT Tabla.INSERT THEN
+              Tabla.MODIFY;
+          END;
+        END;
+      END;
+
+      CertElegido := '';
+      COMMIT;
+
+      IF qConfirmacion THEN BEGIN
+        Tabla.SETRANGE("Clave privada", TRUE);
+        Tabla.SETFILTER("Valido hasta", '%1|>%2', 0D, TODAY);
+        IF FORM.RUNMODAL(FORM::"Lista certificados SII", Tabla) = ACTION::LookupOK THEN BEGIN
+          CertElegido := Tabla."Nß serie";
+          TablaCert := Tabla;
+        END;
+      END ELSE
+         CertElegido := Tabla."Nß serie";
+    END;
+
+    PROCEDURE CogerCertificado2@1100288011(qConfirmacion@1000000005 : Boolean;VAR TablaCert@1000000008 : Record 88203;Dim1Company@1100288000 : Text[30]) CertElegido : Text[250];
+    VAR
+      qFile@1000000006 : File;
+      Tabla@1100006 : TEMPORARY Record 88203;
+      char@1000000013 : Text[30];
+      lin@1100005 : Text[1024];
+      qPos@1100004 : Integer;
+      Creado@1100003 : Boolean;
+      qFecha@1100002 : Date;
+      StrComp@1000000003 : Text[100];
+      Leidos@1000000009 : Integer;
+      WSHShell@1000000012 : Automation "{F935DC20-1CF0-11D0-ADB9-00C04FD58A0B} 1.0:{72C24DD5-D70A-438B-8A42-98424B88AFB8}:'Windows Script Host Object Model'.WshShell";
+      WSHExec@1000000011 : Automation "{F935DC20-1CF0-11D0-ADB9-00C04FD58A0B} 1.0:{08FED191-BE19-11D3-A28B-00104BD35090}:'Windows Script Host Object Model'.WshExec";
+      WSHTxt@1000000010 : Automation "{F935DC20-1CF0-11D0-ADB9-00C04FD58A0B} 1.0:{0BB02EC0-EF49-11CF-8940-00A0C9054228}:'Windows Script Host Object Model'.TextStream";
+      FinLinea@1000000014 : Boolean;
+      InfEmp@1100288002 : Record 79;
+      CertSII@1100288001 : Record 88203;
+    BEGIN
+      IF ISCLEAR(WSHShell) THEN
+        CREATE(WSHShell);
+      WSHExec := WSHShell.Exec('certutil -store -user My');
+      WSHTxt := WSHExec.StdOut;
+      Tabla.LOCKTABLE;
+      Tabla.DELETEALL;
+      Creado := FALSE;
+      WHILE NOT WSHTxt.AtEndOfStream DO BEGIN
+        lin := '';
+        FinLinea := FALSE;
+        WHILE NOT WSHTxt.AtEndOfStream AND (STRLEN(lin) < 1024) AND NOT FinLinea DO BEGIN
+          char := WSHTxt.Read(1);
+          FinLinea := (char[1] = 13);  // CR
+          IF NOT FinLinea AND (char[1] <> 10) THEN // LF
+            lin := lin + char;
+        END;
+
+        // Certificado
+        qPos := STRPOS(lin, TextC01);
+        IF qPos = 0 THEN BEGIN
+          StrComp := TextC01G;
+          qPos := STRPOS(lin, StrComp);
+        END;
+        IF qPos <> 0 THEN BEGIN
+          lin := COPYSTR(lin, qPos+STRLEN(TextC01));
+          qPos := STRPOS(lin, TextC01B);
+          IF qPos <> 0 THEN BEGIN
+            Tabla.INIT;
+            Tabla.Certificado := DELCHR(COPYSTR(lin, 1, qPos-1));
+            Creado := TRUE;
+          END;
+        END;
+
+        // N£mero de serie
+        StrComp := TextC02;
+        qPos := STRPOS(lin, StrComp);
+        IF qPos = 0 THEN BEGIN
+          StrComp := TextC02E;
+          qPos := STRPOS(lin, StrComp);
+        END;
+        IF qPos <> 0 THEN BEGIN
+          lin := DELCHR(COPYSTR(lin, qPos+STRLEN(StrComp)));
+          IF Creado THEN BEGIN
+            // Cogemos los £ltimos 16 caracteres
+            IF STRLEN(lin) > 16 THEN
+              lin := COPYSTR(lin, STRLEN(lin)-15);
+            Tabla."Nß serie" := lin;
+          END;
+        END;
+
+        // Emisor
+        StrComp := TextC03;
+        qPos := STRPOS(lin, StrComp);
+        IF qPos = 0 THEN BEGIN
+          StrComp := TextC03E;
+          qPos := STRPOS(lin, StrComp);
+        END;
+        IF qPos <> 0 THEN BEGIN
+          lin := COPYSTR(lin, qPos+STRLEN(StrComp));
+          qPos := STRPOS(lin, TextC04);
+          IF qPos <> 0 THEN BEGIN
+            lin := COPYSTR(lin, qPos+STRLEN(TextC04));
+            IF Creado THEN BEGIN
+              qPos := STRPOS(lin, ',');
+              IF qPos <> 0 THEN
+                lin := COPYSTR(lin, 1, qPos-1);
+              Tabla.Emisor := COPYSTR(lin, 1, MAXSTRLEN(Tabla.Emisor));
+            END;
+          END;
+        END;
+
+        // Valido desde
+        qPos := STRPOS(lin, TextC05);
+        IF qPos <> 0 THEN BEGIN
+          lin := COPYSTR(lin, qPos+STRLEN(TextC05)+1, 10);
+          IF Creado THEN BEGIN
+            IF EVALUATE(qFecha, lin) THEN
+              Tabla."Valido desde" := qFecha;
+          END;
+        END ELSE BEGIN
+          qPos := STRPOS(lin, TextC05G);
+          IF qPos <> 0 THEN BEGIN
+            lin := COPYSTR(lin, qPos+STRLEN(TextC05G)+1, 10);
+            IF Creado THEN BEGIN
+              lin := CONVERTSTR(lin, '.', '/');
+              IF EVALUATE(qFecha, lin) THEN
+                Tabla."Valido desde" := qFecha;
+            END;
+          END;
+        END;
+
+        // Valido hasta
+        qPos := STRPOS(lin, TextC06);
+        IF qPos <> 0 THEN BEGIN
+          lin := COPYSTR(lin, qPos+STRLEN(TextC06)+1, 10);
+          IF Creado THEN BEGIN
+            IF EVALUATE(qFecha, lin) THEN
+              Tabla."Valido hasta" := qFecha;
+          END;
+        END ELSE BEGIN
+          qPos := STRPOS(lin, TextC06G);
+          IF qPos <> 0 THEN BEGIN
+            lin := COPYSTR(lin, qPos+STRLEN(TextC06G)+1, 10);
+            IF Creado THEN BEGIN
+              lin := CONVERTSTR(lin, '.', '/');
+              IF EVALUATE(qFecha, lin) THEN
+                Tabla."Valido hasta" := qFecha;
+            END;
+          END;
+        END;
+
+        // Sujeto
+        StrComp := TextC07;
+        qPos := STRPOS(lin, StrComp);
+        IF qPos = 0 THEN BEGIN
+          StrComp := TextC07E;
+          qPos := STRPOS(lin, StrComp);
+        END;
+        IF qPos = 0 THEN BEGIN
+          StrComp := TextC07A;
+          qPos := STRPOS(lin, StrComp);
+        END;
+        IF qPos <> 0 THEN BEGIN
+          lin := COPYSTR(lin, qPos+STRLEN(StrComp));
+          qPos := STRPOS(lin, TextC08);
+          IF qPos <> 0 THEN BEGIN
+            lin := COPYSTR(lin, qPos+STRLEN(TextC08));
+            IF Creado THEN BEGIN
+              qPos := STRPOS(lin, ',');
+              IF qPos <> 0 THEN
+                lin := COPYSTR(lin, 1, qPos-1);
+              Tabla.Nombre := COPYSTR(lin, 1, MAXSTRLEN(Tabla.Nombre));
+            END;
+          END ELSE BEGIN
+            qPos := STRPOS(lin, TextC04);
+            IF qPos <> 0 THEN BEGIN
+              lin := COPYSTR(lin, qPos+STRLEN(TextC04));
+              IF Creado THEN BEGIN
+                qPos := STRPOS(lin, ',');
+                IF qPos <> 0 THEN
+                  lin := COPYSTR(lin, 1, qPos-1);
+                Tabla.Nombre := COPYSTR(lin, 1, MAXSTRLEN(Tabla.Nombre));
+              END;
+            END;
+          END;
+
+          // NIF
+          StrComp := TextNIF;
+          qPos := STRPOS(Tabla.Nombre, StrComp);
+          IF qPos <> 0 THEN
+            Tabla.CIF := DELCHR(COPYSTR(Tabla.Nombre, qPos+4, 10))
+          ELSE BEGIN
+            StrComp := TextNIF2;
+            qPos := STRPOS(Tabla.Nombre, StrComp);
+            IF qPos <> 0 THEN
+              Tabla.CIF := DELCHR(COPYSTR(Tabla.Nombre, qPos+4, 9));
+          END;
+
+          Tabla.INSERT;
+        END;
+
+        // Prueba de Cifrado
+        StrComp := TextC09;
+        qPos := STRPOS(lin, StrComp);
+        IF qPos = 0 THEN BEGIN
+          StrComp := TextC09E;
+          qPos := STRPOS(lin, StrComp);
+        END;
+        IF qPos <> 0 THEN BEGIN
+          Tabla.Comentario := COPYSTR(lin, 1, MAXSTRLEN(Tabla.Comentario));
+          IF NOT Tabla.INSERT THEN
+            Tabla.MODIFY;
+        END;
+
+        // Hash de cert
+        StrComp := TextC10;
+        qPos := STRPOS(lin, StrComp);
+        IF qPos = 0 THEN BEGIN
+          StrComp := TextC10E;
+          qPos := STRPOS(lin, StrComp);
+        END;
+        IF qPos = 0 THEN BEGIN
+          StrComp := TextC10G;
+          qPos := STRPOS(lin, StrComp);
+        END;
+        IF qPos <> 0 THEN BEGIN
+          Tabla."Huella Digital" := DELCHR(COPYSTR(lin, STRLEN(StrComp)+1, MAXSTRLEN(Tabla.Comentario)));
+          IF NOT Tabla.INSERT THEN
+            Tabla.MODIFY;
+        END;
+
+        // Clave privada
+        StrComp := UPPERCASE(TextC11);
+        qPos := STRPOS(UPPERCASE(lin), StrComp);
+        IF qPos = 0 THEN BEGIN
+          StrComp := UPPERCASE(TextC11E);
+          qPos := STRPOS(UPPERCASE(lin), StrComp);
+        END;
+        IF qPos = 0 THEN BEGIN
+          StrComp := UPPERCASE(TextC11G);
+          qPos := STRPOS(UPPERCASE(lin), StrComp);
+        END;
+        IF qPos = 0 THEN BEGIN
+          StrComp := UPPERCASE(TextC12);
+          qPos := STRPOS(UPPERCASE(lin), StrComp);
+        END;
+        IF qPos = 0 THEN BEGIN
+          StrComp := UPPERCASE(TextC12G);
+          qPos := STRPOS(UPPERCASE(lin), StrComp);
+        END;
+        IF qPos <> 0 THEN BEGIN
+          Tabla."Clave privada" := TRUE;
+          IF NOT Tabla.INSERT THEN
+            Tabla.MODIFY;
+        END;
+      END;
+
+      CertElegido := '';
+      COMMIT;
+
+      IF qConfirmacion THEN BEGIN
+        Tabla.SETRANGE("Clave privada", TRUE);
+        Tabla.SETFILTER("Valido hasta", '%1|>%2', 0D, TODAY);
+        IF FORM.RUNMODAL(FORM::"Lista certificados SII", Tabla) = ACTION::LookupOK THEN BEGIN
+          CertElegido := Tabla."Nß serie";
+          TablaCert := Tabla;
+        END;
+      END ELSE BEGIN
+        qEmpresa := GblSII.GetGblEmpresa;
+        IF qEmpresa <> '' THEN BEGIN
+          InfEmp.CHANGECOMPANY(qEmpresa);
+          CertSII.CHANGECOMPANY(qEmpresa);
+        END;
+        IF (Dim1Company <> '') THEN BEGIN
+          CertSII.SETRANGE("Global Dimension 1 Code", Dim1Company);
+          CertSII.FIND('-');
+          Tabla.SETRANGE(CIF, CertSII.CIF);
+        END ELSE BEGIN
+          InfEmp.GET;
+          Tabla.SETRANGE(CIF, InfEmp."VAT Registration No.");
+        END;
+        IF Tabla.FIND('-') THEN
+          CertElegido := Tabla.Nombre;
+      END;
+    END;
+
+    PROCEDURE GetCertificateDim1@1100288012(NMovDoc@1100288000 : Integer) : Text[250];
+    VAR
+      TabDocSII@1100288001 : Record 88208;
+      TabCertSII@1100288002 : Record 88203;
+    BEGIN
+      IF TabDocSII.GET(NMovDoc) THEN BEGIN
+        TabCertSII.SETRANGE("Global Dimension 1 Code", TabDocSII."Global Dimension 1 Code");
+        IF TabCertSII.FIND('-') THEN
+          EXIT(TabCertSII.Nombre);
+      END;
+      EXIT('');
+    END;
+
+    PROCEDURE GetVATNoDim1@1100288025(Dim1Comp@1100288000 : Text[30]) : Code[20];
+    VAR
+      TabDocSII@1100288001 : Record 88208;
+      TabCertSII@1100288002 : Record 88203;
+    BEGIN
+      TabCertSII.SETRANGE("Global Dimension 1 Code", Dim1Comp);
+      IF TabCertSII.FIND('-') THEN
+        EXIT(TabCertSII.CIF)
+      ELSE
+        EXIT('');
+    END;
+
+    PROCEDURE cmdShell@1000000012(Comando@1000000001 : Text[1024]);
+    VAR
+      lcShell@1000000000 : Automation "{F935DC20-1CF0-11D0-ADB9-00C04FD58A0B} 1.0:{72C24DD5-D70A-438B-8A42-98424B88AFB8}:'Windows Script Host Object Model'.WshShell";
+    BEGIN
+      CREATE(lcShell);
+      lcShell.Run(Comando);
+      CLEAR(lcShell);
+    END;
+
+    PROCEDURE SerieCert@1000000014(Certificado@1000000000 : Code[100]) : Code[16];
+    VAR
+      Len@1000000001 : Integer;
+    BEGIN
+      Certificado := DELCHR(Certificado, '<', '0');
+      Len := STRLEN(Certificado);
+      IF Len > 16 THEN
+        Certificado := COPYSTR(Certificado, Len-15);
+      EXIT(Certificado);
+    END;
+
+    PROCEDURE CogerExt@1000000018(qFichero@1000000000 : Text[1024]) : Text[30];
+    VAR
+      Pos@1000000001 : Integer;
+    BEGIN
+      Pos := STRPOS(qFichero, '.');
+      WHILE Pos <> 0 DO BEGIN
+        qFichero := COPYSTR(qFichero, Pos+1);
+        Pos := STRPOS(qFichero, '.');
+      END;
+      EXIT(LOWERCASE(qFichero));
+    END;
+
+    PROCEDURE QuitarPATH@13(qFichero@1000000000 : Text[1024]) : Text[250];
+    VAR
+      Pos@1000000001 : Integer;
+    BEGIN
+      Pos := STRPOS(qFichero, '\');
+      WHILE Pos <> 0 DO BEGIN
+        qFichero := COPYSTR(qFichero, Pos+1);
+        Pos := STRPOS(qFichero, '\');
+      END;
+      EXIT(UPPERCASE(qFichero));
+    END;
+
+    PROCEDURE SanitizeFilename@1000000008(Filename@1000000000 : Text[255]) : Text[255];
+    BEGIN
+      EXIT(CONVERTSTR(Filename, '\/:*?"<>|', '_________'));
+    END;
+
+    PROCEDURE ConvDec2Str@1000000004(qDec@1000000000 : Decimal;qNmDec@1000000001 : Integer) : Text[30];
+    BEGIN
+      EXIT(CONVERTSTR(FORMAT(qDec, 0, '<Sign><Integer><Decimals,'+FORMAT(qNmDec+1)+'>'), ',', '.'));
+    END;
+
+    PROCEDURE Date2Txt@1000000005(qFecha@1000000000 : Date) : Text[30];
+    BEGIN
+      EXIT(FORMAT(qFecha, 0, '<Year4>-<Month,2>-<Day,2>'));
+    END;
+
+    PROCEDURE "<-------------Ficheros"@1000000078();
+    BEGIN
+    END;
+
+    PROCEDURE DownloadTempFile@7(ServerFileName@1001 : Text[1024]) : Text[1024];
+    VAR
+      FileName@1102601003 : Text[1024];
+      Path@1102601004 : Text[1024];
+    BEGIN
+      FileName := ServerFileName;
+      Path := Magicpath;
+      //DOWNLOAD(ServerFileName,'',Path,Text009,FileName);
+      EXIT(FileName);
+    END;
+
+    PROCEDURE ServerTempFileName@5(PassedString@1001 : Text[250];FileExtension@1002 : Text[250]) FileName : Text[1024];
+    VAR
+      TempFile@1000 : File;
+      RutaTmp@1000000000 : Text[1024];
+    BEGIN
+      TempFile.CREATETEMPFILE;
+      FileName := TempFile.NAME + '.' + FileExtension;
+      RutaTmp := RutaTempFiles;
+      IF  RutaTmp <> '' THEN
+        FileName := RutaTmp + GetFileName(FileName);
+      TempFile.CLOSE;
+    END;
+
+    PROCEDURE ClientTempFileName@6(PassedString@1001 : Text[250];FileExtension@1002 : Text[250]) ClientFileName : Text[1024];
+    VAR
+      TempFile@1004 : File;
+    BEGIN
+      ClientFileName := ServerTempFileName(PassedString, FileExtension);
+    END;
+
+    PROCEDURE Path@8(Filename@1102601000 : Text[1024]) Path : Text[1024];
+    BEGIN
+      Filename := DELCHR(Filename,'<');
+      Path := Filename;
+      WHILE STRPOS(Filename,'\')<>0 DO BEGIN
+        Filename := COPYSTR(Filename, STRPOS(Filename,'\')+1);
+      END;
+      IF STRLEN(Path) > STRLEN(Filename) THEN
+        EXIT(COPYSTR(Path,1,STRLEN(Path)-STRLEN(Filename)))
+      ELSE
+        EXIT('');
+    END;
+
+    PROCEDURE Magicpath@9() : Text[1024];
+    BEGIN
+      EXIT('<TEMP>');   // MAGIC PATH makes sure we don't get a prompt
+    END;
+
+    PROCEDURE GetFileName@1000000080(PFile@1000000000 : Text[1024]) : Text[1024];
+    VAR
+      Pos@1000000001 : Integer;
+    BEGIN
+      Pos := STRPOS(PFile, '\');
+      WHILE Pos <> 0 DO BEGIN
+        PFile := COPYSTR(PFile, Pos+1);
+        Pos := STRPOS(PFile, '\');
+      END;
+      EXIT(UPPERCASE(PFile));
+    END;
+
+    PROCEDURE "<----------Varios"@1000000079();
+    BEGIN
+    END;
+
+    PROCEDURE FindNode@3(XMLRootNode@1000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";NodePath@1001 : Text[250];VAR FoundXMLNode@1002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode") : Boolean;
+    BEGIN
+      IF ISCLEAR(XMLRootNode) THEN
+        EXIT(FALSE);
+
+      FoundXMLNode := XMLRootNode.selectSingleNode(NodePath);
+
+      IF ISCLEAR(FoundXMLNode) THEN
+        EXIT(FALSE)
+      ELSE
+        EXIT(TRUE);
+    END;
+
+    PROCEDURE RemoveNameSpace@1100288000(XMLSourceDoc@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";VAR XMLDestinationDoc@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument");
+    VAR
+      OutStreamStylesheet@1000000002 : OutStream;
+      InStreamStylesheet@1000000003 : InStream;
+      XMLStyleSheet@1000000004 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";
+      TempTable@1000000005 : TEMPORARY Record 79;
+    BEGIN
+      TempTable.Picture.CREATEOUTSTREAM(OutStreamStylesheet);
+      TempTable.Picture.CREATEINSTREAM(InStreamStylesheet);
+      OutStreamStylesheet.WRITETEXT('<?xml version="1.0" encoding="UTF-8"?>');
+      OutStreamStylesheet.WRITETEXT('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">');
+      OutStreamStylesheet.WRITETEXT('<xsl:output method="xml" encoding="UTF-8" />');
+      OutStreamStylesheet.WRITETEXT('<xsl:template match="/">');
+      OutStreamStylesheet.WRITETEXT('<xsl:copy>');
+      OutStreamStylesheet.WRITETEXT('<xsl:apply-templates />');
+      OutStreamStylesheet.WRITETEXT('</xsl:copy>');
+      OutStreamStylesheet.WRITETEXT('</xsl:template>');
+      OutStreamStylesheet.WRITETEXT('<xsl:template match="*">');
+      OutStreamStylesheet.WRITETEXT('<xsl:element name="{local-name()}">');
+      OutStreamStylesheet.WRITETEXT('<xsl:apply-templates select="@* | node()" />');
+      OutStreamStylesheet.WRITETEXT('</xsl:element>');
+      OutStreamStylesheet.WRITETEXT('</xsl:template>');
+      OutStreamStylesheet.WRITETEXT('<xsl:template match="@*">');
+      OutStreamStylesheet.WRITETEXT('<xsl:attribute name="{local-name()}"><xsl:value-of select="."/></xsl:attribute>');
+      OutStreamStylesheet.WRITETEXT('</xsl:template>');
+      OutStreamStylesheet.WRITETEXT('<xsl:template match="text() | processing-instruction() | comment()">');
+      OutStreamStylesheet.WRITETEXT('<xsl:copy />');
+      OutStreamStylesheet.WRITETEXT('</xsl:template>');
+      OutStreamStylesheet.WRITETEXT('</xsl:stylesheet>');
+      IF ISCLEAR(XMLStyleSheet) THEN
+        CREATE(XMLStyleSheet);
+      XMLStyleSheet.load(InStreamStylesheet);
+      IF ISCLEAR(XMLDestinationDoc) THEN
+        CREATE(XMLDestinationDoc);
+      XMLSourceDoc.transformNodeToObject(XMLStyleSheet,XMLDestinationDoc);
+    END;
+
+    PROCEDURE ChangeValues@1100288001(XMLSourceDoc@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";VAR XMLDestinationDoc@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument");
+    VAR
+      OutStreamStylesheet@1000000002 : OutStream;
+      InStreamStylesheet@1000000003 : InStream;
+      XMLStyleSheet@1000000004 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";
+      TempTable@1000000005 : TEMPORARY Record 79;
+    BEGIN
+      TempTable.Picture.CREATEOUTSTREAM(OutStreamStylesheet);
+      TempTable.Picture.CREATEINSTREAM(InStreamStylesheet);
+      OutStreamStylesheet.WRITETEXT('<?xml version="1.0" encoding="UTF-8"?>');
+      OutStreamStylesheet.WRITETEXT('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">');
+      OutStreamStylesheet.WRITETEXT('<xsl:output method="xml" encoding="UTF-8" />');
+      OutStreamStylesheet.WRITETEXT('<xsl:template match="*">');
+      OutStreamStylesheet.WRITETEXT('<xsl:value-of select="." disable-output-escaping="yes"/>');
+      OutStreamStylesheet.WRITETEXT('</xsl:template>');
+      OutStreamStylesheet.WRITETEXT('</xsl:stylesheet>');
+      IF ISCLEAR(XMLStyleSheet) THEN
+        CREATE(XMLStyleSheet);
+      XMLStyleSheet.load(InStreamStylesheet);
+      IF ISCLEAR(XMLDestinationDoc) THEN
+        CREATE(XMLDestinationDoc);
+      XMLSourceDoc.transformNodeToObject(XMLStyleSheet,XMLDestinationDoc);
+    END;
+
+    PROCEDURE Texto2Fecha@16(Texto@1000000000 : Text[250]) : Date;
+    VAR
+      Fecha@1000000001 : Date;
+    BEGIN
+      IF DELCHR(Texto,'=') = '' THEN
+        EXIT(0D);
+      EVALUATE(Fecha,Texto);
+      EXIT(Fecha);
+    END;
+
+    PROCEDURE Texto2Num@15(Texto@1000000000 : Text[250]) : Decimal;
+    VAR
+      Num@1000000001 : Decimal;
+    BEGIN
+      IF DELCHR(Texto,'=') = '' THEN
+        EXIT(0);
+      EVALUATE(Num,CONVERTSTR(Texto,'.',','));
+      EXIT(Num);
+    END;
+
+    PROCEDURE Texto2Boo@10(Texto@1000000000 : Text[250]) : Boolean;
+    VAR
+      Boo@1000000001 : Boolean;
+    BEGIN
+      IF DELCHR(Texto,'=') = '' THEN
+        EXIT(FALSE);
+      EVALUATE(Boo,Texto);
+      EXIT(Boo);
+    END;
+
+    PROCEDURE "----------Permisos"@1100288022();
+    BEGIN
+    END;
+
+    PROCEDURE ComprobarPermisoSII@1100288028();
+    VAR
+      ListaRoles@1000000000 : ARRAY [10] OF Code[20];
+      CfgSII@1100288000 : Record 88201;
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+      END;
+
+      CfgSII.GET;
+
+      IF CfgSII."Rol SII" <> '' THEN BEGIN
+        ListaRoles[1] := CfgSII."Rol SII";
+        CheckRolUsuario(ListaRoles, FALSE);
+      END;
+    END;
+
+    PROCEDURE ComprobarPermiso@1100288021(IDRol@1000000001 : Code[20]);
+    VAR
+      ListaRoles@1000000000 : ARRAY [10] OF Code[20];
+    BEGIN
+      ListaRoles[1] := IDRol;
+
+      CheckRolUsuario(ListaRoles, FALSE);
+    END;
+
+    PROCEDURE SoloSuperUsuarios@1100288020();
+    VAR
+      ListaRoles@1000000000 : ARRAY [10] OF Code[20];
+    BEGIN
+      ListaRoles[1] := 'SUPER';
+
+      CheckRolUsuario(ListaRoles, FALSE);
+    END;
+
+    LOCAL PROCEDURE CheckRolUsuario@1100288018(ListaRoles@1000000000 : ARRAY [10] OF Code[20];OmitirError@1100288000 : Boolean) : Boolean;
+    VAR
+      TienePermiso@1000000001 : Boolean;
+    BEGIN
+      IF UsuarioWindows THEN
+        TienePermiso := CheckRolUsuarioWIN(ListaRoles)
+      ELSE
+        TienePermiso := CheckRolUsuarioBD(ListaRoles);
+
+      IF NOT TienePermiso THEN
+        IF NOT OmitirError THEN
+          ERROR(Text015);
+
+      EXIT(TienePermiso)
+    END;
+
+    LOCAL PROCEDURE CheckRolUsuarioWIN@1100288017(ListaRoles@1000000000 : ARRAY [10] OF Code[20]) : Boolean;
+    VAR
+      WindowsLogin@1000000001 : Record 2000000054;
+      Tabla@1000000002 : Record 2000000009;
+      MiembroDe@1000000004 : Record 2000000053;
+      i@1000000003 : Integer;
+    BEGIN
+      Tabla.SETRANGE("My Session",TRUE);
+      Tabla.FIND('-');
+      WindowsLogin.SETRANGE(ID,Tabla."User ID");
+      IF NOT WindowsLogin.FIND('-') THEN BEGIN
+        WindowsLogin.SETFILTER(ID,'%1','@' + Tabla."User ID");
+        WindowsLogin.FIND('-');
+      END;
+
+      FOR i := 1 TO ARRAYLEN(ListaRoles) DO
+        IF ListaRoles[i] <> '' THEN BEGIN
+          MiembroDe.SETRANGE(MiembroDe."Login SID",WindowsLogin.SID);
+          MiembroDe.SETFILTER("Role ID",ListaRoles[i]);
+          MiembroDe.SETRANGE("Company Name",'');
+          IF MiembroDe.FIND('-') THEN
+            EXIT(TRUE)
+          ELSE BEGIN
+            MiembroDe.SETRANGE("Company Name",COMPANYNAME);
+            IF MiembroDe.FIND('-') THEN
+              EXIT(TRUE);
+          END;
+        END;
+      EXIT(FALSE);
+    END;
+
+    LOCAL PROCEDURE CheckRolUsuarioBD@1100288016(ListaRoles@1000000000 : ARRAY [10] OF Code[20]) : Boolean;
+    VAR
+      MiembroDe@1000000001 : Record 2000000003;
+      i@1000000002 : Integer;
+    BEGIN
+      FOR i := 1 TO ARRAYLEN(ListaRoles) DO
+        IF ListaRoles[i] <> '' THEN BEGIN
+          MiembroDe.SETRANGE("User ID",USERID);
+          MiembroDe.SETFILTER("Role ID",ListaRoles[i]);
+          MiembroDe.SETRANGE(Company,'');
+          IF MiembroDe.FIND('-') THEN
+            EXIT(TRUE)
+          ELSE BEGIN
+            MiembroDe.SETRANGE(Company,COMPANYNAME);
+            IF MiembroDe.FIND('-') THEN
+              EXIT(TRUE);
+          END;
+        END;
+      EXIT(FALSE);
+    END;
+
+    LOCAL PROCEDURE UsuarioWindows@1100288015() : Boolean;
+    VAR
+      Tabla@1000000000 : Record 2000000009;
+    BEGIN
+      Tabla.SETRANGE("My Session",TRUE);
+      Tabla.FIND('-');
+      EXIT(Tabla."Login Type" = Tabla."Login Type"::Windows);
+    END;
+
+    PROCEDURE ComprobarPermisoModificaSII@1000000074();
+    VAR
+      ListaRoles@1000000000 : ARRAY [10] OF Code[20];
+      CfgSII@1100288000 : Record 88201;
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+      END;
+
+      CfgSII.GET;
+
+      IF CfgSII."Rol modificacion SII" <> '' THEN BEGIN
+        ListaRoles[1] := CfgSII."Rol modificacion SII";
+        CheckRolUsuario(ListaRoles, FALSE);
+      END;
+    END;
+
+    PROCEDURE "<<----------Envios"@1100288023();
+    BEGIN
+    END;
+
+    PROCEDURE CalcEnvios@1000000016(pRec@1000000000 : Record 88208;VAR Estado@1100288000 : Text[30]) : Integer;
+    VAR
+      RecEnvSII@1000000001 : Record 88204;
+      Cuantos@1100288001 : Integer;
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        RecEnvSII.CHANGECOMPANY(qEmpresa);
+
+      RecEnvSII.SETCURRENTKEY("NMov DocSII");
+      RecEnvSII.SETRANGE("NMov DocSII", pRec.NMov);
+      RecEnvSII.SETRANGE(RecEnvSII."Estado env°o");
+      Cuantos := RecEnvSII.COUNT();
+
+      EXIT(Cuantos);
+    END;
+
+    PROCEDURE CalcEnviosOk@1000000017(pRec@1000000000 : Record 88208) : Integer;
+    VAR
+      RecEnvSII@1000000001 : Record 88204;
+      Cuantos@1100288001 : Integer;
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        RecEnvSII.CHANGECOMPANY(qEmpresa);
+
+      RecEnvSII.SETCURRENTKEY("NMov DocSII");
+      RecEnvSII.SETRANGE("NMov DocSII", pRec.NMov);
+      RecEnvSII.SETRANGE("Tipo envio", RecEnvSII."Tipo envio"::Env°o, RecEnvSII."Tipo envio"::Baja);
+      RecEnvSII.SETRANGE("Estado env°o", 'Correcto');
+      Cuantos := RecEnvSII.COUNT();
+      EXIT(Cuantos);
+    END;
+
+    PROCEDURE CalcEnviosBIOk@1100288007(pRec@1000000000 : Record 88208) : Integer;
+    VAR
+      RecEnvSII@1000000001 : Record 88204;
+      Cuantos@1100288001 : Integer;
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        RecEnvSII.CHANGECOMPANY(qEmpresa);
+
+      RecEnvSII.SETCURRENTKEY("NMov DocSII");
+      RecEnvSII.SETRANGE("NMov DocSII", pRec.NMov);
+      RecEnvSII.SETRANGE("Tipo envio", RecEnvSII."Tipo envio"::"BI Env°o", RecEnvSII."Tipo envio"::"BI Baja");
+      RecEnvSII.SETRANGE("Estado env°o", 'Correcto');
+      Cuantos := RecEnvSII.COUNT();
+      EXIT(Cuantos);
+    END;
+
+    PROCEDURE CogerEstado@1000000001(pEstado@1000000000 : Text[30]) : Integer;
+    VAR
+      ret@1000000001 : Integer;
+    BEGIN
+      ret := 0;
+      CASE UPPERCASE(pEstado) OF
+        'CORRECTO':               ret := 1;
+        'ACEPTADOCONERRORES':     ret := 2;
+        'INCORRECTO':             ret := 3;
+        'ERROR':                  ret := 4;
+      END;
+      EXIT(ret);
+    END;
+
+    PROCEDURE ComprobarSiSeguir@1000000023(Tipo@1100288001 : ' ,Envio,Baja,Bi Envio,BI Baja,Contraste,Cobro,Pago';TabDocSII@1100288000 : Record 88208;VAR TipoEnvio@1000000000 : Code[10]) : Boolean;
+    VAR
+      Condicion@1100288003 : Boolean;
+      esBI@1100288002 : Boolean;
+      YaEnviado@1100288004 : Boolean;
+    BEGIN
+      IF TabDocSII."No enviar" THEN
+        EXIT(FALSE);
+
+      IF NoProcesar1S2017 AND (TabDocSII.Fecha < 010717D) THEN
+        EXIT(FALSE);
+
+      IF TabDocSII.Fecha > TODAY THEN
+        EXIT(FALSE);
+
+      IF TabDocSII.TipoSII = TabDocSII.TipoSII::R THEN
+        IF TabDocSII."Fecha documento" > TODAY THEN
+          EXIT(FALSE);
+
+      ComprobarPermisoSII;
+
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        TabDocSII.CHANGECOMPANY(qEmpresa);
+
+      Condicion  := FALSE;
+
+      CASE Tipo OF
+        Tipo::Envio:
+          BEGIN
+            Condicion := (TabDocSII."Tipo envio" = TabDocSII."Tipo envio"::" ");
+            IF NOT Condicion THEN
+              Condicion := ((TabDocSII."Tipo envio" = TabDocSII."Tipo envio"::Baja) AND
+                            (TabDocSII."Estado env°o" = TabDocSII."Estado env°o"::Correcto)) OR
+                           ((TabDocSII."Tipo envio" = TabDocSII."Tipo envio"::Env°o) AND
+                           ((TabDocSII."Estado env°o" <> TabDocSII."Estado env°o"::Correcto) AND
+                            (TabDocSII."Estado env°o" <> TabDocSII."Estado env°o"::AceptadoConErrores)));
+            esBI := FALSE;
+          END;
+        Tipo::Baja:
+          BEGIN
+            Condicion := ((TabDocSII."Tipo envio" = TabDocSII."Tipo envio"::Env°o) AND
+                          ((TabDocSII."Estado env°o" = TabDocSII."Estado env°o"::Correcto) OR
+                          (TabDocSII."Estado env°o" = TabDocSII."Estado env°o"::AceptadoConErrores))) OR
+                          ((TabDocSII."Tipo envio" = TabDocSII."Tipo envio"::Baja) AND
+                          (TabDocSII."Estado env°o" = TabDocSII."Estado env°o"::Error)) OR
+                          ((TabDocSII."Tipo envio" = TabDocSII."Tipo envio"::Baja) AND
+                          (TabDocSII."Estado env°o" = TabDocSII."Estado env°o"::Incorrecto));
+
+            esBI := FALSE;
+          END;
+
+        Tipo::"Bi Envio":
+          BEGIN
+             Condicion := (TabDocSII."Estado env°o" = TabDocSII."Estado env°o"::Correcto) AND
+                          (TabDocSII."Tipo envio" = TabDocSII."Tipo envio"::Env°o);
+             IF NOT Condicion THEN
+               Condicion := ((TabDocSII."Tipo envio" = TabDocSII."Tipo envio"::"BI Baja") AND
+                             (TabDocSII."Estado env°o" = TabDocSII."Estado env°o"::Correcto)) OR
+                            ((TabDocSII."Tipo envio" = TabDocSII."Tipo envio"::"BI Env°o") AND
+                            ((TabDocSII."Estado env°o" <> TabDocSII."Estado env°o"::Correcto) AND
+                             (TabDocSII."Estado env°o" <> TabDocSII."Estado env°o"::AceptadoConErrores)));
+            esBI := TRUE;
+          END;
+
+        Tipo::"BI Baja":
+          BEGIN
+            Condicion := ((TabDocSII."Tipo envio" = TabDocSII."Tipo envio"::"BI Env°o") AND
+                          ((TabDocSII."Estado env°o" = TabDocSII."Estado env°o"::Correcto) OR
+                          (TabDocSII."Estado env°o" = TabDocSII."Estado env°o"::AceptadoConErrores))) OR
+                          ((TabDocSII."Tipo envio" = TabDocSII."Tipo envio"::"BI Baja") AND
+                          (TabDocSII."Estado env°o" = TabDocSII."Estado env°o"::Error));
+
+            esBI := TRUE;
+          END;
+
+        Tipo::Cobro:
+          BEGIN
+            Condicion := (TabDocSII."Tipo envio" = TabDocSII."Tipo envio"::" ");
+            IF NOT Condicion THEN
+              Condicion := ((TabDocSII."Tipo envio" = TabDocSII."Tipo envio"::Cobro) AND
+                           ((TabDocSII."Estado env°o" <> TabDocSII."Estado env°o"::Correcto) AND
+                            (TabDocSII."Estado env°o" <> TabDocSII."Estado env°o"::AceptadoConErrores)));
+            esBI := FALSE;
+          END;
+
+        Tipo::Pago:
+          BEGIN
+            Condicion := (TabDocSII."Tipo envio" = TabDocSII."Tipo envio"::" ");
+            IF NOT Condicion THEN
+              Condicion := ((TabDocSII."Tipo envio" = TabDocSII."Tipo envio"::Pago) AND
+                           ((TabDocSII."Estado env°o" <> TabDocSII."Estado env°o"::Correcto) AND
+                            (TabDocSII."Estado env°o" <> TabDocSII."Estado env°o"::AceptadoConErrores)));
+            esBI := FALSE;
+          END;
+
+      END;
+
+      IF Condicion THEN BEGIN
+        IF esBI THEN
+          YaEnviado := (CalcEnviosBIOk(TabDocSII) = 0)
+        ELSE
+          YaEnviado := (CalcEnviosOk(TabDocSII) = 0);
+
+        IF YaEnviado THEN
+          TipoEnvio := 'A0'
+        ELSE
+          TipoEnvio := 'A1';
+      END;
+
+      EXIT(Condicion);
+    END;
+
+    PROCEDURE "<<----------Emitidos"@1000000042();
+    BEGIN
+    END;
+
+    PROCEDURE EnviarDocEmitido@1000000003(TabDocSII@1100288000 : Record 88208);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000000 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+        Fichero := FunXML.EnviarDocEmitido(TabDocSII, TipoEnvio);
+        IF Fichero <> '' THEN BEGIN
+          IF GestionExternaRespuesta THEN BEGIN
+            FichSal := FunPS1.MkFilename('respuesta.xml');
+            FunPS1.EjecutarPS1(0, Fichero, FichSal);
+            FunWS.SII_Envio_Externo(Fichero, FichSal,FALSE,
+                            'SuministroLRFacturasEmitidas', 'RespuestaLRFacturasEmitidas', 0, 0, TabDocSII);
+
+          END ELSE
+            FunWS.SII_Envio(Fichero, FALSE,
+                            'SuministroLRFacturasEmitidas', 'RespuestaLRFacturasEmitidas', 0, 0, TabDocSII);
+        END;
+      END;
+    END;
+
+    PROCEDURE GenerarXMLDocEmitido@1000000009(TabDocSII@1100288000 : Record 88208;Exportar@1000000000 : Boolean);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+        Fichero := FunXML.EnviarDocEmitido(TabDocSII, TipoEnvio);
+        IF Fichero <> '' THEN BEGIN
+          IF Exportar THEN BEGIN
+            FichSal := OpenFile(TextSalvar, Fichero, 5, '*.XML', 1);
+            IF (FichSal <> '') AND (FichSal <> Fichero) THEN
+              COPY(Fichero, FichSal);
+          END ELSE
+            HYPERLINK(Fichero)
+        END;
+      END;
+    END;
+
+    PROCEDURE EnviarEmitidosAgrupados@1000000036(VAR tmpDocSII@1000000001 : Record 88208);
+    VAR
+      TabDocSII@1000000000 : Record 88208;
+      Fichero@1100288001 : Text[1024];
+      TipoEnvio@1100288003 : Code[2];
+      i@1000000002 : Integer;
+      FichSal@1000000003 : Text[1024];
+    BEGIN
+      IF tmpDocSII.COUNT > 0 THEN BEGIN
+        qEmpresa := GblSII.GetGblEmpresa;
+        IF qEmpresa <> '' THEN BEGIN
+          TabDocSII.CHANGECOMPANY(qEmpresa);
+        END;
+
+        FunXML.GenCabEmitido;
+        i := 0;
+        IF tmpDocSII.FIND('-') THEN REPEAT
+          TabDocSII.GET(tmpDocSII.NMov);
+          IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+            FunXML.GenDetEmitido(TabDocSII);
+            i := i + 1;
+         END;
+        UNTIL (tmpDocSII.NEXT = 0) OR (i = MaxNumAgrupados);
+
+        IF i > 0 THEN BEGIN
+          Fichero := FunXML.GenerarXML;
+          IF Fichero <> '' THEN BEGIN
+            IF GestionExternaRespuesta THEN BEGIN
+              FichSal := FunPS1.MkFilename('respuesta.xml');
+              FunPS1.EjecutarPS1(0, Fichero, FichSal);
+              FunWS.SII_Envio_Externo(Fichero, FichSal,FALSE,
+                             'SuministroLRFacturasEmitidas', 'RespuestaLRFacturasEmitidas', 0, 0, tmpDocSII);
+            END ELSE
+              FunWS.SII_Envio(Fichero, FALSE,
+                             'SuministroLRFacturasEmitidas', 'RespuestaLRFacturasEmitidas', 0, 0, tmpDocSII);
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE GenXMLEmitidosAgrupados@1000000035(VAR tmpDocSII@1100288000 : Record 88208;Accion@1000000000 : 'Ver,Exportar,Externo') : Text[1024];
+    VAR
+      TabDocSII@1000000002 : Record 88208;
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+      i@1000000003 : Integer;
+      DT@1100288004 : DateTime;
+      EsGestionExterna@1100288005 : Boolean;
+    BEGIN
+      IF tmpDocSII.COUNT > 0 THEN BEGIN
+        qEmpresa := GblSII.GetGblEmpresa;
+        IF qEmpresa <> '' THEN BEGIN
+          TabDocSII.CHANGECOMPANY(qEmpresa);
+        END;
+
+        DT := CURRENTDATETIME;
+        EsGestionExterna := GestionExterna AND (Accion = Accion::Externo);
+
+        FunXML.GenCabEmitido;
+        i := 0;
+        IF tmpDocSII.FIND('-') THEN REPEAT
+          TabDocSII.GET(tmpDocSII.NMov);
+          IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+            FunXML.GenDetEmitido(TabDocSII);
+            IF EsGestionExterna THEN
+              InsEnvioExterno(TabDocSII, DT, 1);
+            i := i + 1;
+          END;
+        UNTIL (tmpDocSII.NEXT = 0)  OR (i = MaxNumAgrupados);
+
+        IF i > 0 THEN BEGIN
+          Fichero := FunXML.GenerarXML;
+          IF Fichero <> '' THEN BEGIN
+            CASE Accion OF
+              Accion::Ver:      HYPERLINK(Fichero);
+
+              Accion::Exportar:
+                BEGIN
+                  FichSal := OpenFile(TextSalvar, Fichero, 5, '*.XML', 1);
+                  IF (FichSal <> '') AND (FichSal <> Fichero) THEN
+                    COPY(Fichero, FichSal);
+                END;
+
+              Accion::Externo:
+                BEGIN
+                  FichSal := RutaGestionExterna + MakeNameXMLExterno(0);
+                  COPY(Fichero, FichSal);
+                  EXIT(FichSal);
+                END;
+            END;
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE AnularDocEmitido@1100288006(TabDocSII@1100288000 : Record 88208;DT@1100288004 : DateTime);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000000 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Baja, TabDocSII, TipoEnvio) THEN BEGIN
+        IF GestionExterna THEN BEGIN
+          InsEnvioExterno(TabDocSII, DT, 2);
+        END ELSE BEGIN
+          IF TabDocSII.Tipo = TabDocSII.Tipo::Factura THEN BEGIN
+            Fichero := FunXML.BajaDocEmitido(TabDocSII);
+            IF Fichero <> '' THEN BEGIN
+                IF GestionExternaRespuesta THEN BEGIN
+                  FichSal := FunPS1.MkFilename('respuesta.xml');
+                  FunPS1.EjecutarPS1(0, Fichero, FichSal);
+                  FunWS.SII_Envio_Externo(Fichero, FichSal,FALSE,
+                                  'BajaLRFacturasEmitidas', 'RespuestaLRBajaFacturasEmitidas', 0, 3, TabDocSII);
+                END ELSE
+                  FunWS.SII_Envio(Fichero, FALSE,
+                                  'BajaLRFacturasEmitidas', 'RespuestaLRBajaFacturasEmitidas', 0, 3, TabDocSII);
+            END;
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE ConDocEmitidosEnviados@1100288004(TabDocSII@1000000000 : Record 88208);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+    BEGIN
+      ComprobarPermisoSII;
+
+      Fichero := FunXML.ConsultarEmitidasEnviadas(TabDocSII);
+      IF Fichero <> '' THEN BEGIN
+        IF GestionExternaRespuesta THEN BEGIN
+          FichSal := FunPS1.MkFilename('respuesta.xml');
+          FunPS1.EjecutarPS1(0, Fichero, FichSal);
+          FunWS.SII_Envio_Externo(Fichero,FichSal,TRUE,'ConsultaLRFacturasEmitidas','RespuestaConsultaLRFacturasEmitidas',0,1,TabDocSII);
+        END ELSE
+          FunWS.SII_Envio(Fichero,TRUE,'ConsultaLRFacturasEmitidas','RespuestaConsultaLRFacturasEmitidas',0,1,TabDocSII);
+      END;
+    END;
+
+    PROCEDURE "<<----------Recibidos"@1000000045();
+    BEGIN
+    END;
+
+    PROCEDURE EnviarDocRecibido@1000000025(TabDocSII@1100288000 : Record 88208);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000000 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o, TabDocSII, TipoEnvio) THEN BEGIN
+        Fichero := FunXML.EnviarDocRecibido(TabDocSII, TipoEnvio);
+        IF Fichero <> '' THEN BEGIN
+          IF GestionExternaRespuesta THEN BEGIN
+            FichSal := FunPS1.MkFilename('respuesta.xml');
+            FunPS1.EjecutarPS1(1, Fichero, FichSal);
+            FunWS.SII_Envio_Externo(Fichero, FichSal,FALSE,
+                            'SuministroLRFacturasRecibidas', 'RespuestaLRFacturasRecibidas', 1, 0, TabDocSII);
+          END ELSE
+            FunWS.SII_Envio(Fichero, FALSE,
+                            'SuministroLRFacturasRecibidas', 'RespuestaLRFacturasRecibidas', 1, 0, TabDocSII);
+        END;
+      END;
+    END;
+
+    PROCEDURE GenerarXMLDocRecibido@1000000010(TabDocSII@1100288000 : Record 88208;Exportar@1000000000 : Boolean);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+        Fichero := FunXML.EnviarDocRecibido(TabDocSII, TipoEnvio);
+        IF Fichero <> '' THEN BEGIN
+          IF Exportar THEN BEGIN
+            FichSal := OpenFile(TextSalvar, Fichero, 5, '*.XML', 1);
+            IF (FichSal <> '') AND (FichSal <> Fichero) THEN
+              COPY(Fichero, FichSal);
+          END ELSE
+            HYPERLINK(Fichero)
+        END;
+      END;
+    END;
+
+    PROCEDURE EnviarRecibidosAgrupados@1000000044(VAR tmpDocSII@1000000001 : Record 88208);
+    VAR
+      TabDocSII@1000000000 : Record 88208;
+      Fichero@1100288001 : Text[1024];
+      TipoEnvio@1100288003 : Code[2];
+      i@1000000002 : Integer;
+      FichSal@1000000003 : Text[1024];
+    BEGIN
+      IF tmpDocSII.COUNT > 0 THEN BEGIN
+        qEmpresa := GblSII.GetGblEmpresa;
+        IF qEmpresa <> '' THEN BEGIN
+          TabDocSII.CHANGECOMPANY(qEmpresa);
+        END;
+
+        FunXML.GenCabRecibido;
+        i := 0;
+        IF tmpDocSII.FIND('-') THEN REPEAT
+          TabDocSII.GET(tmpDocSII.NMov);
+          IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+            FunXML.GenDetRecibido(TabDocSII);
+            i := i + 1;
+          END;
+        UNTIL (tmpDocSII.NEXT = 0)  OR (i = MaxNumAgrupados);
+
+        IF i > 0 THEN BEGIN
+          Fichero := FunXML.GenerarXML;
+          IF Fichero <> '' THEN BEGIN
+            IF GestionExternaRespuesta THEN BEGIN
+              FichSal := FunPS1.MkFilename('respuesta.xml');
+              FunPS1.EjecutarPS1(1, Fichero, FichSal);
+              FunWS.SII_Envio_Externo(Fichero, FichSal,FALSE,
+                             'SuministroLRFacturasRecibidas', 'RespuestaLRFacturasRecibidas', 1, 0, tmpDocSII);
+
+            END ELSE
+              FunWS.SII_Envio(Fichero, FALSE,
+                             'SuministroLRFacturasRecibidas', 'RespuestaLRFacturasRecibidas', 1, 0, tmpDocSII);
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE GenXMLRecibidosAgrupados@1000000038(VAR tmpDocSII@1100288000 : Record 88208;Accion@1000000003 : 'Ver,Exportar,Externo') : Text[1024];
+    VAR
+      TabDocSII@1000000002 : Record 88208;
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+      i@1000000000 : Integer;
+      DT@1100288005 : DateTime;
+      EsGestionExterna@1100288004 : Boolean;
+    BEGIN
+      IF tmpDocSII.COUNT > 0 THEN BEGIN
+        qEmpresa := GblSII.GetGblEmpresa;
+        IF qEmpresa <> '' THEN BEGIN
+          TabDocSII.CHANGECOMPANY(qEmpresa);
+        END;
+
+        DT := CURRENTDATETIME;
+        EsGestionExterna := GestionExterna AND (Accion = Accion::Externo);
+
+        FunXML.GenCabRecibido;
+        i := 0;
+        IF tmpDocSII.FIND('-') THEN REPEAT
+          TabDocSII.GET(tmpDocSII.NMov);
+          IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+            FunXML.GenDetRecibido(TabDocSII);
+            IF EsGestionExterna THEN
+              InsEnvioExterno(TabDocSII, DT, 1);
+             i := i + 1;
+          END;
+        UNTIL (tmpDocSII.NEXT = 0)  OR (i = MaxNumAgrupados);
+
+        IF i > 0 THEN BEGIN
+          Fichero := FunXML.GenerarXML;
+          IF Fichero <> '' THEN BEGIN
+            CASE Accion OF
+              Accion::Ver:      HYPERLINK(Fichero);
+
+              Accion::Exportar:
+                BEGIN
+                  FichSal := OpenFile(TextSalvar, Fichero, 5, '*.XML', 1);
+                  IF (FichSal <> '') AND (FichSal <> Fichero) THEN
+                    COPY(Fichero, FichSal);
+                END;
+
+              Accion::Externo:
+                BEGIN
+                  FichSal := RutaGestionExterna + MakeNameXMLExterno(1);
+                  COPY(Fichero, FichSal);
+                  EXIT(FichSal);
+                END;
+            END;
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE AnularDocRecibido@1100288009(TabDocSII@1100288000 : Record 88208;DT@1100288004 : DateTime);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000000 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Baja, TabDocSII, TipoEnvio) THEN BEGIN
+        IF GestionExterna THEN BEGIN
+          InsEnvioExterno(TabDocSII, DT, 2);
+        END ELSE BEGIN
+          IF TabDocSII.Tipo = TabDocSII.Tipo::Factura THEN BEGIN
+            Fichero := FunXML.BajaDocRecibido(TabDocSII);
+            IF Fichero <> '' THEN BEGIN
+              IF GestionExternaRespuesta THEN BEGIN
+                FichSal := FunPS1.MkFilename('respuesta.xml');
+                FunPS1.EjecutarPS1(1, Fichero, FichSal);
+                FunWS.SII_Envio_Externo(Fichero, FichSal,FALSE,
+                                'BajaLRFacturasRecibidas', 'RespuestaLRBajaFacturasRecibidas', 1, 3, TabDocSII);
+              END ELSE
+                FunWS.SII_Envio(Fichero, FALSE,
+                                'BajaLRFacturasRecibidas', 'RespuestaLRBajaFacturasRecibidas', 1, 3, TabDocSII);
+            END;
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE ConDocRecibidosEnviados@1100288008(TabDocSII@1000000000 : Record 88208);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+    BEGIN
+      ComprobarPermisoSII;
+
+      Fichero := FunXML.ConsultarRecibidasEnviadas(TabDocSII);
+      IF Fichero <> '' THEN BEGIN
+        IF GestionExternaRespuesta THEN BEGIN
+          FichSal := FunPS1.MkFilename('respuesta.xml');
+          FunPS1.EjecutarPS1(1, Fichero, FichSal);
+          FunWS.SII_Envio_Externo(Fichero,FichSal,TRUE,'ConsultaLRFacturasRecibidas','RespuestaConsultaLRFacturasRecibidas',
+                                  1,1,TabDocSII);
+        END ELSE
+          FunWS.SII_Envio(Fichero,TRUE,'ConsultaLRFacturasRecibidas','RespuestaConsultaLRFacturasRecibidas',1,1, TabDocSII);
+      END;
+    END;
+
+    PROCEDURE "<<----------BienesInversion"@1000000046();
+    BEGIN
+    END;
+
+    PROCEDURE EnviarDocBienInversion@1000000021(TabDocSII@1100288000 : Record 88208);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000000 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::"BI Env°o", TabDocSII, TipoEnvio) THEN BEGIN
+        Fichero := FunXML.EnviarDocBienInversion(TabDocSII, TipoEnvio);
+        IF Fichero <> '' THEN BEGIN
+          IF GestionExternaRespuesta THEN BEGIN
+            FichSal := FunPS1.MkFilename('respuesta.xml');
+            FunPS1.EjecutarPS1(2, Fichero, FichSal);
+            FunWS.SII_Envio_Externo(Fichero, FichSal,FALSE,
+                         'SuministroLRBienesInversion', 'RespuestaLRBienesInversion', 2, 0, TabDocSII);
+          END ELSE
+            FunWS.SII_Envio(Fichero, FALSE,
+                         'SuministroLRBienesInversion', 'RespuestaLRBienesInversion', 2, 0, TabDocSII);
+        END;
+      END;
+    END;
+
+    PROCEDURE GenerarXMLDocBienInversion@1000000011(TabDocSII@1100288000 : Record 88208;Exportar@1000000000 : Boolean);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::"BI Env°o",TabDocSII, TipoEnvio) THEN BEGIN
+        Fichero := FunXML.EnviarDocBienInversion(TabDocSII, TipoEnvio);
+        IF Fichero <> '' THEN BEGIN
+          IF Exportar THEN BEGIN
+            FichSal := OpenFile(TextSalvar, Fichero, 5, '*.XML', 1);
+            IF (FichSal <> '') AND (FichSal <> Fichero) THEN
+              COPY(Fichero, FichSal);
+          END ELSE
+            HYPERLINK(Fichero)
+        END;
+      END;
+    END;
+
+    PROCEDURE EnviarBienesInvAgrupados@1000000064(VAR tmpDocSII@1000000001 : Record 88208);
+    VAR
+      TabDocSII@1000000000 : Record 88208;
+      Fichero@1100288001 : Text[1024];
+      TipoEnvio@1100288003 : Code[2];
+      i@1000000002 : Integer;
+      FichSal@1000000003 : Text[1024];
+    BEGIN
+      IF tmpDocSII.COUNT > 0 THEN BEGIN
+        qEmpresa := GblSII.GetGblEmpresa;
+        IF qEmpresa <> '' THEN BEGIN
+          TabDocSII.CHANGECOMPANY(qEmpresa);
+        END;
+
+        FunXML.GenCabBienInversion;
+        i := 0;
+        IF tmpDocSII.FIND('-') THEN REPEAT
+          TabDocSII.GET(tmpDocSII.NMov);
+          IF ComprobarSiSeguir(TabDocSII."Tipo envio"::"BI Env°o",TabDocSII, TipoEnvio) THEN BEGIN
+            FunXML.GenDetBienInversion(TabDocSII);
+            i := i + 1;
+          END;
+        UNTIL (tmpDocSII.NEXT = 0)  OR (i = MaxNumAgrupados);
+
+        IF i > 0 THEN BEGIN
+          Fichero := FunXML.GenerarXML;
+          IF Fichero <> '' THEN BEGIN
+            IF GestionExternaRespuesta THEN BEGIN
+              FichSal := FunPS1.MkFilename('respuesta.xml');
+              FunPS1.EjecutarPS1(2, Fichero, FichSal);
+              FunWS.SII_Envio_Externo(Fichero, FichSal,FALSE,
+                             'SuministroLRBienesInversion', 'RespuestaLRBienesInversion', 2, 0, tmpDocSII);
+            END ELSE
+              FunWS.SII_Envio(Fichero, FALSE,
+                             'SuministroLRBienesInversion', 'RespuestaLRBienesInversion', 2, 0, tmpDocSII);
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE GenXMLBienesInvAgrupados@1000000063(VAR tmpDocSII@1100288000 : Record 88208;Accion@1000000003 : 'Ver,Exportar,Externo') : Text[1024];
+    VAR
+      TabDocSII@1000000002 : Record 88208;
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+      i@1000000000 : Integer;
+      DT@1100288005 : DateTime;
+      EsGestionExterna@1100288004 : Boolean;
+    BEGIN
+      IF tmpDocSII.COUNT > 0 THEN BEGIN
+        qEmpresa := GblSII.GetGblEmpresa;
+        IF qEmpresa <> '' THEN BEGIN
+          TabDocSII.CHANGECOMPANY(qEmpresa);
+        END;
+
+        DT := CURRENTDATETIME;
+        EsGestionExterna := GestionExterna AND (Accion = Accion::Externo);
+
+        FunXML.GenCabBienInversion;
+        i := 0;
+        IF tmpDocSII.FIND('-') THEN REPEAT
+          TabDocSII.GET(tmpDocSII.NMov);
+          IF ComprobarSiSeguir(TabDocSII."Tipo envio"::"BI Env°o",TabDocSII, TipoEnvio) THEN BEGIN
+            FunXML.GenDetBienInversion(TabDocSII);
+            IF EsGestionExterna THEN
+              InsEnvioExterno(TabDocSII, DT, 1);
+            i := i + 1;
+          END;
+        UNTIL (tmpDocSII.NEXT = 0)  OR (i = MaxNumAgrupados);
+
+        IF i > 0 THEN BEGIN
+          Fichero := FunXML.GenerarXML;
+          IF Fichero <> '' THEN BEGIN
+            CASE Accion OF
+              Accion::Ver:      HYPERLINK(Fichero);
+
+              Accion::Exportar:
+                BEGIN
+                  FichSal := OpenFile(TextSalvar, Fichero, 5, '*.XML', 1);
+                  IF (FichSal <> '') AND (FichSal <> Fichero) THEN
+                    COPY(Fichero, FichSal);
+                END;
+
+              Accion::Externo:
+                BEGIN
+                  FichSal := RutaGestionExterna + MakeNameXMLExterno(2);
+                  COPY(Fichero, FichSal);
+                  EXIT(FichSal);
+                END;
+            END;
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE AnularDocBienInversion@1000000000(TabDocSII@1100288000 : Record 88208;DT@1100288004 : DateTime);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000000 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::"BI Baja", TabDocSII, TipoEnvio) THEN BEGIN
+        IF GestionExterna THEN BEGIN
+          InsEnvioExterno(TabDocSII, DT, 2);
+        END ELSE BEGIN
+          Fichero := FunXML.BajaDocRecibido(TabDocSII);
+          IF Fichero <> '' THEN BEGIN
+            IF GestionExternaRespuesta THEN BEGIN
+              FichSal := FunPS1.MkFilename('respuesta.xml');
+              FunPS1.EjecutarPS1(2, Fichero, FichSal);
+              FunWS.SII_Envio_Externo(Fichero, FichSal,FALSE,
+                              'BajaLRBienesInversion', 'RespuestaLRBajaBienesInversion', 2, 3, TabDocSII);
+            END ELSE
+              FunWS.SII_Envio(Fichero, FALSE,
+                              'BajaLRBienesInversion', 'RespuestaLRBajaBienesInversion', 2, 3, TabDocSII);
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE ConBienInversionEnviados@1100288002(TabDocSII@1100288003 : Record 88208);
+    VAR
+      Fichero@1100288002 : Text[1024];
+      DocuSII@1100288001 : Record 88205;
+      TipoEnvio@1100288000 : Code[2];
+      FichSal@1000000000 : Text[1024];
+    BEGIN
+      ComprobarPermisoSII;
+
+      Fichero := FunXML.ConsultarBienesInvEnviados(TabDocSII);
+      IF Fichero <> '' THEN BEGIN
+        IF GestionExternaRespuesta THEN BEGIN
+          FichSal := FunPS1.MkFilename('respuesta.xml');
+          FunPS1.EjecutarPS1(2, Fichero, FichSal);
+          FunWS.SII_Envio_Externo(Fichero,FichSal,TRUE,'ConsultaLRBienesInversion','RespuestaConsultaLRBienesInversion',2,1,TabDocSII);
+        END ELSE
+          FunWS.SII_Envio(Fichero,TRUE,'ConsultaLRBienesInversion','RespuestaConsultaLRBienesInversion',2,1,TabDocSII);
+      END;
+    END;
+
+    PROCEDURE "<<----------Cobros"@1000000047();
+    BEGIN
+    END;
+
+    PROCEDURE EnviarCobroEmitidas@1000000030(TabDocSII@1100288000 : Record 88208);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000000 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o, TabDocSII, TipoEnvio) THEN BEGIN
+        Fichero := FunXML.EnviarCobroEmitidas(TabDocSII, '');
+        IF Fichero <> '' THEN BEGIN
+          IF GestionExternaRespuesta THEN BEGIN
+           FichSal := FunPS1.MkFilename('respuesta.xml');
+           FunPS1.EjecutarPS1(3, Fichero, FichSal);
+           FunWS.SII_Envio_Externo(Fichero, FichSal,FALSE,
+                            'SuministroLRCobrosEmitidas', 'RespuestaLRCobrosEmitidas', 3, 0, TabDocSII);
+          END ELSE
+            FunWS.SII_Envio(Fichero, FALSE,
+                            'SuministroLRCobrosEmitidas', 'RespuestaLRCobrosEmitidas', 3, 0, TabDocSII);
+        END;
+      END;
+    END;
+
+    PROCEDURE GenerarXMLCobroEmitidas@1000000029(TabDocSII@1100288000 : Record 88208;Exportar@1000000000 : Boolean);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+        Fichero := FunXML.EnviarCobroEmitidas(TabDocSII, '');
+        IF Fichero <> '' THEN BEGIN
+          IF Exportar THEN BEGIN
+            FichSal := OpenFile(TextSalvar, Fichero, 5, '*.XML', 1);
+            IF (FichSal <> '') AND (FichSal <> Fichero) THEN
+              COPY(Fichero, FichSal);
+          END ELSE
+            HYPERLINK(Fichero)
+        END;
+      END;
+    END;
+
+    PROCEDURE EnviarCobroEmitidasAgrupados@1000000069(VAR tmpDocSII@1000000001 : Record 88208);
+    VAR
+      TabDocSII@1000000000 : Record 88208;
+      Fichero@1100288001 : Text[1024];
+      TipoEnvio@1100288003 : Code[2];
+      i@1000000002 : Integer;
+      FichSal@1000000003 : Text[1024];
+    BEGIN
+      IF tmpDocSII.COUNT > 0 THEN BEGIN
+        qEmpresa := GblSII.GetGblEmpresa;
+        IF qEmpresa <> '' THEN BEGIN
+          TabDocSII.CHANGECOMPANY(qEmpresa);
+        END;
+
+        FunXML.GenCabCobroEmitidas;
+        i := 0;
+        IF tmpDocSII.FIND('-') THEN REPEAT
+          TabDocSII.GET(tmpDocSII.NMov);
+          IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+            FunXML.GenDetCobroEmitidas(TabDocSII);
+            i := i + 1;
+          END;
+        UNTIL (tmpDocSII.NEXT = 0) OR (i = MaxNumAgrupados);
+
+        IF i > 0 THEN BEGIN
+          Fichero := FunXML.GenerarXML;
+          IF Fichero <> '' THEN BEGIN
+            IF GestionExternaRespuesta THEN BEGIN
+              FichSal := FunPS1.MkFilename('respuesta.xml');
+              FunPS1.EjecutarPS1(3, Fichero, FichSal);
+              FunWS.SII_Envio_Externo(Fichero, FichSal,FALSE,
+                           'SuministroLRCobrosEmitidas', 'RespuestaLRCobrosEmitidas', 3, 0, tmpDocSII);
+            END ELSE
+              FunWS.SII_Envio(Fichero, FALSE,
+                           'SuministroLRCobrosEmitidas', 'RespuestaLRCobrosEmitidas', 3, 0, tmpDocSII);
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE GenXMLCobroEmitidasAgrupados@1000000068(VAR tmpDocSII@1100288000 : Record 88208;Accion@1000000003 : 'Ver,Exportar,Externo') : Text[1024];
+    VAR
+      TabDocSII@1000000002 : Record 88208;
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+      i@1000000000 : Integer;
+      DT@1100288005 : DateTime;
+      EsGestionExterna@1100288004 : Boolean;
+    BEGIN
+      IF tmpDocSII.COUNT > 0 THEN BEGIN
+        qEmpresa := GblSII.GetGblEmpresa;
+        IF qEmpresa <> '' THEN BEGIN
+          TabDocSII.CHANGECOMPANY(qEmpresa);
+        END;
+
+        DT := CURRENTDATETIME;
+        EsGestionExterna := GestionExterna AND (Accion = Accion::Externo);
+
+        FunXML.GenCabCobroEmitidas;
+        i := 0;
+        IF tmpDocSII.FIND('-') THEN REPEAT
+          TabDocSII.GET(tmpDocSII.NMov);
+          IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+            FunXML.GenDetCobroEmitidas(TabDocSII);
+            IF EsGestionExterna THEN
+              InsEnvioExterno(TabDocSII, DT, 1);
+            i := i + 1;
+          END;
+        UNTIL (tmpDocSII.NEXT = 0) OR (i = MaxNumAgrupados);
+
+        IF i > 0 THEN BEGIN
+          Fichero := FunXML.GenerarXML;
+          IF Fichero <> '' THEN BEGIN
+            CASE Accion OF
+              Accion::Ver:      HYPERLINK(Fichero);
+
+              Accion::Exportar:
+                BEGIN
+                  FichSal := OpenFile(TextSalvar, Fichero, 5, '*.XML', 1);
+                  IF (FichSal <> '') AND (FichSal <> Fichero) THEN
+                    COPY(Fichero, FichSal);
+                END;
+
+              Accion::Externo:
+                BEGIN
+                  FichSal := RutaGestionExterna + MakeNameXMLExterno(3);
+                  COPY(Fichero, FichSal);
+                  EXIT(FichSal);
+                END;
+            END;
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE ConCobroEmitidas@1000000033(TabDocSII@1000000000 : Record 88208);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+    BEGIN
+      ComprobarPermisoSII;
+
+      Fichero := FunXML.ConsultarCobros(TabDocSII);
+      IF Fichero <> '' THEN BEGIN
+        IF GestionExternaRespuesta THEN BEGIN
+          FichSal := FunPS1.MkFilename('respuesta.xml');
+          FunPS1.EjecutarPS1(3, Fichero, FichSal);
+          FunWS.SII_Envio_Externo(Fichero,FichSal,TRUE,'ConsultaPagos','RespuestaConsultaCobros', 3, 1, TabDocSII);
+        END ELSE
+        FunWS.SII_Envio(Fichero,TRUE,'ConsultaPagos','RespuestaConsultaCobros', 3, 1, TabDocSII);
+      END;
+    END;
+
+    PROCEDURE "<<----------Pagos"@1000000048();
+    BEGIN
+    END;
+
+    PROCEDURE EnviarPagoRecibidas@1000000028(TabDocSII@1100288000 : Record 88208);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000000 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o, TabDocSII, TipoEnvio) THEN BEGIN
+        Fichero := FunXML.EnviarPagoRecibidas(TabDocSII, '');
+        IF Fichero <> '' THEN BEGIN
+          IF GestionExternaRespuesta THEN BEGIN
+            FichSal := FunPS1.MkFilename('respuesta.xml');
+            FunPS1.EjecutarPS1(4, Fichero, FichSal);
+            FunWS.SII_Envio_Externo(Fichero, FichSal,FALSE,
+                            'SuministroLRPagosRecibidas', 'RespuestaLRPagosRecibidas', 4, 0, TabDocSII);
+          END ELSE
+            FunWS.SII_Envio(Fichero, FALSE,
+                            'SuministroLRPagosRecibidas', 'RespuestaLRPagosRecibidas', 4, 0, TabDocSII);
+        END;
+      END;
+    END;
+
+    PROCEDURE GenerarXMLPagoRecibidas@1000000034(TabDocSII@1100288000 : Record 88208;Exportar@1000000000 : Boolean);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+        Fichero := FunXML.EnviarPagoRecibidas(TabDocSII, '');
+        IF Fichero <> '' THEN BEGIN
+          IF Exportar THEN BEGIN
+            FichSal := OpenFile(TextSalvar, Fichero, 5, '*.XML', 1);
+            IF (FichSal <> '') AND (FichSal <> Fichero) THEN
+              COPY(Fichero, FichSal);
+          END ELSE
+            HYPERLINK(Fichero)
+        END;
+      END;
+    END;
+
+    PROCEDURE EnviarPagoRecibidasAgrupados@1000000067(VAR tmpDocSII@1000000001 : Record 88208);
+    VAR
+      TabDocSII@1000000000 : Record 88208;
+      Fichero@1100288001 : Text[1024];
+      TipoEnvio@1100288003 : Code[2];
+      i@1000000002 : Integer;
+      FichSal@1000000003 : Text[1024];
+    BEGIN
+      IF tmpDocSII.COUNT > 0 THEN BEGIN
+        qEmpresa := GblSII.GetGblEmpresa;
+        IF qEmpresa <> '' THEN BEGIN
+          TabDocSII.CHANGECOMPANY(qEmpresa);
+        END;
+
+        FunXML.GenCabPagoRecibidas;
+        i := 0;
+        IF tmpDocSII.FIND('-') THEN REPEAT
+          TabDocSII.GET(tmpDocSII.NMov);
+          IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+            FunXML.GenDetPagoRecibidas(TabDocSII);
+            i := i +1;
+          END;
+        UNTIL (tmpDocSII.NEXT = 0) OR (i = MaxNumAgrupados);
+
+        IF i > 0 THEN BEGIN
+          Fichero := FunXML.GenerarXML;
+          IF Fichero <> '' THEN BEGIN
+            IF GestionExternaRespuesta THEN BEGIN
+              FichSal := FunPS1.MkFilename('respuesta.xml');
+              FunPS1.EjecutarPS1(4, Fichero, FichSal);
+              FunWS.SII_Envio_Externo(Fichero, FichSal,FALSE,
+                             'SuministroLRPagosRecibidas', 'RespuestaLRPagosRecibidas', 4, 0, tmpDocSII);
+            END ELSE
+              FunWS.SII_Envio(Fichero, FALSE,
+                             'SuministroLRPagosRecibidas', 'RespuestaLRPagosRecibidas', 4, 0, tmpDocSII);
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE GenXMLPagoRecibidasAgrupados@1000000066(VAR tmpDocSII@1100288000 : Record 88208;Accion@1000000003 : 'Ver,Exportar,Externo') : Text[1024];
+    VAR
+      TabDocSII@1000000002 : Record 88208;
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+      i@1000000000 : Integer;
+      DT@1100288005 : DateTime;
+      EsGestionExterna@1100288004 : Boolean;
+    BEGIN
+      IF tmpDocSII.COUNT > 0 THEN BEGIN
+        qEmpresa := GblSII.GetGblEmpresa;
+        IF qEmpresa <> '' THEN BEGIN
+          TabDocSII.CHANGECOMPANY(qEmpresa);
+        END;
+
+        DT := CURRENTDATETIME;
+        EsGestionExterna := GestionExterna AND (Accion = Accion::Externo);
+
+        FunXML.GenCabPagoRecibidas;
+        i := 0;
+        IF tmpDocSII.FIND('-') THEN REPEAT
+          TabDocSII.GET(tmpDocSII.NMov);
+          IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+            FunXML.GenDetPagoRecibidas(TabDocSII);
+            IF EsGestionExterna THEN
+              InsEnvioExterno(TabDocSII, DT, 1);
+            i := i +1;
+          END;
+        UNTIL (tmpDocSII.NEXT = 0) OR (i = MaxNumAgrupados);
+
+        IF i > 0 THEN BEGIN
+          Fichero := FunXML.GenerarXML;
+          IF Fichero <> '' THEN BEGIN
+            CASE Accion OF
+              Accion::Ver:      HYPERLINK(Fichero);
+
+              Accion::Exportar:
+                BEGIN
+                  FichSal := OpenFile(TextSalvar, Fichero, 5, '*.XML', 1);
+                  IF (FichSal <> '') AND (FichSal <> Fichero) THEN
+                    COPY(Fichero, FichSal);
+                END;
+
+              Accion::Externo:
+                BEGIN
+                  FichSal := RutaGestionExterna + MakeNameXMLExterno(4);
+                  COPY(Fichero, FichSal);
+                  EXIT(FichSal);
+                END;
+            END;
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE ConPagoRecibidas@1000000032(TabDocSII@1000000000 : Record 88208);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+    BEGIN
+      ComprobarPermisoSII;
+
+      Fichero := FunXML.ConsultarPagos(TabDocSII);
+      IF Fichero <> '' THEN BEGIN
+        IF GestionExternaRespuesta THEN BEGIN
+          FichSal := FunPS1.MkFilename('respuesta.xml');
+          FunPS1.EjecutarPS1(4, Fichero, FichSal);
+          FunWS.SII_Envio_Externo(Fichero,FichSal, TRUE,'ConsultaPagos','RespuestaConsultaPagos', 4, 1, TabDocSII);
+        END ELSE
+          FunWS.SII_Envio(Fichero,TRUE, 'ConsultaPagos','RespuestaConsultaPagos', 4, 1, TabDocSII);
+      END;
+    END;
+
+    PROCEDURE "<<----------OpIntracomunitaria"@1000000055();
+    BEGIN
+    END;
+
+    PROCEDURE EnviarOpIntracomunitaria@1000000054(TabDocSII@1100288000 : Record 88208);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000000 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o, TabDocSII, TipoEnvio) THEN BEGIN
+        Fichero := FunXML.EnviarOpIntracomunitaria(TabDocSII, TipoEnvio);
+        IF Fichero <> '' THEN BEGIN
+          IF GestionExternaRespuesta THEN BEGIN
+            FichSal := FunPS1.MkFilename('respuesta.xml');
+            FunPS1.EjecutarPS1(5, Fichero, FichSal);
+            FunWS.SII_Envio_Externo(Fichero, FichSal,FALSE,
+                           'SuministroLRDetOperacionIntracomunitaria', 'RespuestaLRDetOperacionesIntracomunitarias', 5, 0, TabDocSII);
+          END ELSE
+            FunWS.SII_Envio(Fichero, FALSE,
+                           'SuministroLRDetOperacionIntracomunitaria', 'RespuestaLRDetOperacionesIntracomunitarias', 5, 0, TabDocSII);
+        END;
+      END;
+    END;
+
+    PROCEDURE GenerarXMLOpIntracomunitaria@1000000053(TabDocSII@1100288000 : Record 88208;Exportar@1000000000 : Boolean);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+        Fichero := FunXML.EnviarOpIntracomunitaria(TabDocSII, TipoEnvio);
+        IF Fichero <> '' THEN BEGIN
+          IF Exportar THEN BEGIN
+            FichSal := OpenFile(TextSalvar, Fichero, 5, '*.XML', 1);
+            IF (FichSal <> '') AND (FichSal <> Fichero) THEN
+              COPY(Fichero, FichSal);
+          END ELSE
+            HYPERLINK(Fichero)
+        END;
+      END;
+    END;
+
+    PROCEDURE EnviarOpIntracAgrupados@1000000061(VAR tmpDocSII@1000000001 : Record 88208);
+    VAR
+      TabDocSII@1000000000 : Record 88208;
+      Fichero@1100288001 : Text[1024];
+      TipoEnvio@1100288003 : Code[2];
+      i@1000000002 : Integer;
+      FichSal@1000000003 : Text[1024];
+    BEGIN
+      IF tmpDocSII.COUNT > 0 THEN BEGIN
+        qEmpresa := GblSII.GetGblEmpresa;
+        IF qEmpresa <> '' THEN BEGIN
+          TabDocSII.CHANGECOMPANY(qEmpresa);
+        END;
+
+        FunXML.GenCabOpIntracomunitaria;
+        i := 0;
+        IF tmpDocSII.FIND('-') THEN REPEAT
+          TabDocSII.GET(tmpDocSII.NMov);
+          IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+            FunXML.GenDetOpIntracomunitaria(TabDocSII);
+            i := i + 1;
+          END;
+        UNTIL (tmpDocSII.NEXT = 0) OR (i = MaxNumAgrupados);
+
+        IF i > 0 THEN BEGIN
+          Fichero := FunXML.GenerarXML;
+          IF Fichero <> '' THEN BEGIN
+            IF GestionExternaRespuesta THEN BEGIN
+              FichSal := FunPS1.MkFilename('respuesta.xml');
+              FunPS1.EjecutarPS1(5, Fichero, FichSal);
+              FunWS.SII_Envio(Fichero, FALSE,
+                             'SuministroLRBienesInversion', 'RespuestaLRBienesInversion', 5, 0, tmpDocSII);
+            END ELSE
+              FunWS.SII_Envio(Fichero, FALSE,
+                             'SuministroLRBienesInversion', 'RespuestaLRBienesInversion', 5, 0, tmpDocSII);
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE GenXMLOpIntracAgrupados@1000000050(VAR tmpDocSII@1100288000 : Record 88208;Accion@1000000003 : 'Ver,Exportar,Externo') : Text[1024];
+    VAR
+      TabDocSII@1000000002 : Record 88208;
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+      i@1000000000 : Integer;
+      DT@1100288005 : DateTime;
+      EsGestionExterna@1100288004 : Boolean;
+    BEGIN
+      IF tmpDocSII.COUNT > 0 THEN BEGIN
+        qEmpresa := GblSII.GetGblEmpresa;
+        IF qEmpresa <> '' THEN BEGIN
+          TabDocSII.CHANGECOMPANY(qEmpresa);
+        END;
+
+        DT := CURRENTDATETIME;
+        EsGestionExterna := GestionExterna AND (Accion = Accion::Externo);
+
+        FunXML.GenCabOpIntracomunitaria;
+        i := 0;
+        IF tmpDocSII.FIND('-') THEN REPEAT
+          TabDocSII.GET(tmpDocSII.NMov);
+          IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+            FunXML.GenDetOpIntracomunitaria(TabDocSII);
+            IF EsGestionExterna THEN
+              InsEnvioExterno(TabDocSII, DT, 1);
+            i := i +1 ;
+          END;
+        UNTIL (tmpDocSII.NEXT = 0) OR (i = MaxNumAgrupados);
+
+        IF i > 0 THEN BEGIN
+          Fichero := FunXML.GenerarXML;
+          IF Fichero <> '' THEN BEGIN
+            CASE Accion OF
+              Accion::Ver:      HYPERLINK(Fichero);
+
+              Accion::Exportar:
+                BEGIN
+                  FichSal := OpenFile(TextSalvar, Fichero, 5, '*.XML', 1);
+                  IF (FichSal <> '') AND (FichSal <> Fichero) THEN
+                    COPY(Fichero, FichSal);
+                END;
+
+              Accion::Externo:
+                BEGIN
+                  FichSal := RutaGestionExterna + MakeNameXMLExterno(5);
+                  COPY(Fichero, FichSal);
+                  EXIT(FichSal);
+                END;
+            END;
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE AnularOpIntracomunitaria@1000000052(TabDocSII@1100288000 : Record 88208;DT@1100288004 : DateTime);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000000 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Baja, TabDocSII, TipoEnvio) THEN BEGIN
+        IF GestionExterna THEN BEGIN
+          InsEnvioExterno(TabDocSII, DT, 2);
+        END ELSE BEGIN
+          Fichero := FunXML.BajaOpIntracomunitaria(TabDocSII);
+          IF Fichero <> '' THEN BEGIN
+            IF GestionExternaRespuesta THEN BEGIN
+              FichSal := FunPS1.MkFilename('respuesta.xml');
+              FunPS1.EjecutarPS1(5, Fichero, FichSal);
+              FunWS.SII_Envio_Externo(Fichero, FichSal,FALSE,
+                              'BajaLRDetOperacionIntracomunitaria', 'RespuestaLRBajaDetOperacionIntracomunitaria', 5, 3, TabDocSII);
+            END ELSE
+              FunWS.SII_Envio(Fichero, FALSE,
+                              'BajaLRDetOperacionIntracomunitaria', 'RespuestaLRBajaDetOperacionIntracomunitaria', 5, 3, TabDocSII);
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE ConOpIntracomunitaria@1000000051(TabDocSII@1100288003 : Record 88208);
+    VAR
+      Fichero@1100288002 : Text[1024];
+      DocuSII@1100288001 : Record 88205;
+      TipoEnvio@1100288000 : Code[2];
+      FichSal@1000000000 : Text[1024];
+    BEGIN
+      ComprobarPermisoSII;
+
+      Fichero := FunXML.ConsultarOpIntracomunitaria(TabDocSII);
+      IF Fichero <> '' THEN BEGIN
+        IF GestionExternaRespuesta THEN BEGIN
+          FichSal := FunPS1.MkFilename('respuesta.xml');
+          FunPS1.EjecutarPS1(5, Fichero, FichSal);
+          FunWS.SII_Envio(Fichero,TRUE,'ConsultaLRDetOperIntracomunitarias',
+                                   'RespuestaConsultaLRDetOperIntracomunitarias',5,1,TabDocSII);
+        END ELSE
+          FunWS.SII_Envio(Fichero,TRUE,'ConsultaLRDetOperIntracomunitarias',
+                                   'RespuestaConsultaLRDetOperIntracomunitarias',5,1,TabDocSII);
+      END;
+    END;
+
+    PROCEDURE "<<----------CobrosMetalico"@1000000060();
+    BEGIN
+    END;
+
+    PROCEDURE EnviarCobrosMetalico@1000000059(TabDocSII@1100288000 : Record 88208);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000000 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o, TabDocSII, TipoEnvio) THEN BEGIN
+        Fichero := FunXML.EnviarCobrosMetalico(TabDocSII, TipoEnvio);
+        IF Fichero <> '' THEN BEGIN
+          IF GestionExternaRespuesta THEN BEGIN
+            FichSal := FunPS1.MkFilename('respuesta.xml');
+            FunPS1.EjecutarPS1(6, Fichero, FichSal);
+            FunWS.SII_Envio_Externo(Fichero, FichSal,FALSE,
+                           'SuministroLRCobrosMetalico', 'RespuestaLRCobrosMetalico', 6, 0, TabDocSII);
+          END ELSE
+            FunWS.SII_Envio(Fichero, FALSE,
+                           'SuministroLRCobrosMetalico', 'RespuestaLRCobrosMetalico', 6, 0, TabDocSII);
+        END;
+      END;
+    END;
+
+    PROCEDURE GenerarXMLCobrosMetalico@1000000058(TabDocSII@1100288000 : Record 88208;Exportar@1000000000 : Boolean);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+        Fichero := FunXML.EnviarCobrosMetalico(TabDocSII, TipoEnvio);
+        IF Fichero <> '' THEN BEGIN
+          IF Exportar THEN BEGIN
+            FichSal := OpenFile(TextSalvar, Fichero, 5, '*.XML', 1);
+            IF (FichSal <> '') AND (FichSal <> Fichero) THEN
+              COPY(Fichero, FichSal);
+          END ELSE
+            HYPERLINK(Fichero)
+        END;
+      END;
+    END;
+
+    PROCEDURE EnviarCobrosMetalicoAgrupados@1000000065(VAR tmpDocSII@1000000001 : Record 88208);
+    VAR
+      TabDocSII@1000000000 : Record 88208;
+      Fichero@1100288001 : Text[1024];
+      TipoEnvio@1100288003 : Code[2];
+      i@1000000002 : Integer;
+      FichSal@1000000003 : Text[1024];
+    BEGIN
+      IF tmpDocSII.COUNT > 0 THEN BEGIN
+        qEmpresa := GblSII.GetGblEmpresa;
+        IF qEmpresa <> '' THEN BEGIN
+          TabDocSII.CHANGECOMPANY(qEmpresa);
+        END;
+
+        FunXML.GenCabCobrosMetalico;
+        i := 0;
+        IF tmpDocSII.FIND('-') THEN REPEAT
+          TabDocSII.GET(tmpDocSII.NMov);
+          IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+            FunXML.GenDetCobrosMetalico(TabDocSII);
+            i := i + 1;
+          END;
+        UNTIL (tmpDocSII.NEXT = 0) OR (i = MaxNumAgrupados);
+
+        IF i > 0 THEN BEGIN
+          Fichero := FunXML.GenerarXML;
+          IF Fichero <> '' THEN BEGIN
+            IF GestionExternaRespuesta THEN BEGIN
+              FichSal := FunPS1.MkFilename('respuesta.xml');
+              FunPS1.EjecutarPS1(6, Fichero, FichSal);
+              FunWS.SII_Envio_Externo(Fichero, FichSal,FALSE,
+                             'SuministroLRBienesInversion', 'RespuestaLRBienesInversion', 6, 0, tmpDocSII);
+            END ELSE
+              FunWS.SII_Envio(Fichero, FALSE,
+                             'SuministroLRBienesInversion', 'RespuestaLRBienesInversion', 6, 0, tmpDocSII);
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE GenXMLCobrosMetalicoAgrupados@1000000062(VAR tmpDocSII@1100288000 : Record 88208;Accion@1000000003 : 'Ver,Exportar,Externo') : Text[1024];
+    VAR
+      TabDocSII@1000000002 : Record 88208;
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+      i@1000000000 : Integer;
+      DT@1100288005 : DateTime;
+      EsGestionExterna@1100288004 : Boolean;
+    BEGIN
+      IF tmpDocSII.COUNT > 0 THEN BEGIN
+        qEmpresa := GblSII.GetGblEmpresa;
+        IF qEmpresa <> '' THEN BEGIN
+          TabDocSII.CHANGECOMPANY(qEmpresa);
+        END;
+
+        DT := CURRENTDATETIME;
+        EsGestionExterna := GestionExterna AND (Accion = Accion::Externo);
+
+        FunXML.GenCabCobrosMetalico;
+        i := 0;
+        IF tmpDocSII.FIND('-') THEN REPEAT
+          TabDocSII.GET(tmpDocSII.NMov);
+          IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+            FunXML.GenDetCobrosMetalico(TabDocSII);
+            IF EsGestionExterna THEN
+              InsEnvioExterno(TabDocSII, DT, 1);
+            i := i + 1;
+          END;
+        UNTIL (tmpDocSII.NEXT = 0) OR (i = MaxNumAgrupados);
+
+        IF i > 0 THEN BEGIN
+          Fichero := FunXML.GenerarXML;
+          IF Fichero <> '' THEN BEGIN
+            CASE Accion OF
+              Accion::Ver:      HYPERLINK(Fichero);
+
+              Accion::Exportar:
+                BEGIN
+                  FichSal := OpenFile(TextSalvar, Fichero, 5, '*.XML', 1);
+                  IF (FichSal <> '') AND (FichSal <> Fichero) THEN
+                    COPY(Fichero, FichSal);
+                END;
+
+              Accion::Externo:
+                BEGIN
+                  FichSal := RutaGestionExterna + MakeNameXMLExterno(6);
+                  COPY(Fichero, FichSal);
+                  EXIT(FichSal);
+                END;
+            END;
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE AnularCobrosMetalico@1000000057(TabDocSII@1100288000 : Record 88208;DT@1100288004 : DateTime);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000000 : Text[1024];
+    BEGIN
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Baja, TabDocSII, TipoEnvio) THEN BEGIN
+        Fichero := FunXML.BajaCobrosMetalico(TabDocSII);
+        IF Fichero <> '' THEN BEGIN
+          IF GestionExternaRespuesta THEN BEGIN
+            FichSal := FunPS1.MkFilename('respuesta.xml');
+            FunPS1.EjecutarPS1(6, Fichero, FichSal);
+            FunWS.SII_Envio_Externo(Fichero, FichSal,FALSE,
+                           'BajaLRCobrosMetalico', 'RespuestaLRBajaCobrosMetalico', 6, 3, TabDocSII);
+          END ELSE
+            FunWS.SII_Envio(Fichero, FALSE,
+                           'BajaLRCobrosMetalico', 'RespuestaLRBajaCobrosMetalico', 6, 3, TabDocSII);
+        END;
+      END;
+    END;
+
+    PROCEDURE ConCobrosMetalico@1000000056(TabDocSII@1100288003 : Record 88208);
+    VAR
+      Fichero@1100288002 : Text[1024];
+      DocuSII@1100288001 : Record 88205;
+      TipoEnvio@1100288000 : Code[2];
+      FichSal@1000000000 : Text[1024];
+    BEGIN
+      ComprobarPermisoSII;
+
+      Fichero := FunXML.ConsultarCobrosMetalico(TabDocSII);
+      IF Fichero <> '' THEN BEGIN
+        IF GestionExternaRespuesta THEN BEGIN
+          FichSal := FunPS1.MkFilename('respuesta.xml');
+          FunPS1.EjecutarPS1(6, Fichero, FichSal);
+          FunWS.SII_Envio_Externo(Fichero,FichSal,TRUE,'ConsultaLRCobrosMetalico',
+                                       'RespuestaConsultaLRCobrosMetalico', 6,1,TabDocSII);
+        END ELSE
+          FunWS.SII_Envio(Fichero,TRUE,'ConsultaLRCobrosMetalico',
+                                       'RespuestaConsultaLRCobrosMetalico', 6,1,TabDocSII);
+      END;
+    END;
+
+    PROCEDURE "<<----------Contraste"@1000000049();
+    BEGIN
+    END;
+
+    PROCEDURE ContrastarDocEmitidos@1100288010(TabDocSII@1100288000 : Record 88208);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000000 : Text[1024];
+    BEGIN
+      ComprobarPermisoSII;
+
+      Fichero := FunXML.ConsultarEmitidasEnviadas(TabDocSII);
+      IF Fichero <> '' THEN BEGIN
+        IF GestionExternaRespuesta THEN BEGIN
+          FichSal := FunPS1.MkFilename('respuesta.xml');
+          FunPS1.EjecutarPS1(0, Fichero, FichSal);
+          FunWS.SII_Envio_Externo(Fichero,FichSal,TRUE,'ConsultaLRFacturasEmitidas','RespuestaConsultaLRFacturasEmitidas',0,2,TabDocSII);
+        END ELSE
+          FunWS.SII_Envio(Fichero,TRUE,'ConsultaLRFacturasEmitidas','RespuestaConsultaLRFacturasEmitidas',0,2,TabDocSII);
+      END;
+    END;
+
+    PROCEDURE ContrastarDocRecibidos@1100288013(TabDocSII@1100288000 : Record 88208);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000000 : Text[1024];
+    BEGIN
+      ComprobarPermisoSII;
+
+      Fichero := FunXML.ConsultarRecibidasEnviadas(TabDocSII);
+      IF Fichero <> '' THEN BEGIN
+        IF GestionExternaRespuesta THEN BEGIN
+          FichSal := FunPS1.MkFilename('respuesta.xml');
+          FunPS1.EjecutarPS1(1, Fichero, FichSal);
+          FunWS.SII_Envio_Externo(Fichero,FichSal,TRUE,'ConsultaLRFacturasRecibidas','RespuestaConsultaLRFacturasRecibidas',
+                                  1,2,TabDocSII);
+        END ELSE
+          FunWS.SII_Envio(Fichero,TRUE,'ConsultaLRFacturasRecibidas','RespuestaConsultaLRFacturasRecibidas',1,2,TabDocSII);
+      END;
+    END;
+
+    PROCEDURE "----------XML"@1000000002();
+    BEGIN
+    END;
+
+    PROCEDURE GetXML@1100288032();
+    VAR
+      Fichero@1100288001 : Text[1024];
+    BEGIN
+      ComprobarPermisoSII;
+
+      Fichero := FunXML.GenerarXML;
+
+      HYPERLINK(Fichero);
+    END;
+
+    PROCEDURE GuardarXMLRes@1100288024(XMLDoc@1100288002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument");
+    VAR
+      CfgSII@1100288001 : Record 88201;
+      FileName@1100288000 : Text[1024];
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+
+      IF CfgSII.GET THEN BEGIN
+        IF NOT CfgSII."No guardar XML respuesta" THEN BEGIN
+          FileName := ClientTempFileName('', 'XML');
+          XMLDoc.save(FileName);
+          CfgSII."XML respuesta".IMPORT(FileName, FALSE);
+          CfgSII.MODIFY;
+          COMMIT;
+        END;
+      END;
+    END;
+
+    PROCEDURE GuardarXMLReq@1100288031(XMLDoc@1100288002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument");
+    VAR
+      CfgSII@1100288001 : Record 88201;
+      FileName@1100288000 : Text[1024];
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+
+      IF CfgSII.GET THEN BEGIN
+        IF NOT CfgSII."No guardar XML envio" THEN BEGIN
+          FileName := ClientTempFileName('', 'XML');
+          XMLDoc.save(FileName);
+          CfgSII."XML peticion".IMPORT(FileName, FALSE);
+          CfgSII.MODIFY;
+          COMMIT;
+        END;
+      END;
+    END;
+
+    PROCEDURE VerXMLRes@1100288005();
+    VAR
+      CfgSII@1100288000 : Record 88201;
+      FileName@1100288001 : Text[1024];
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+
+      IF CfgSII.GET THEN BEGIN
+        IF NOT CfgSII."No guardar XML respuesta" THEN BEGIN
+          CfgSII.CALCFIELDS("XML respuesta");
+          IF CfgSII."XML respuesta".HASVALUE THEN BEGIN
+            FileName := ClientTempFileName('', 'XML');
+            CfgSII."XML respuesta".EXPORT(FileName, FALSE);
+            HYPERLINK(FileName);
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE VerXMLReq@1100288034();
+    VAR
+      CfgSII@1100288000 : Record 88201;
+      FileName@1100288001 : Text[1024];
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+
+      IF CfgSII.GET THEN BEGIN
+        IF NOT CfgSII."No guardar XML envio" THEN BEGIN
+          CfgSII.CALCFIELDS("XML peticion");
+          IF CfgSII."XML peticion".HASVALUE THEN BEGIN
+            FileName := ClientTempFileName('', 'XML');
+            CfgSII."XML peticion".EXPORT(FileName, FALSE);
+            HYPERLINK(FileName);
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE VerXMLRespuestaEnvio@1000000026(recEnvio@1000000000 : Record 88204);
+    VAR
+      CfgSII@1100288000 : Record 88201;
+      FileName@1100288001 : Text[1024];
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+        recEnvio.CHANGECOMPANY(qEmpresa);
+      END;
+
+      IF recEnvio."NMov agrupacion" <> 0 THEN
+        recEnvio.GET(recEnvio."NMov agrupacion");
+      recEnvio.CALCFIELDS("XML respuesta");
+      IF recEnvio."XML respuesta".HASVALUE THEN BEGIN
+        FileName := ClientTempFileName('', 'XML');
+        recEnvio."XML respuesta".EXPORT(FileName, FALSE);
+        HYPERLINK(FileName);
+      END ELSE BEGIN // Comprobar si existe un fichero asociado al registro
+        IF CfgSII.GET THEN BEGIN
+          IF CfgSII."Ruta XML respuesta" <> '' THEN BEGIN
+            FileName := CfgSII."Ruta XML respuesta" + MakeNameXML(1, recEnvio."No. mov.");
+            IF EXISTS(FileName) THEN
+              HYPERLINK(FileName);
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE VerXMLPeticionEnvio@1000000031(recEnvio@1000000000 : Record 88204);
+    VAR
+      CfgSII@1100288000 : Record 88201;
+      FileName@1100288001 : Text[1024];
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+        recEnvio.CHANGECOMPANY(qEmpresa);
+      END;
+
+      IF recEnvio."NMov agrupacion" <> 0 THEN
+        recEnvio.GET(recEnvio."NMov agrupacion");
+      recEnvio.CALCFIELDS("XML envio");
+      IF recEnvio."XML envio".HASVALUE THEN BEGIN
+        FileName := ClientTempFileName('', 'XML');
+        recEnvio."XML envio".EXPORT(FileName, FALSE);
+        HYPERLINK(FileName);
+      END ELSE BEGIN // Comprobar si existe un fichero asociado al registro
+        IF CfgSII.GET THEN BEGIN
+          IF CfgSII."Ruta XML envio" <> '' THEN BEGIN
+            FileName := CfgSII."Ruta XML envio" + MakeNameXML(0, recEnvio."No. mov.");
+            IF EXISTS(FileName) THEN
+              HYPERLINK(FileName);
+          END;
+        END;
+      END;
+    END;
+
+    PROCEDURE GuardarResAEAT@1100288019(InStr@1100288002 : InStream);
+    VAR
+      CfgSII@1100288001 : Record 88201;
+      OutStr@1100288004 : OutStream;
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+
+      IF CfgSII.GET THEN BEGIN
+        CfgSII."XML respuesta".CREATEOUTSTREAM(OutStr);
+        IF COPYSTREAM(OutStr, InStr) THEN BEGIN
+          CfgSII.MODIFY;
+          COMMIT;
+        END;
+      END;
+    END;
+
+    PROCEDURE GuardarResAEATFichero@1100288026(Fichero@1100288002 : Text[1024]);
+    VAR
+      CfgSII@1100288001 : Record 88201;
+      InStr@1100288003 : InStream;
+      OutStr@1100288004 : OutStream;
+      TextFile@1100288000 : File;
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+
+      IF CfgSII.GET THEN BEGIN
+        TextFile.OPEN(Fichero);
+        TextFile.CREATEINSTREAM(InStr);
+        CfgSII."XML respuesta".CREATEOUTSTREAM(OutStr);
+        IF COPYSTREAM(OutStr, InStr) THEN BEGIN
+          CfgSII.MODIFY;
+          COMMIT;
+        END;
+      END;
+    END;
+
+    PROCEDURE VerResAEAT@1100288030(Extension@1100288002 : Text[30]);
+    VAR
+      CfgSII@1100288000 : Record 88201;
+      FileName@1100288001 : Text[1024];
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+
+      IF CfgSII.GET THEN BEGIN
+        CfgSII.CALCFIELDS("XML respuesta");
+        IF CfgSII."XML respuesta".HASVALUE THEN BEGIN
+          FileName := ClientTempFileName('', Extension);
+          CfgSII."XML respuesta".EXPORT(FileName, FALSE);
+          HYPERLINK(FileName);
+        END;
+      END;
+    END;
+
+    PROCEDURE "----------Varios2"@1000000019();
+    BEGIN
+    END;
+
+    PROCEDURE GestionExterna@1000000040() : Boolean;
+    VAR
+      CfgSII@1100288001 : Record 88201;
+      FileName@1100288000 : Text[1024];
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+
+      IF CfgSII.GET THEN
+        EXIT(CfgSII."Gesti¢n externa env°os");
+    END;
+
+    PROCEDURE RutaGestionExterna@1000000043() : Text[1024];
+    VAR
+      CfgSII@1100288001 : Record 88201;
+      FileName@1100288000 : Text[1024];
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+
+      IF CfgSII.GET THEN
+        EXIT(CfgSII."Ruta XML envios externos");
+    END;
+
+    PROCEDURE GestionExternaRespuesta@1000000073() : Boolean;
+    VAR
+      CfgSII@1100288001 : Record 88201;
+      FileName@1100288000 : Text[1024];
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+
+      IF CfgSII.GET THEN
+        EXIT(CfgSII."Recepci¢n externa respuesta");
+    END;
+
+    PROCEDURE RutaGestionExternaRespuesta@1000000072() : Text[1024];
+    VAR
+      CfgSII@1100288001 : Record 88201;
+      FileName@1100288000 : Text[1024];
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+
+      IF CfgSII.GET THEN
+        EXIT(CfgSII."Ruta XML recepci¢n externos");
+    END;
+
+    PROCEDURE RutaTempFiles@1000000075() : Text[1024];
+    VAR
+      CfgSII@1100288001 : Record 88201;
+      FileName@1100288000 : Text[1024];
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+
+      IF CfgSII.GET THEN
+        EXIT(CfgSII."Path for tempfiles");
+    END;
+
+    PROCEDURE NoProcesar1S2017@1000000041() : Boolean;
+    VAR
+      CfgSII@1100288001 : Record 88201;
+      FileName@1100288000 : Text[1024];
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+
+      IF CfgSII.GET THEN
+        EXIT(CfgSII."No procesar 1S 2017");
+    END;
+
+    PROCEDURE BuscaEmpresa@1000000006(BuscarCadena@1000000002 : Text[3];VAR Empresa@1000000000 : Record 2000000006) : Boolean;
+    VAR
+      Buscar@1000000001 : Boolean;
+      CfgSII@1000000003 : Record 88201;
+      AuxEmpresa@1000000004 : Record 2000000006;
+    BEGIN
+      IF BuscarCadena IN ['','=><'] THEN
+        BuscarCadena := '=<>';
+
+      Buscar := Empresa.FIND(BuscarCadena);
+
+      CfgSII.CHANGECOMPANY(Empresa.Name);
+      IF NOT CfgSII.GET THEN
+        CfgSII.INIT;
+
+      Buscar := CfgSII."ID Certificado" <> '';
+
+      IF (NOT Buscar) AND AuxEmpresa.FIND('-') THEN
+        REPEAT
+          CfgSII.CHANGECOMPANY(AuxEmpresa.Name);
+          IF NOT CfgSII.GET THEN
+            CfgSII.INIT;
+
+          Buscar := CfgSII."ID Certificado" <> '';
+          IF Buscar THEN
+            Empresa := AuxEmpresa;
+        UNTIL (AuxEmpresa.NEXT = 0) OR Buscar;
+
+      EXIT(Buscar);
+    END;
+
+    PROCEDURE SigEmpresa@1000000007(SigPaso@1000000001 : Integer;VAR Empresa@1000000000 : Record 2000000006) : Integer;
+    VAR
+      TieneCerti@1000000002 : Boolean;
+      CfgSII@1000000003 : Record 88201;
+      BakEmpresa@1000000004 : Record 2000000006;
+    BEGIN
+      BakEmpresa := Empresa;
+      REPEAT
+        SigPaso := Empresa.NEXT(SigPaso);
+        CfgSII.CHANGECOMPANY(Empresa.Name);
+        IF NOT CfgSII.GET THEN
+          CfgSII.INIT;
+
+        TieneCerti := CfgSII."ID Certificado" <> '';
+      UNTIL (SigPaso = 0) OR TieneCerti;
+      IF SigPaso = 0 THEN
+        Empresa := BakEmpresa;
+      EXIT(SigPaso);
+    END;
+
+    PROCEDURE SetCompany@1100288029();
+    BEGIN
+    END;
+
+    PROCEDURE DocuSIIYaProcesado@1000000015(TabDocSII@1100288000 : Record 88208) : Boolean;
+    VAR
+      TipoEnvio@1000000000 : Code[2];
+    BEGIN
+      EXIT(NOT ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio));
+    END;
+
+    PROCEDURE EjecutarProcesoAutMovsIVA@1100288003() : Boolean;
+    VAR
+      CfgSII@1100288000 : Record 88201;
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+
+      IF CfgSII.GET THEN
+        EXIT(NOT CfgSII."No procesar movs. IVA aut.");
+    END;
+
+    PROCEDURE OpenFile@1(WindowTitle@1000 : Text[50];DefaultFileName@1001 : Text[250];DefaultFileType@1002 : ' ,Text,Excel,Word,Custom,XML,Csv';FilterString@1003 : Text[250];Action@1004 : 'Open,Save') : Text[260];
+    VAR
+      CommonDialogControl@1005 : OCX "{F9043C85-F6F2-101A-A3C9-08002B2F49FB}:'Microsoft Common Dialog Control, version 6.0'";
+      Text003@1000000002 : TextConst 'ENU=Text Files (*.txt)|*.txt|All Files (*.*)|*.*;ESP=Fich. texto (*.txt)|*.txt|Todos fich. (*.*)|*.*';
+      Text004@1000000001 : TextConst 'ENU=Microsoft Excel Files (*.xl*)|*.xl*|All Files (*.*)|*.*;ESP=Fich. Microsoft Excel (*.xl*)|*.xl*|Todos fich. (*.*)|*.*';
+      Text005@1000000000 : TextConst 'ENU=Word Documents (*.doc)|*.doc|All Files (*.*)|*.*;ESP=Documentos Word (*.doc)|*.doc|Todos fich. (*.*)|*.*';
+      Text006@1000000003 : TextConst 'ENU=Word Documents (*.doc)|*.doc|All Files (*.*)|*.*;ESP=Fich. XML (*.xml)|*.xml|Todos fich. (*.*)|*.*';
+      Text007@1100288000 : TextConst 'ENU=Text Files (*.txt)|*.txt|All Files (*.*)|*.*;ESP=Fich. csv (*.csv)|*.csv|Todos fich. (*.*)|*.*';
+    BEGIN
+      CommonDialogControl.FileName := DefaultFileName;
+      CommonDialogControl.DialogTitle := WindowTitle;
+
+      IF DefaultFileType = DefaultFileType::Custom THEN BEGIN
+        IF STRPOS(UPPERCASE(FilterString),'.DOC') > 0 THEN
+          DefaultFileType := DefaultFileType::Word;
+        IF STRPOS(UPPERCASE(FilterString),'.XL') > 0 THEN
+          DefaultFileType := DefaultFileType::Excel;
+      END;
+
+      CASE DefaultFileType OF
+        DefaultFileType::Text:
+          CommonDialogControl.Filter := Text003;
+        DefaultFileType::Excel:
+          CommonDialogControl.Filter := Text004;
+        DefaultFileType::Word:
+          CommonDialogControl.Filter := Text005;
+        DefaultFileType::XML:
+          CommonDialogControl.Filter := Text006;
+        DefaultFileType::Csv:
+          CommonDialogControl.Filter := Text007;
+        DefaultFileType::Custom:
+          CommonDialogControl.Filter := FilterString;
+      END;
+      CommonDialogControl.InitDir := DefaultFileName;
+      IF Action = Action::Open THEN
+        CommonDialogControl.ShowOpen
+      ELSE
+        CommonDialogControl.ShowSave;
+      EXIT(CommonDialogControl.FileName);
+    END;
+
+    PROCEDURE RefrescarDocSII@1000000022(TabDocSII@1000000000 : Record 88208);
+    VAR
+      TipoEnvio@1000000003 : Code[2];
+      MovIVA@1000000001 : Record 254;
+      LinDocSII@1000000002 : Record 88209;
+      ProcMovIVA@1000000004 : Report 88201;
+      MovIVA1@1000000005 : Integer;
+      MovIVA2@1000000006 : Integer;
+    BEGIN
+      IF ComprobarDuplicadoDUA(TabDocSII."NMov IVA") THEN
+        EXIT;
+
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        LinDocSII.CHANGECOMPANY(qEmpresa);
+      END;
+
+      IF ComprobarSiSeguir(TabDocSII."Tipo envio"::Env°o,TabDocSII, TipoEnvio) THEN BEGIN
+        MovIVA1 := 0;
+        MovIVA2 := 0;
+        LinDocSII.SETCURRENTKEY(NMovDoc, "NMov IVA");
+        LinDocSII.SETRANGE(NMovDoc, TabDocSII.NMov);
+        IF LinDocSII.FIND('-') THEN REPEAT
+          IF MovIVA1 = 0 THEN
+            MovIVA1 := LinDocSII."NMov IVA";
+          MovIVA2 := LinDocSII."NMov IVA";
+        UNTIL LinDocSII.NEXT = 0;
+        CLEAR(ProcMovIVA);
+        ProcMovIVA.PasarParam(MovIVA1, MovIVA2);
+        ProcMovIVA.PasarDoc(TabDocSII.NMov);
+        ProcMovIVA.USEREQUESTFORM(FALSE);
+        ProcMovIVA.RUN;
+      END;
+    END;
+
+    PROCEDURE InsEnvioExterno@1000000039(DocSII@1000000000 : Record 88208;DT@1000000002 : DateTime;pTipo@1000000004 : ',Envio,Baja');
+    VAR
+      TipoEnvio@1100288000 : Code[2];
+      recEnvios@1000000001 : Record 88204;
+      NMov@1000000003 : Integer;
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        DocSII.CHANGECOMPANY(qEmpresa);
+        recEnvios.CHANGECOMPANY(qEmpresa);
+      END;
+
+      IF ComprobarSiSeguir(pTipo, DocSII, TipoEnvio) THEN BEGIN
+        IF recEnvios.FIND('+') THEN
+          NMov := recEnvios."No. mov."
+        ELSE
+          NMov := 0;
+        recEnvios.INIT;
+        recEnvios."No. mov."                 := NMov + 1;
+        recEnvios."Tipo envio"               := pTipo;
+        recEnvios.Usuario                    := USERID;
+        recEnvios."NMov DocSII"              := DocSII.NMov;
+        recEnvios."Estado env°o"             := 'Correcto';
+        recEnvios."Timestamp presentaci¢n"   := DT;
+        recEnvios.Externo                    := TRUE;
+        recEnvios."Tipo comunicaci¢n"        := 'Externa';
+        recEnvios.INSERT;
+
+        IF pTipo = pTipo::Baja THEN BEGIN
+          DocSII."Tipo envio" := DocSII."Tipo envio"::" ";
+          DocSII."Estado env°o" := DocSII."Estado env°o"::" ";
+        END ELSE BEGIN
+          DocSII."Tipo envio" := recEnvios."Tipo envio";
+          DocSII."Estado env°o" := DocSII."Estado env°o"::Correcto;
+        END;
+        DocSII."Timestamp presentaci¢n" := recEnvios."Timestamp presentaci¢n";
+        DocSII.MODIFY;
+
+      END;
+    END;
+
+    PROCEDURE ComprobarDuplicadoDUA@1000000027(NMovIVA@1000000000 : Integer) : Boolean;
+    VAR
+      TabDocSII@1000000001 : Record 88208;
+    BEGIN
+      IF NMovIVA = 0 THEN
+       EXIT(FALSE);
+
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        TabDocSII.CHANGECOMPANY(qEmpresa);
+      END;
+
+      TabDocSII.SETCURRENTKEY("NMov IVA");
+      TabDocSII.SETRANGE("NMov IVA", NMovIVA);
+      EXIT(TabDocSII.COUNT > 1);
+    END;
+
+    PROCEDURE MakeNameXML@1100288014(Tipo@1100288000 : 'Envio,Respuesta';NumEnvio@1100288001 : Integer) : Text[1024];
+    BEGIN
+      IF Tipo = Tipo::Envio THEN
+        EXIT('Env_'+FORMAT(NumEnvio)+'.xml')
+      ELSE
+        EXIT('Res_'+FORMAT(NumEnvio)+'.xml');
+    END;
+
+    PROCEDURE MakeNameXMLExterno@1000000037(Tipo@1100288000 : 'Emitidos,Recibidos,BienInv,Cobros,Pagos,OpInt,Metalico') : Text[1024];
+    BEGIN
+      EXIT(FORMAT(Tipo) +'_'+ DELCHR(FORMAT(CURRENTDATETIME, 0, 9),'=','-.:')+'.XML');
+    END;
+
+    PROCEDURE GetCompanyVATNo@1000000070() : Code[20];
+    VAR
+      InfEmp@1100288001 : Record 79;
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        InfEmp.CHANGECOMPANY(qEmpresa);
+
+      IF InfEmp.GET THEN
+        EXIT(InfEmp."VAT Registration No.");
+    END;
+
+    PROCEDURE esIDOtro@1100000(CodPais@1100000 : Code[10]) : Boolean;
+    BEGIN
+      EXIT(NOT ((CodPais = '') OR (UPPERCASE(CodPais) = 'ES')));
+    END;
+
+    PROCEDURE MaxNumAgrupados@1000000071() : Integer;
+    BEGIN
+      EXIT(10000);
+    END;
+
+    PROCEDURE DevEnPruebas@1000000024() : Boolean;
+    VAR
+      EnPruebas@1000000000 : Boolean;
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa = '' THEN
+        qEmpresa := COMPANYNAME;
+
+      EnPruebas := (UPPERCASE(COPYSTR(qEmpresa, 1, 6)) = 'CRONUS');
+
+      //EnPruebas := TRUE;
+
+      EXIT(EnPruebas);
+    END;
+
+    PROCEDURE CambiarBienInversionDocSII@1000000020(VAR TabDocSII@1000000000 : Record 88208);
+    VAR
+      Text001@1000000001 : TextConst 'ESP=Marcar el documento %1 como bien de inversi¢n';
+      Text002@1000000002 : TextConst 'ESP=Quitar el documento %1 de  bienes de inversi¢n';
+    BEGIN
+
+      qEmpresa := GblSII.GetGblEmpresa;
+
+      TabDocSII.TESTFIELD(Tipo,TabDocSII.Tipo::Factura);
+      TabDocSII.TESTFIELD(TipoSII,TabDocSII.TipoSII::R);
+
+      IF TabDocSII."Bien de inversion" THEN BEGIN
+        IF NOT CONFIRM(STRSUBSTNO(Text002,TabDocSII.Documento),FALSE) THEN
+          EXIT;
+      END ELSE
+        IF NOT CONFIRM(STRSUBSTNO(Text001,TabDocSII.Documento),FALSE) THEN
+          EXIT;
+
+      TabDocSII."Bien de inversion" := NOT TabDocSII."Bien de inversion";
+      TabDocSII.MODIFY;
+    END;
+
+    BEGIN
+    END.
+  }
+}

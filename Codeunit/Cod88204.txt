@@ -1,0 +1,334 @@
+OBJECT Codeunit 88204 Obtencion datos SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=25/07/17;
+    Time=16:42:08;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+            //EjecutarPS1(0, 'D:\PASO\CONSULTA.XML', 'D:\PASO\SALIDA.XML');
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      NMovDoc@1000000000 : Integer;
+      qEmpresa@1100288000 : Text[30];
+      GblSII@1100288001 : Codeunit 88200;
+      WebSII@1000000001 : Codeunit 88202;
+      CfgSII@1000000002 : Record 88201;
+      FunSII@1100288002 : Codeunit 88201;
+
+    PROCEDURE CargarDocSII@1000000001(memIntSII@1000000000 : Record 88202;sobreEscribir@1000000001 : Boolean) : Integer;
+    VAR
+      DocuSII@1000000002 : Record 88208;
+      NumMov@1000000003 : Integer;
+      LinDocuSII@1000000004 : Record 88209;
+      FunSII@1000000005 : Codeunit 88201;
+      i@1000000006 : Integer;
+    BEGIN
+      IF memIntSII.Tipo = memIntSII.Tipo::Impuestos THEN BEGIN
+        DocuSII.RESET;
+        NMovDoc := 0;
+
+        qEmpresa := GblSII.GetGblEmpresa;
+        IF qEmpresa <> '' THEN BEGIN
+          DocuSII.CHANGECOMPANY(qEmpresa);
+          LinDocuSII.CHANGECOMPANY(qEmpresa);
+        END;
+
+        IF DocuSII.FIND('+') THEN
+          NumMov := DocuSII.NMov
+        ELSE
+          NumMov := 0;
+
+        DocuSII.SETCURRENTKEY(TipoSII, "Bien de inversion", Tipo, Documento);
+        DocuSII.SETRANGE(TipoSII, memIntSII.TipoSII);
+        DocuSII.SETRANGE(Tipo, memIntSII.TipoDocumento);
+        DocuSII.SETRANGE(Documento, memIntSII.Documento);
+        DocuSII.SETRANGE("NMov IVA", memIntSII."NMov IVA");
+        IF DocuSII.FIND('-') THEN BEGIN
+          IF NOT sobreEscribir THEN
+            EXIT
+          ELSE BEGIN // Comprobar si no se ha enviado ya la informaci¢n
+            IF FunSII.DocuSIIYaProcesado(DocuSII) THEN
+              EXIT
+            ELSE BEGIN // Borramos las l¡neas
+              LinDocuSII.SETRANGE(NMovDoc, DocuSII.NMov);
+              LinDocuSII.DELETEALL;
+            END;
+          END;
+        END ELSE BEGIN
+         DocuSII.INIT;
+         DocuSII.NMov := NumMov + 1;
+         DocuSII.INSERT;
+        END;
+
+        DocuSII.TipoSII                      := memIntSII.TipoSII;
+        DocuSII.Tipo                         := memIntSII.TipoDocumento;
+        DocuSII.Documento                    := memIntSII.Documento;
+        DocuSII.Fecha                        := memIntSII.Fecha;
+        DocuSII.NIF                          := memIntSII.NIF;
+        DocuSII.RazonSocial                  := memIntSII.RazonSocial;
+        DocuSII.DocumentoTercero             := memIntSII.DocumentoTercero;
+        DocuSII."Fecha documento"            := memIntSII."Fecha documento";
+        DocuSII.NumTercero                   := memIntSII.NumTercero;
+        DocuSII.TextoRegistro                := memIntSII.TextoRegistro;
+        DocuSII."Cod. divisa"                := memIntSII."Cod. divisa";
+        DocuSII."Factor divisa"              := memIntSII."Factor divisa";
+        DocuSII."Cod. pais"                  := memIntSII."Cod. pais";
+        DocuSII."Tipo factura rectificativa" := memIntSII."Tipo factura rectificativa";
+        DocuSII."Factura corregida"          := memIntSII."Factura corregida";
+        DocuSII."Fecha factura corregida"    := memIntSII."Fecha factura corregida";
+        DocuSII."Base rectificada"           := memIntSII."Base rectificada";
+        DocuSII."Cuota rectificada"          := memIntSII."Cuota rectificada";
+        DocuSII."Recargo rectificada"        := memIntSII."Recargo rectificada";
+        DocuSII.DUA                          := memIntSII."Numero DUA";
+        DocuSII."Fecha DUA"                  := memIntSII."Fecha DUA";
+        DocuSII."Situacion inmueble"         := memIntSII."Situacion inmueble";
+        DocuSII."Referencia catastral"       := memIntSII."Referencia catastral";
+        DocuSII."Tipo factura"               := memIntSII."Tipo factura";
+        DocuSII."Clave operacion"            := memIntSII."Clave operacion";
+        DocuSII."Emitida por terceros"       := memIntSII."Emitida por terceros";
+        DocuSII."Medio de pago/cobro"        := memIntSII."Medio de pago/cobro";
+        DocuSII."Tipo operacion intracomu."  := memIntSII."Tipo operacion intracomu.";
+        DocuSII."Clave declarado intracomu." := memIntSII."Clave declarado intracomu.";
+        DocuSII.DireccionOperador            := memIntSII.DireccionOperador;
+        DocuSII."Identificacion Bien"        := memIntSII."Identificacion Bien";
+        DocuSII."NMov IVA"                   := memIntSII."NMov IVA";
+        DocuSII."Descripcion Error"          := memIntSII."Texto error";
+        DocuSII."Codigo Error"               := memIntSII."Codigo Error";
+        DocuSII.IDOtro                       := memIntSII.IDOtro;
+        DocuSII."No enviar"                  := memIntSII."No enviar";
+        DocuSII."Global Dimension 1 Code"    := memIntSII."Global Dimension 1 Code";
+        DocuSII."Fecha operacion"            := memIntSII."Fecha operacion";
+        DocuSII."Factura resumen inicio"     := memIntSII."Factura resumen inicio";
+        DocuSII."Factura resumen fin"        := memIntSII."Factura resumen fin";
+        DocuSII."Creation date"              := memIntSII."Creation date";
+        DocuSII.DocumentoPago                := memIntSII.DocumentoPago;
+        DocuSII.MODIFY;
+
+        // Metemos la l¡nea correspondiente
+        IF memIntSII."Tipo IVA" <> memIntSII."Tipo IVA"::"No sujeto" THEN
+          InsLineas(memIntSII, DocuSII.NMov);
+
+        NMovDoc := DocuSII.NMov;
+        EXIT(DocuSII.NMov);
+      END;
+
+      IF memIntSII.Tipo = memIntSII.Tipo::Lineas THEN BEGIN
+        IF NMovDoc <> 0 THEN
+          InsLineas(memIntSII, NMovDoc);
+      END;
+    END;
+
+    PROCEDURE InsLineas@1000000008(memIntSII@1000000001 : Record 88202;NumMovDoc@1000000002 : Integer);
+    VAR
+      LinDocuSII@1000000000 : Record 88209;
+      NumMov@1000000003 : Integer;
+    BEGIN
+      // Metemos la l¡nea correspondiente
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        LinDocuSII.CHANGECOMPANY(qEmpresa);
+
+      LinDocuSII.SETRANGE(NMovDoc, NumMovDoc);
+      IF LinDocuSII.FIND('+') THEN
+        NumMov := LinDocuSII.NMov
+      ELSE
+        NumMov := 0;
+      LinDocuSII.NMovDoc                    := NumMovDoc;
+      LinDocuSII.NMov                       := NumMov+1;
+      LinDocuSII.Base                       := memIntSII.BaseIVA;
+      LinDocuSII.Cuota                      := memIntSII.ImporteIVA;
+      LinDocuSII."%IVA"                     := memIntSII."%IVA";
+      LinDocuSII."%RE"                      := memIntSII."%RE";
+      LinDocuSII.ImporteIVA                 := memIntSII.ImporteIVA;
+      LinDocuSII.ImporteRE                  := memIntSII.ImporteRE;
+      LinDocuSII."Tipo IVA"                 := memIntSII."Tipo IVA";
+      LinDocuSII."Grupo registro IVA neg."  := memIntSII."Grupo registro IVA neg.";
+      LinDocuSII."Grupo registro IVA prod." := memIntSII."Grupo registro IVA prod.";
+      LinDocuSII."NMov IVA"                 := memIntSII."NMov IVA";
+      LinDocuSII.Sujeta_NoExenta            := memIntSII.Sujeta_NoExenta;
+      LinDocuSII."Causa exencion"           := memIntSII."Causa exencion";
+      LinDocuSII."Importe no realizado"     := memIntSII."Importe no realizado";
+      LinDocuSII."Base no realizada"        := memIntSII."Base no realizada";
+      LinDocuSII."Criterio de IVA de caja"  := memIntSII."Criterio de IVA de caja";
+      LinDocuSII."Inversion sujeto pasivo"  := memIntSII."Inversion sujeto pasivo";
+      LinDocuSII."Cuota deducible"          := memIntSII.ImporteIVA;
+      LinDocuSII.Service                    := memIntSII.Service;
+      LinDocuSII.DUA                        := memIntSII.DUA;
+      LinDocuSII."NMov IVA no realizado"    := memIntSII."NMov IVA no realizado";
+      LinDocuSII.Retencion                  := memIntSII.Retencion;
+      LinDocuSII.Cuota                      := memIntSII.OrigenImporteIVA;
+      LinDocuSII."No enviar"                := memIntSII."No enviar linea";
+      LinDocuSII."Tipo No Sujeto"           := memIntSII."Tipo No Sujeto";
+      LinDocuSII.INSERT;
+    END;
+
+    PROCEDURE "<<-----------------Externo"@1000000000();
+    BEGIN
+    END;
+
+    PROCEDURE EjecutarPS1@1000000020(Tipo@1000000002 : 'Emitidos,Recibidos,BienesInv,Cobros,Pagos,OpIntra,CobMetalico';XMLFile@1000000001 : Text[1024];XMLSalida@1000000004 : Text[1024]) CertElegido : Text[80];
+    VAR
+      WSHShell@1100009 : Automation "{F935DC20-1CF0-11D0-ADB9-00C04FD58A0B} 1.0:{72C24DD5-D70A-438B-8A42-98424B88AFB8}:'Windows Script Host Object Model'.WshShell";
+      WSHExec@1100008 : Automation "{F935DC20-1CF0-11D0-ADB9-00C04FD58A0B} 1.0:{08FED191-BE19-11D3-A28B-00104BD35090}:'Windows Script Host Object Model'.WshExec";
+      WSHTxt@1100007 : Automation "{F935DC20-1CF0-11D0-ADB9-00C04FD58A0B} 1.0:{0BB02EC0-EF49-11CF-8940-00A0C9054228}:'Windows Script Host Object Model'.TextStream";
+      Tabla@1100006 : TEMPORARY Record 88203;
+      lin@1100005 : Text[1024];
+      qPos@1100004 : Integer;
+      Creado@1100003 : Boolean;
+      qFecha@1100002 : Date;
+      StrComp@1000000003 : Text[100];
+      InfEmp@1000000009 : Record 79;
+      CertSII@1100288007 : Record 88203;
+      Comando@1000000000 : Text[250];
+      Fichero@1000000005 : Text[250];
+    BEGIN
+      IF ISCLEAR(WSHShell) THEN
+        CREATE(WSHShell);
+
+      // Crear comando PS1
+      Fichero := CrearComandoPS1(Tipo, XMLFile, XMLSalida);
+
+      Comando := STRSUBSTNO('powershell -executionpolicy bypass -File %1', Fichero);
+
+      WSHExec := WSHShell.Exec(Comando);
+
+      WSHTxt := WSHExec.StdOut;
+      WHILE NOT WSHTxt.AtEndOfStream DO BEGIN
+        lin := COPYSTR(WSHTxt.ReadLine,1,1024);
+      END;
+
+      //SLEEP(2000);
+    END;
+
+    PROCEDURE CrearComandoPS1@1000000009(Tipo@1000000002 : 'Emitidos,Recibidos,BienesInv,Cobros,Pagos,OpIntra,CobMetalico';XMLFile@1000000004 : Text[1024];XMLSalida@1000000006 : Text[1024]) : Text[250];
+    VAR
+      ps1Name@1000000001 : Text[250];
+      ps1file@1000000000 : File;
+      URL@1000000003 : Text[100];
+      Certificado@1000000005 : Text[250];
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+
+      CfgSII.GET;
+      ps1Name := MkFilename('comando.ps1');
+
+      IF EXISTS(XMLSalida) THEN
+        IF ERASE(XMLSalida) THEN;
+
+      ps1file.CREATE(ps1Name);
+      ps1file.TEXTMODE(TRUE);
+      ps1file.WRITEMODE(TRUE);
+
+      ps1file.WRITE(
+      'function Get-Certificate {');
+      ps1file.WRITE(
+      '    param(');
+      ps1file.WRITE(
+      '    [Parameter(Mandatory=$False)]');
+      ps1file.WRITE(
+      '    [string]$Thumbprint');
+      ps1file.WRITE(
+      '    )');
+      ps1file.WRITE(
+      '    $OpenFlags = [System.Security.Cryptography.X509Certificates.OpenFlags]');
+      ps1file.WRITE(
+      '    $X509FindType = [System.Security.Cryptography.X509Certificates.X509FindType]');
+      ps1file.WRITE(
+      '    $store = New-Object System.Security.Cryptography.X509Certificates.X509Store "My", "CurrentUser"');
+      ps1file.WRITE(
+      '    try {');
+      ps1file.WRITE(
+      '        $store.Open($OpenFlags::OpenExistingOnly -bor $OpenFlags::ReadOnly)');
+      ps1file.WRITE(
+      '        if ($Thumbprint) {');
+      ps1file.WRITE(
+      '          $certificates = @($store.Certificates.Find($X509FindType::FindByThumbprint, $Thumbprint, $true))');
+      ps1file.WRITE(
+      '        }');
+      ps1file.WRITE(
+      '        $certificate = $certificates[0]');
+      ps1file.WRITE(
+      '        $certificate  # devolvemos el certificado');
+      ps1file.WRITE(
+      '    } finally {');
+      ps1file.WRITE(
+      '        $store.Close()');
+      ps1file.WRITE(
+      '    }');
+      ps1file.WRITE(
+      '}');
+      ps1file.WRITE(
+      '');
+
+      URL := WebSII.CogerURL(Tipo);
+
+      ps1file.WRITE(
+      STRSUBSTNO('$URI = "%1"', URL));
+      ps1file.WRITE(
+      '');
+      ps1file.WRITE(
+      '[System.Net.WebRequest]::DefaultWebProxy = [System.Net.WebRequest]::GetSystemWebProxy()');
+      ps1file.WRITE(
+      '[System.Net.WebRequest]::DefaultWebProxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials');
+      ps1file.WRITE(
+      '');
+      ps1file.WRITE(
+      STRSUBSTNO('$inputfile ="%1"',XMLFile));
+      Certificado := CfgSII."Huella digital";
+      ps1file.WRITE(
+      STRSUBSTNO('$certificate = Get-Certificate "%1"', Certificado));
+      ps1file.WRITE(
+      'if ($certificate -ne $null) {   ');
+      ps1file.WRITE(
+      '    try {');
+      ps1file.WRITE(
+      '      $result = (Invoke-WebRequest $URI -infile $inputfile -contentType "text/xml" -method POST -Certificate $certificate)');
+      ps1file.WRITE(
+      '      [xml]$res = $result.Content');
+      ps1file.WRITE(
+      STRSUBSTNO('      $res.Save("%1")', XMLSalida));
+
+      ps1file.WRITE(
+      '    } catch {');
+      ps1file.WRITE(
+      '      Write-Error $Error[0]');
+      ps1file.WRITE(
+      '  }');
+      ps1file.WRITE(
+      '}');
+      ps1file.CLOSE;
+
+      EXIT(ps1Name);
+    END;
+
+    PROCEDURE MkFilename@1000000006(Nombre@1000000001 : Text[30]) : Text[250];
+    VAR
+      Ruta@1100000 : Text[250];
+      Len@1100001 : Integer;
+    BEGIN
+      Ruta := FunSII.Path(FunSII.ClientTempFileName('', ''));
+      EXIT(Ruta + Nombre);
+    END;
+
+    PROCEDURE PreRellenCad@1(CadEntrada@1000000000 : Text[250];LenMax@1000000001 : Integer) : Text[250];
+    BEGIN
+      IF STRLEN(CadEntrada) > LenMax THEN
+        EXIT(CadEntrada);
+      EXIT(PADSTR('', LenMax - STRLEN(CadEntrada),'0') + CadEntrada);
+    END;
+
+    BEGIN
+    END.
+  }
+}

@@ -1,0 +1,94 @@
+OBJECT Table 88204 Env¡os SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=28/07/17;
+    Time=[ 9:59:17];
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    OnInsert=BEGIN
+               ERROR('No se puede realizar directamente esta acci¢n.');
+             END;
+
+    OnModify=BEGIN
+               ERROR('No se puede realizar directamente esta acci¢n.');
+             END;
+
+    OnDelete=BEGIN
+               ERROR('No se puede realizar directamente esta acci¢n.');
+             END;
+
+    OnRename=BEGIN
+               ERROR('No se puede realizar directamente esta acci¢n.');
+             END;
+
+    CaptionML=[ENU=SII Sendings;
+               ESP=Env¡os SII];
+    LookupFormID=Form88202;
+    DrillDownFormID=Form88202;
+  }
+  FIELDS
+  {
+    { 1   ;   ;No. mov.            ;Integer       ;CaptionML=[ENU=MovNo;
+                                                              ESP=Mov. No.] }
+    { 2   ;   ;Tipo                ;Option        ;CaptionML=[ENU=Type;
+                                                              ESP=Tipo];
+                                                   OptionCaptionML=ESP=E,R;
+                                                   OptionString=E,R }
+    { 3   ;   ;Documento           ;Code20        ;CaptionML=[ENU=Document;
+                                                              ESP=Documento] }
+    { 4   ;   ;Fecha               ;Date          ;CaptionML=[ENU=Date;
+                                                              ESP=Fecha] }
+    { 5   ;   ;Estado env¡o        ;Text30        ;CaptionML=[ENU=Send status;
+                                                              ESP=Estado env¡o] }
+    { 6   ;   ;Timestamp presentaci¢n;DateTime    ;CaptionML=[ENU=Timestamp sending;
+                                                              ESP=Timestamp presentation] }
+    { 7   ;   ;Tipo comunicaci¢n   ;Code10        ;CaptionML=[ENU=Communication type;
+                                                              ESP=Tipo comunicaci¢n] }
+    { 8   ;   ;CSV                 ;Text50        ;CaptionML=[ENU=CSV;
+                                                              ESP=CSV] }
+    { 9   ;   ;XML respuesta       ;BLOB          ;CaptionML=[ENU=Response XML;
+                                                              ESP=XML response] }
+    { 10  ;   ;Codigo Error        ;Text30        ;CaptionML=[ENU=Error code;
+                                                              ESP=Codigo Error] }
+    { 11  ;   ;Descripcion Error   ;Text250       ;CaptionML=[ENU=Error description;
+                                                              ESP=Descripcion Error] }
+    { 12  ;   ;Tipo envio          ;Option        ;CaptionML=[ENU=Send type;
+                                                              ESP=Tipo envio];
+                                                   OptionCaptionML=ESP=" ,Env¡o,Baja,BI Env¡o,BI Baja";
+                                                   OptionString=[ ,Env¡o,Baja,BI Env¡o,BI Baja] }
+    { 13  ;   ;Usuario             ;Code50        ;CaptionML=[ENU=User;
+                                                              ESP=Usuario];
+                                                   Editable=No }
+    { 14  ;   ;NMov DocSII         ;Integer       ;CaptionML=[ENU=DocSII MovNo;
+                                                              ESP=NMov DocSII] }
+    { 15  ;   ;XML envio           ;BLOB          ;CaptionML=[ENU=Request XML;
+                                                              ESP=XML envio] }
+    { 16  ;   ;NMov agrupacion     ;Integer       ;CaptionML=[ENU=Agregate MovNo;
+                                                              ESP=NMov agrupacion];
+                                                   BlankZero=Yes;
+                                                   Editable=No }
+    { 17  ;   ;Externo             ;Boolean       ;CaptionML=[ENU=External;
+                                                              ESP=Externo];
+                                                   Editable=No }
+    { 18  ;   ;DocumentoFin        ;Code20         }
+    { 19  ;   ;Fecha expedicion factura;Date       }
+  }
+  KEYS
+  {
+    {    ;No. mov.                                ;Clustered=Yes }
+    {    ;Tipo,Documento                           }
+    {    ;NMov DocSII                              }
+  }
+  CODE
+  {
+    VAR
+      FunPer@1000000000 : Codeunit 88201;
+
+    BEGIN
+    END.
+  }
+}

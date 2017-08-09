@@ -1,0 +1,1731 @@
+OBJECT Codeunit 88202 WebService SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=06/08/17;
+    Time=11:15:59;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    OnRun=VAR
+            Encabezado@1000000001 : Text[1024];
+            Detalle@1000000002 : Text[1024];
+            Emisor@1000000000 : Text[1024];
+            Receptor@1000000003 : Text[1024];
+            Totales@1000000004 : Text[1024];
+            DocuSII@1000000005 : Record 88208;
+          BEGIN
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      XMLDoc@1000000006 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";
+      Ascii@1000000008 : TextConst 'ESP=ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü†°¢£§•¶ß®©™´¨≠ÆØ∞±≤≥¥µ∂∑∏π∫ªºΩæø¿¡¬√ƒ≈∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄€‹›ﬁﬂ‡·‚„‰ÂÊÁËÈÍÎÏÌÓÔÒÚÛÙıˆ˜¯˘˙˚¸˝˛';
+      Ansi@1000000007 : TextConst 'ESP=«¸È‚‰‡ÂÁÍÎËÔÓÏƒ≈…Ê∆ÙˆÚ˚˘ò÷‹¯£ÿ◊É·ÌÛ˙Ò—™∫øÆ¨Ωº°´ª∞±≤≥¥¡¬¿©π∫ªº¢•ø¿¡¬√ƒ≈„√»… ÀÃÕŒ§– À»’ÕŒœŸ⁄€‹_Ãﬂ”ﬂ‘“ı’µ˛ﬁ⁄€Ÿ˝›Ø¥≠±Úæ∂ß˜∏∞®∑π≥≤˛';
+      TextoXML@1000000001 : TextConst 'ESP=%1.xml';
+      Comilla@1000000009 : TextConst 'ESP=""""';
+      Err001@1000000015 : TextConst 'ENU=Association is mising;ESP=Falta asociaci¢n';
+      Err002@1000000024 : TextConst 'ENU=Association is mising, Account %1, Recalssifcation type %2;ESP=Falta asociaci¢n, Cuenta %1, Tipo reclasificaci¢n %2;ESM=Falta asociaci¢n, Cuenta %1, Tipo reclasificaci¢n %2';
+      FunSII@1100288000 : Codeunit 88201;
+      URL_WS7_FE@1000000002 : TextConst 'ESP=https://www7.aeat.es/wlpl/SSII-FACT/ws/fe/SiiFactFEV1SOAP';
+      URL_WS7_FR@1100288001 : TextConst 'ESP=https://www7.aeat.es/wlpl/SSII-FACT/ws/fr/SiiFactFRV1SOAP';
+      URL_WS7_BI@1100288008 : TextConst 'ESP=https://www7.aeat.es/wlpl/SSII-FACT/ws/bi/SiiFactBIV1SOAP';
+      URL_WS7_CE@1000000005 : TextConst 'ESP=https://www7.aeat.es/wlpl/SSII-FACT/ws/fe/SiiFactCOBV1SOAP';
+      URL_WS7_PR@1000000010 : TextConst 'ESP=https://www7.aeat.es/wlpl/SSII-FACT/ws/fr/SiiFactPAGV1SOAP';
+      URL_WS7_OI@1000000011 : TextConst 'ESP=https://www7.aeat.es/wlpl/SSII-FACT/ws/oi/SiiFactOIV1SOAP';
+      URL_WS7_CM@1000000012 : TextConst 'ESP=https://www7.aeat.es/wlpl/SSII-FACT/ws/pm/SiiFactCMV1SOAP';
+      URL_WS1_FE@1000000020 : TextConst 'ESP=https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/fe/SiiFactFEV1SOAP';
+      URL_WS1_FR@1000000019 : TextConst 'ESP=https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/fr/SiiFactFRV1SOAP';
+      URL_WS1_BI@1000000018 : TextConst 'ESP=https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/bi/SiiFactBIV1SOAP';
+      URL_WS1_CE@1000000017 : TextConst 'ESP=https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/fe/SiiFactCOBV1SOAP';
+      URL_WS1_PR@1000000016 : TextConst 'ESP=https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/fr/SiiFactPAGV1SOAP';
+      URL_WS1_OI@1000000014 : TextConst 'ESP=https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/oi/SiiFactOIV1SOAP';
+      URL_WS1_CM@1000000013 : TextConst 'ESP=https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/pm/SiiFactCMV1SOAP';
+      Text001@1100288002 : TextConst 'ESP=Sin datos para la consulta';
+      GblSII@1100288007 : Codeunit 88200;
+      qEmpresa@1000000000 : Text[30];
+      Err003@1100288003 : TextConst 'ESP=Certificado';
+      Err004@1100288004 : TextConst 'ESP=El certificado caduc¢ el d°a %1';
+      Err005@1100288005 : TextConst 'ESP=Falta certificado en la configuraci¢n del SII';
+      Err006@1000000004 : TextConst 'ESP=Certificado no encontrado';
+      URL_WS_CD@1100288006 : TextConst 'ESP=https://www1.agenciatributaria.gob.es/wlpl/BURT-JDIT/ws/VNifV1SOAP';
+      CertSII@1000000003 : Codeunit 88205;
+      GblInStream@1100288009 : InStream;
+
+    PROCEDURE SII_Envio@1000000001(FicheroEntrada@1000000006 : Text[1024];SacarMensaje@1000000008 : Boolean;Accion@1000000011 : Text[80];Respuesta@1000000014 : Text[80];TipoEnvio@1000000004 : 'Emitidos,Recibidos,BienesInv,Cobros,Pagos,OpIntra,CobMetalico';TipoAccion@1000000009 : ' ,Consulta,Contraste,Baja';VAR DocSII@1000000007 : Record 88208);
+    VAR
+      XMLDoc@1100288001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";
+      XMLDoc2@1100288005 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";
+      XMLDocOut@1100288002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";
+      XmlHttp2@1000000002 : Automation "{662901FC-6951-4854-9EB2-D9A2570F2B2E} 5.1:{2087C2F4-2CEF-4953-A8AB-66779B670495}:'Microsoft WinHTTP Services, version 5.1'.WinHttpRequest";
+      XMLNode@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      URL@1000000000 : Text[1024];
+      Fichero@1000000017 : Text[1024];
+      Ruta@1000000019 : Text[100];
+      Status@1000000020 : Code[10];
+      FaultCode@1000000003 : Text[1024];
+      FaultString@1000000005 : Text[1024];
+      CfgSII@1100288000 : Record 88201;
+      ProcesarRespuesta@1100288003 : Boolean;
+      NombreCertificado@1000000010 : Text[250];
+      TabCertSII@1000000013 : TEMPORARY Record 88203;
+      TabDocSII@1000000012 : Record 88208;
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+        TabDocSII.CHANGECOMPANY(qEmpresa);
+      END;
+
+      CfgSII.GET;
+
+      CLEAR(XMLDoc);
+      CREATE(XMLDoc);
+
+      CLEAR(XMLDoc2);
+      CREATE(XMLDoc2);
+
+      URL := CogerURL(TipoEnvio);
+
+      XMLDoc.load(FicheroEntrada);
+
+      CLEAR(XmlHttp2);
+      CREATE(XmlHttp2);
+
+      XmlHttp2.Open('POST', URL, 0);
+      XmlHttp2.SetRequestHeader('Content-Type', 'text/xml; charset=UTF-8');
+      XmlHttp2.SetRequestHeader('SOAPAction', Accion);
+
+      XmlHttp2.SetTimeouts(10000,10000,10000,100000);
+
+      //FunSII.GuardarXMLReq(XMLDoc);
+
+      CfgSII."Cargar certificados" := FALSE; // Para evitar problemas
+
+      IF CfgSII.Enabled THEN BEGIN
+        CfgSII.LoadCertificateFromBLOB;
+      END;
+
+      IF CfgSII."Cargar certificados" THEN BEGIN
+        CertSII.CargaCertificado;
+        IF CfgSII."Dimension1 as Company" THEN
+          TabDocSII.GET(DocSII.NMov)
+        ELSE
+         TabDocSII."Global Dimension 1 Code" := '';
+        NombreCertificado := FunSII.CogerCertificado2(FALSE, TabCertSII, TabDocSII."Global Dimension 1 Code");
+        IF NombreCertificado = '' THEN BEGIN
+          IF GUIALLOWED THEN
+            ERROR('ERROR: %1', Err006)
+          ELSE BEGIN
+            FaultCode   := Err003;
+            FaultString := Err006;
+            InsEnvio(XMLDoc, XMLDoc2, Respuesta, FaultString, TipoEnvio,TipoAccion,FaultCode,DocSII);
+            EXIT;
+          END;
+        END;
+        XmlHttp2.SetClientCertificate(NombreCertificado);
+      END ELSE BEGIN
+        IF CfgSII."Dimension1 as Company" THEN BEGIN
+          NombreCertificado := FunSII.GetCertificateDim1(DocSII.NMov);
+          IF NombreCertificado <> '' THEN
+            CfgSII."Nombre certificado" := NombreCertificado;
+        END;
+
+        IF CfgSII."Nombre certificado" <> '' THEN BEGIN
+          IF (CfgSII."Valido hasta" >= TODAY) OR (CfgSII."Valido hasta" = 0D) OR
+             CfgSII."Dimension1 as Company" THEN
+            XmlHttp2.SetClientCertificate(CfgSII."Nombre certificado")
+          ELSE BEGIN
+            IF GUIALLOWED THEN
+              ERROR('ERROR: %1\\%2', Err003, STRSUBSTNO(Err004, CfgSII."Valido hasta"))
+            ELSE BEGIN
+              FaultCode   := Err003;
+              FaultString := Err004;
+              InsEnvio(XMLDoc, XMLDoc2, Respuesta, FaultString, TipoEnvio,TipoAccion, FaultCode, DocSII);
+              EXIT;
+            END;
+          END;
+        END ELSE BEGIN
+          IF GUIALLOWED THEN
+            ERROR('ERROR: %1\\%2', Err003, Err005)
+          ELSE BEGIN
+            FaultCode   := Err003;
+            FaultString := Err005;
+            InsEnvio(XMLDoc, XMLDoc2, Respuesta, FaultString, TipoEnvio, TipoAccion,FaultCode, DocSII);
+            EXIT;
+          END;
+        END;
+      END;
+
+      XmlHttp2.Send(XMLDoc);
+
+      XMLDoc2.async := FALSE;
+      XMLDoc2.load(XmlHttp2.ResponseBody);
+
+      GblInStream := XmlHttp2.ResponseStream;
+
+      IF CfgSII."Cargar certificados" THEN
+        CertSII.EliminarCertificado;
+
+      IF CfgSII.Enabled THEN
+        CfgSII.DropCertificate;
+
+      ProcesarRespuesta := TRUE;
+
+      IF XmlHttp2.Status = 200 THEN BEGIN
+        FunSII.RemoveNameSpace(XMLDoc2, XMLDocOut);
+        IF NOT GetResponse(XMLDocOut, FaultString, FaultCode) THEN BEGIN
+          ProcesarRespuesta := FALSE;
+          IF SacarMensaje THEN
+            MESSAGE('ERROR: %1\\DESCRIPCI‡N: %2', FaultCode, FaultString);
+          FunSII.GuardarResAEAT(GblInStream);
+        END;
+      END ELSE BEGIN
+        ProcesarRespuesta := FALSE;
+        FaultCode   := FORMAT(XmlHttp2.Status);
+        FaultString := COPYSTR(XmlHttp2.StatusText, 1, 1024);
+        IF SacarMensaje THEN
+          MESSAGE('Error estado: %1', XmlHttp2.Status);
+        FunSII.GuardarResAEAT(GblInStream);
+      END;
+
+      CASE TipoAccion OF
+        TipoAccion::Contraste:
+          BEGIN
+            IF ProcesarRespuesta THEN BEGIN
+      //        FunSII.GuardarXMLRes(XMLDoc2);
+              CASE TipoEnvio OF
+                TipoEnvio::Emitidos    :
+                  ProcesarContraste(XMLDoc2, Respuesta, 'RegistroRespuestaConsultaLRFacturasEmitidas');
+                TipoEnvio::Recibidos   :
+                  ProcesarContraste(XMLDoc2, Respuesta, 'RegistroRespuestaConsultaLRFacturasRecibidas');
+              END;
+            END;
+          END;
+        TipoAccion::Consulta:
+          BEGIN
+            IF ProcesarRespuesta THEN BEGIN
+      //        FunSII.GuardarXMLRes(XMLDoc2);
+              CASE TipoEnvio OF
+                TipoEnvio::Emitidos    : ProcesarConsultaFactEmitidas(XMLDoc2, Respuesta);
+                TipoEnvio::Recibidos   : ProcesarConsultaFactRecibidas(XMLDoc2, Respuesta);
+                TipoEnvio::BienesInv   : ProcesarConsultaBienInversion(XMLDoc2, Respuesta);
+                TipoEnvio::Cobros      : ProcesarConsultaCobros(XMLDoc2, Respuesta);
+                TipoEnvio::Pagos       : ProcesarConsultaPagos(XMLDoc2, Respuesta);
+                TipoEnvio::OpIntra     : ProcesarConsultaOpIntra(XMLDoc2, Respuesta);
+                TipoEnvio::CobMetalico : ProcesarConsultaCobMetalico(XMLDoc2, Respuesta);
+              END;
+            END;
+          END;
+        ELSE
+          InsEnvio(XMLDoc, XMLDoc2, Respuesta, FaultString, TipoEnvio,TipoAccion, FaultCode, DocSII)
+      END;
+
+      CLEAR(XMLDoc);
+      CLEAR(XMLDoc2);
+      CLEAR(XmlHttp2);
+    END;
+
+    PROCEDURE GetResponse@1000000019(XMLDoc@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";VAR FaultString@1000000006 : Text[1024];VAR FaultCode@1000000007 : Text[1024]) ret : Boolean;
+    VAR
+      XMLNode@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      XMLNode2@1000000004 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      XMLNode3@1000000005 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      XMLNodeList@1000000002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
+      XMLAttrib@1000000003 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF83-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNamedNodeMap";
+    BEGIN
+      FaultCode := '';
+      FaultString := '';
+      ret := FunSII.FindNode(XMLDoc,'//Envelope',XMLNode);
+      IF ret THEN BEGIN
+        IF FunSII.FindNode(XMLDoc,'//Envelope/Body/Fault',XMLNode) THEN BEGIN // Error
+          IF FunSII.FindNode(XMLDoc,'//Envelope/Body/Fault/faultcode',XMLNode) THEN
+            FaultCode := COPYSTR(XMLNode.text,1,1024);
+          IF FunSII.FindNode(XMLDoc,'//Envelope/Body/Fault/faultstring',XMLNode) THEN
+            FaultString := COPYSTR(XMLNode.text,1,1024);
+          ret := FALSE;
+        END;
+      END ELSE BEGIN
+        FaultCode := '-1';
+        FaultString := 'ERROR en respuesta AEAT';
+      END;
+    END;
+
+    PROCEDURE CalidadDatos@1100288003(NIF@1100288011 : Code[20];RazonSocial@1100288012 : Text[120];Silent@1100288013 : Boolean;NMovDoc@1000000001 : Integer) : Boolean;
+    VAR
+      XMLDoc@1100288010 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";
+      XmlHttp2@1100288008 : Automation "{662901FC-6951-4854-9EB2-D9A2570F2B2E} 5.1:{2087C2F4-2CEF-4953-A8AB-66779B670495}:'Microsoft WinHTTP Services, version 5.1'.WinHttpRequest";
+      XMLNode@1100288007 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      URL@1100288006 : Text[1024];
+      Fichero@1100288005 : Text[1024];
+      Ruta@1100288004 : Text[100];
+      Status@1100288003 : Code[10];
+      FaultCode@1100288002 : Text[1024];
+      FaultString@1100288001 : Text[1024];
+      CfgSII@1100288000 : Record 88201;
+      XMLReq@1100288009 : Text[1024];
+      ret@1100288014 : Boolean;
+      NombreCertificado@1000000000 : Text[4];
+      FichSal@1000000002 : Text[1024];
+      FunPS1@1000000003 : Codeunit 88204;
+      Correcto@1000000004 : Boolean;
+    BEGIN
+       qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+      END;
+
+      CfgSII.GET;
+
+      IF ISCLEAR(XMLDoc) THEN
+        CREATE(XMLDoc);
+
+      XMLReq := STRSUBSTNO('<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" '+
+         'xmlns:vnif="http://www2.agenciatributaria.gob.es/static_files/common/internet/dep/'+
+         'aplicaciones/es/aeat/burt/jdit/ws/VNifV1Ent.xsd">'+
+         '<soapenv:Header/>'+
+         '<soapenv:Body>'+
+         '<vnif:VNifV1Ent>'+
+         '<vnif:Nif>%1</vnif:Nif>'+
+         '<vnif:Nombre>%2</vnif:Nombre>'+
+         '</vnif:VNifV1Ent>'+
+         '</soapenv:Body>'+
+         '</soapenv:Envelope>', NIF, RazonSocial);
+
+      IF FunSII.GestionExternaRespuesta THEN BEGIN
+         Fichero := FunSII.ClientTempFileName('', 'XML');
+         XMLDoc.loadXML(XMLReq);
+         XMLDoc.save(Fichero);
+         FichSal := FunPS1.MkFilename('respuesta.xml');
+         FunPS1.EjecutarPS1(7, Fichero, FichSal);
+         XMLDoc.load(FichSal);
+         Correcto := TRUE;
+      END ELSE BEGIN
+
+        URL := URL_WS_CD;
+
+        IF ISCLEAR(XmlHttp2) THEN
+          CREATE(XmlHttp2);
+
+        XmlHttp2.Open('POST', URL, 0);
+        XmlHttp2.SetRequestHeader('Content-Type', 'text/xml; charset=UTF-8');
+
+        IF CfgSII.Enabled THEN
+          CfgSII.LoadCertificateFromBLOB;
+
+        IF CfgSII."Dimension1 as Company" THEN BEGIN
+          NombreCertificado := FunSII.GetCertificateDim1(NMovDoc);
+          IF NombreCertificado <> '' THEN
+            CfgSII."Nombre certificado" := NombreCertificado;
+        END;
+
+        IF CfgSII."Nombre certificado" <> '' THEN BEGIN
+          IF (CfgSII."Valido hasta" >= TODAY) OR (CfgSII."Valido hasta" = 0D) OR
+             CfgSII."Dimension1 as Company" THEN
+            XmlHttp2.SetClientCertificate(CfgSII."Nombre certificado")
+          ELSE
+              ERROR('ERROR: %1\\%2', Err003, STRSUBSTNO(Err004, CfgSII."Valido hasta"))
+        END ELSE
+          ERROR('ERROR: %1\\%2', Err003, Err005);
+
+        XmlHttp2.SetTimeouts(10000,10000,10000,100000);
+
+        XMLDoc.loadXML(XMLReq);
+
+        IF NOT Silent THEN
+          FunSII.GuardarXMLReq(XMLDoc);
+
+        XmlHttp2.Send(XMLDoc);
+
+        XMLDoc.async := FALSE;
+        XMLDoc.load(XmlHttp2.ResponseBody);
+
+        GblInStream := XmlHttp2.ResponseStream;
+
+        Correcto := (XmlHttp2.Status = 200);
+
+        CLEAR(XmlHttp2);
+
+      END;
+
+      IF Correcto THEN BEGIN
+        IF NOT Silent THEN
+          FunSII.GuardarXMLRes(XMLDoc);
+        FunSII.RemoveNameSpace(XMLDoc, XMLDoc);
+        IF NOT GetResponse(XMLDoc, FaultString, FaultCode) THEN BEGIN
+          IF GUIALLOWED AND NOT Silent THEN
+            MESSAGE('ERROR: %1\\DESCRIPCI‡N: %2', FaultCode, FaultString);
+          FunSII.GuardarResAEAT(GblInStream);
+          ret := FALSE;
+        END ELSE BEGIN
+          IF GUIALLOWED AND NOT Silent THEN
+            MESSAGE('Datos correctos');
+          ret := TRUE;
+        END;
+      END ELSE
+        ERROR('Error estado petici¢n: %1', XmlHttp2.Status);
+
+      IF CfgSII.Enabled THEN
+       CfgSII.DropCertificate;
+
+      CLEAR(XMLDoc);
+
+      EXIT(ret);
+    END;
+
+    PROCEDURE SII_Envio_Externo@1000000010(FicheroEntrada@1000000006 : Text[1024];FicheroSalida@1000000008 : Text[1024];SacarMensaje@1000000002 : Boolean;Accion@1000000011 : Text[80];Respuesta@1000000014 : Text[80];TipoEnvio@1000000004 : 'Emitidos,Recibidos,BienesInv,Cobros,Pagos,OpIntra,CobMetalico';TipoAccion@1000000009 : ' ,Consulta,Contraste,Baja';VAR DocSII@1000000007 : Record 88208);
+    VAR
+      XMLDoc@1100288001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";
+      XMLDoc2@1100288005 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";
+      XMLDocOut@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";
+      FaultCode@1000000003 : Text[1024];
+      FaultString@1000000005 : Text[1024];
+      ProcesarRespuesta@1000000001 : Boolean;
+    BEGIN
+      CLEAR(XMLDoc);
+      CREATE(XMLDoc);
+
+      CLEAR(XMLDoc2);
+      CREATE(XMLDoc2);
+
+      XMLDoc.load(FicheroEntrada);
+      XMLDoc2.load(FicheroSalida);
+
+      ProcesarRespuesta := TRUE;
+
+      FunSII.RemoveNameSpace(XMLDoc2, XMLDocOut);
+      IF NOT GetResponse(XMLDocOut, FaultString, FaultCode) THEN BEGIN
+        ProcesarRespuesta := FALSE;
+        IF SacarMensaje THEN
+          MESSAGE('ERROR: %1\\DESCRIPCI‡N: %2', FaultCode, FaultString);
+        FunSII.GuardarResAEATFichero(FicheroSalida);
+      END;
+
+      CASE TipoAccion OF
+        TipoAccion::Contraste:
+          BEGIN
+            IF ProcesarRespuesta THEN BEGIN
+              CASE TipoEnvio OF
+                TipoEnvio::Emitidos    :
+                  ProcesarContraste(XMLDoc2, Respuesta, 'RegistroRespuestaConsultaLRFacturasEmitidas');
+                TipoEnvio::Recibidos   :
+                  ProcesarContraste(XMLDoc2, Respuesta, 'RegistroRespuestaConsultaLRFacturasRecibidas');
+              END;
+            END;
+          END;
+        TipoAccion::Consulta:
+          BEGIN
+            IF ProcesarRespuesta THEN BEGIN
+              CASE TipoEnvio OF
+                TipoEnvio::Emitidos    : ProcesarConsultaFactEmitidas(XMLDoc2, Respuesta);
+                TipoEnvio::Recibidos   : ProcesarConsultaFactRecibidas(XMLDoc2, Respuesta);
+                TipoEnvio::BienesInv   : ProcesarConsultaBienInversion(XMLDoc2, Respuesta);
+                TipoEnvio::Cobros      : ProcesarConsultaCobros(XMLDoc2, Respuesta);
+                TipoEnvio::Pagos       : ProcesarConsultaPagos(XMLDoc2, Respuesta);
+                TipoEnvio::OpIntra     : ProcesarConsultaOpIntra(XMLDoc2, Respuesta);
+                TipoEnvio::CobMetalico : ProcesarConsultaCobMetalico(XMLDoc2, Respuesta);
+              END;
+            END;
+          END;
+        ELSE
+          InsEnvio(XMLDoc, XMLDoc2, Respuesta, FaultString, TipoEnvio,TipoAccion, FaultCode, DocSII)
+      END;
+
+      CLEAR(XMLDoc);
+      CLEAR(XMLDoc2);
+    END;
+
+    PROCEDURE InsEnvio@1000000006(XMLDoc@1000000003 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";XMLDoc2@1100288003 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1000000008 : Text[80];FaultString@1000000007 : Text[1024];TipoEnvio@1000000004 : 'Emitidos,Recibidos,BienesInv,Pagos,Cobros,OpIntra,CobMetalico';TipoAccion@1000000005 : ' ,Consulta,Contraste,Baja';FaultError@1000000011 : Text[30];VAR DocSII@1100288002 : Record 88208);
+    VAR
+      recEnvios@1000000000 : Record 88204;
+      NMov@1000000001 : Integer;
+      Fichero@1000000002 : Text[1024];
+      recDocus@1000000010 : Record 88208;
+      CfgSII@1100288000 : Record 88201;
+      GuardarXMLEnvio@1100288001 : Boolean;
+      GuardarXMLRespuesta@1000000012 : Boolean;
+      GuardarXMLEnvioFich@1100288004 : Boolean;
+      GuardarXMLRespuestaFich@1100288005 : Boolean;
+      Agrupado@1000000006 : Boolean;
+      NMovAgrupado@1000000009 : Integer;
+      XMLNodeList@1000000013 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
+      XMLNode@1000000014 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      XMLNode2@1000000015 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      recEnvios2@1000000018 : Record 88204;
+      qFecha@1000000017 : Date;
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+        recEnvios.CHANGECOMPANY(qEmpresa);
+        recDocus.CHANGECOMPANY(qEmpresa);
+      END;
+
+      Agrupado := (DocSII.COUNT > 1) AND (CfgSII."Agrupar env°os");
+
+      IF recEnvios.FIND('+') THEN
+        NMov := recEnvios."No. mov."
+      ELSE
+        NMov := 0;
+      NMov := NMov + 1;
+
+      recEnvios.INIT;
+      recEnvios."No. mov."    := NMov;
+      recEnvios."Tipo envio"  := GetTipoEnvio(TipoEnvio, TipoAccion);
+      recEnvios.Usuario       := USERID;
+      recEnvios."NMov DocSII" := DocSII.NMov;
+
+      IF Agrupado THEN
+        NMovAgrupado := recEnvios."No. mov.";
+
+      GuardarXMLEnvio := TRUE;
+      GuardarXMLRespuesta := TRUE;
+
+      GuardarXMLEnvioFich := TRUE;
+      GuardarXMLRespuestaFich := TRUE;
+
+      IF CfgSII.GET THEN BEGIN
+        GuardarXMLEnvio := NOT CfgSII."No guardar XML envio";
+        GuardarXMLRespuesta := NOT CfgSII."No guardar XML respuesta";
+
+        GuardarXMLEnvioFich := CfgSII."Guardar XML en ficheros" AND (CfgSII."Ruta XML envio" <> '');
+        GuardarXMLRespuestaFich :=CfgSII."Guardar XML en ficheros" AND (CfgSII."Ruta XML respuesta" <> '');
+      END;
+
+      IF GuardarXMLRespuesta THEN BEGIN
+        Fichero := FunSII.ClientTempFileName('', 'XML');
+        XMLDoc2.save(Fichero);
+        recEnvios."XML respuesta".IMPORT(Fichero, FALSE);
+      END;
+
+      IF GuardarXMLEnvio THEN BEGIN
+        Fichero := FunSII.ClientTempFileName('', 'XML');
+        XMLDoc.save(Fichero);
+        recEnvios."XML envio".IMPORT(Fichero, FALSE);
+      END;
+
+      IF GuardarXMLRespuestaFich THEN BEGIN
+        Fichero := FunSII.ClientTempFileName('', 'XML');
+        XMLDoc2.save(Fichero);
+        COPY(Fichero, CfgSII."Ruta XML respuesta"+FunSII.MakeNameXML(1, recEnvios."No. mov."));
+      END;
+
+      IF GuardarXMLEnvioFich THEN BEGIN
+        Fichero := FunSII.ClientTempFileName('', 'XML');
+        XMLDoc.save(Fichero);
+        COPY(Fichero, CfgSII."Ruta XML envio"+FunSII.MakeNameXML(0, recEnvios."No. mov."));
+      END;
+
+      FunSII.RemoveNameSpace(XMLDoc2, XMLDoc2);
+
+      IF FaultString = '' THEN BEGIN
+        recEnvios."Estado env°o"             := GetEstado(XMLDoc2, Respuesta);
+        recEnvios."Timestamp presentaci¢n"   := GetTime(XMLDoc2, Respuesta);
+        recEnvios."Tipo comunicaci¢n"        := GetTipoCom(XMLDoc2, Respuesta);
+        recEnvios.CSV                        := GetCSV(XMLDoc2, Respuesta);
+        recEnvios."Codigo Error"             := GetError(XMLDoc2, Respuesta);
+        recEnvios."Descripcion Error"        := GetDescError(XMLDoc2, Respuesta);
+        recEnvios."Fecha expedicion factura" := GetFechaExp(XMLDoc2, Respuesta);
+      END ELSE BEGIN
+        recEnvios."Estado env°o"             := 'Error';
+        recEnvios."Timestamp presentaci¢n"   := CURRENTDATETIME;
+        recEnvios."Tipo comunicaci¢n"        := '';
+        recEnvios.CSV                        := '';
+        recEnvios."Codigo Error"             := FaultError;
+        recEnvios."Descripcion Error"        := COPYSTR(FaultString, 1, MAXSTRLEN(recEnvios."Descripcion Error"));
+        recEnvios."Fecha expedicion factura" := 0D;
+      END;
+
+      recEnvios.INSERT;
+
+      ModDocSII(DocSII.NMov, recEnvios);
+
+      IF Agrupado THEN BEGIN
+        // Debemos desglosar el XML con las respuestas recibidas.
+        XMLNodeList := XMLDoc2.getElementsByTagName('RespuestaLinea');
+        XMLNode := XMLNodeList.nextNode;
+        WHILE NOT ISCLEAR(XMLNode) DO BEGIN
+          // Obtenemos Documento, Fecha, NIF, para buscar el DocSII y actualizarlo
+          BuscarDatosID(XMLNode, recEnvios2);
+          IF recDocus.GET(recEnvios2."NMov DocSII") THEN BEGIN
+            IF recEnvios2."NMov DocSII" = DocSII.NMov THEN BEGIN
+              IF recEnvios2.GET(NMovAgrupado) THEN BEGIN
+                IF recEnvios2.GET(NMovAgrupado) THEN BEGIN
+                  recEnvios2."Estado env°o"           := GetEstado2(XMLNode);
+                  recEnvios2."Codigo Error"           := GetError2(XMLNode);
+                  recEnvios2."Descripcion Error"      := GetDescError2(XMLNode);
+                  recEnvios2.MODIFY;
+                END;
+              END;
+            END ELSE BEGIN
+              recEnvios2."Estado env°o"           := GetEstado2(XMLNode);
+              recEnvios2."Codigo Error"           := GetError2(XMLNode);
+              recEnvios2."Descripcion Error"      := GetDescError2(XMLNode);
+              recEnvios2.CSV                      := GetCSV2(XMLNode);
+              IF recEnvios2.CSV = '' THEN
+                recEnvios2.CSV                    := recEnvios.CSV;
+              recEnvios2."Timestamp presentaci¢n" := recEnvios."Timestamp presentaci¢n";
+              recEnvios2."Tipo comunicaci¢n"      := recEnvios."Tipo comunicaci¢n";
+              recEnvios2."Tipo envio"             := recEnvios."Tipo envio";
+              recEnvios2.Usuario                  := recEnvios.Usuario;
+              NMov := NMov + 1;
+              recEnvios2."No. mov."               := NMov;
+              recEnvios2."NMov agrupacion"        := NMovAgrupado;
+              recEnvios2.INSERT;
+            END;
+            ModDocSII(recDocus.NMov, recEnvios2);
+          END;
+          XMLNode := XMLNodeList.nextNode;
+        END;
+      END;
+
+      COMMIT;
+    END;
+
+    PROCEDURE BuscarDatosID@1000000016(XMLNode@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";VAR recEnvios@1000000004 : Record 88204);
+    VAR
+      XMLNode2@1000000003 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      qFecha@1000000002 : Date;
+      NIF@1000000001 : Code[20];
+      recDocus@1000000005 : Record 88208;
+    BEGIN
+      CLEAR(recDocus);
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        recDocus.CHANGECOMPANY(qEmpresa);
+      END;
+
+      XMLNode2 := XMLNode.selectSingleNode('IDFactura/IDEmisorFactura/NIF');
+      IF NOT ISCLEAR(XMLNode2) THEN
+        NIF := COPYSTR(XMLNode2.text,1,MAXSTRLEN(NIF));
+      XMLNode2 := XMLNode.selectSingleNode('IDFactura/NumSerieFacturaEmisor');
+      IF NOT ISCLEAR(XMLNode2) THEN
+        recEnvios.Documento := COPYSTR(XMLNode2.text,1,MAXSTRLEN(recEnvios.Documento));
+
+      XMLNode2 := XMLNode.selectSingleNode('IDFactura/NumSerieFacturaEmisorResumenFin');
+      IF NOT ISCLEAR(XMLNode2) THEN
+        recEnvios.DocumentoFin := COPYSTR(XMLNode2.text,1,MAXSTRLEN(recEnvios.DocumentoFin));
+
+      XMLNode2 := XMLNode.selectSingleNode('IDFactura/FechaExpedicionFacturaEmisor');
+      IF NOT ISCLEAR(XMLNode2) THEN BEGIN
+        IF EVALUATE(qFecha, XMLNode2.text) THEN
+          recEnvios.Fecha := qFecha;
+      END;
+
+      IF NIF = FunSII.GetCompanyVATNo THEN BEGIN
+        IF recEnvios.DocumentoFin = '' THEN BEGIN
+          recDocus.SETCURRENTKEY(Documento, Fecha);
+          recDocus.SETRANGE(Documento,recEnvios.Documento);
+        END ELSE BEGIN
+          recDocus.SETCURRENTKEY(Fecha, "Factura resumen inicio", "Factura resumen fin");
+          recDocus.SETRANGE("Factura resumen inicio",recEnvios.Documento);
+          recDocus.SETRANGE("Factura resumen fin",recEnvios.DocumentoFin);
+        END;
+        recDocus.SETRANGE(Fecha,recEnvios.Fecha);
+      END ELSE BEGIN
+        recDocus.SETCURRENTKEY(DocumentoTercero, "Fecha documento");
+        recDocus.SETRANGE(DocumentoTercero, recEnvios.Documento);
+        recDocus.SETRANGE("Fecha documento",recEnvios.Fecha);
+      END;
+      IF recDocus.FIND('-') THEN
+        recEnvios."NMov DocSII" := recDocus.NMov
+      ELSE
+        recEnvios."NMov DocSII" := 0;
+    END;
+
+    PROCEDURE ModDocSII@1000000007(NMov@1000000000 : Integer;recEnvios@1000000001 : Record 88204);
+    VAR
+      recDocus@1000000002 : Record 88208;
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        recDocus.CHANGECOMPANY(qEmpresa);
+      END;
+
+      recDocus.GET(NMov);
+      recDocus."Estado env°o"             := FunSII.CogerEstado(recEnvios."Estado env°o");
+      recDocus."Timestamp presentaci¢n"   := recEnvios."Timestamp presentaci¢n";
+      recDocus."Tipo comunicaci¢n"        := recEnvios."Tipo comunicaci¢n";
+      recDocus.CSV                        := recEnvios.CSV;
+      recDocus."Codigo Error"             := recEnvios."Codigo Error";
+      recDocus."Descripcion Error"        := recEnvios."Descripcion Error";
+      recDocus."Tipo envio"               := recEnvios."Tipo envio";
+      recDocus."Fecha expedicion factura" := recEnvios."Fecha expedicion factura";
+      recDocus.MODIFY;
+    END;
+
+    PROCEDURE ModEnvio@1000000002(qMov@1000000009 : Integer;XMLDoc@1000000003 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1000000008 : Text[80];CargarFichero@1000000004 : Boolean);
+    VAR
+      recEnvios@1000000000 : Record 88204;
+      NMov@1000000001 : Integer;
+      Fichero@1000000002 : Text[1024];
+      recDocus@1000000005 : Record 88208;
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        recEnvios.CHANGECOMPANY(qEmpresa);
+        recDocus.CHANGECOMPANY(qEmpresa);
+      END;
+
+      IF recEnvios.GET(qMov) THEN BEGIN
+        Fichero := FunSII.ClientTempFileName('', 'XML');
+        IF CargarFichero THEN BEGIN
+          XMLDoc.save(Fichero);
+          recEnvios."XML respuesta".IMPORT(Fichero, FALSE);
+        END ELSE BEGIN
+          recEnvios.CALCFIELDS("XML respuesta");
+          IF recEnvios."XML respuesta".HASVALUE THEN BEGIN
+            recEnvios."XML respuesta".EXPORT(Fichero, FALSE);
+            XMLDoc.load(Fichero);
+          END ELSE
+            EXIT;
+        END;
+
+        FunSII.RemoveNameSpace(XMLDoc, XMLDoc);
+
+        recEnvios."Estado env°o"             := GetEstado(XMLDoc, Respuesta);
+        recEnvios."Timestamp presentaci¢n"   := GetTime(XMLDoc, Respuesta);
+        recEnvios."Tipo comunicaci¢n"        := GetTipoCom(XMLDoc, Respuesta);
+        recEnvios.CSV                        := GetCSV(XMLDoc, Respuesta);
+        recEnvios."Codigo Error"             := GetError(XMLDoc, Respuesta);
+        recEnvios."Descripcion Error"        := GetDescError(XMLDoc, Respuesta);
+
+        recEnvios.MODIFY;
+
+        recDocus.GET(recEnvios."NMov DocSII");
+        recDocus."Estado env°o"           := FunSII.CogerEstado(recEnvios."Estado env°o");
+        recDocus."Timestamp presentaci¢n" := recEnvios."Timestamp presentaci¢n";
+        recDocus."Tipo comunicaci¢n"      := recEnvios."Tipo comunicaci¢n";
+        recDocus.CSV                      := recEnvios.CSV;
+        recDocus."Codigo Error"           := recEnvios."Codigo Error";
+        recDocus."Descripcion Error"      := recEnvios."Descripcion Error";
+        recDocus."Tipo envio"             := recEnvios."Tipo envio";
+        recDocus.MODIFY
+
+      END;
+    END;
+
+    PROCEDURE GetTime@1000000030(XMLDoc@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1000000002 : Text[80]) : DateTime;
+    VAR
+      XMLNode@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      DT@1000000003 : DateTime;
+    BEGIN
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/DatosPresentacion/TimestampPresentacion',XMLNode) THEN BEGIN
+        IF EVALUATE(DT, XMLNode.text) THEN
+          EXIT(DT);
+      END;
+      EXIT(CURRENTDATETIME);
+    END;
+
+    PROCEDURE GetTipoCom@1000000031(XMLDoc@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1000000002 : Text[80]) : Text[10];
+    VAR
+      XMLNode@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+    BEGIN
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/Cabecera/TipoComunicacion',XMLNode) THEN
+        EXIT(COPYSTR(XMLNode.text,1,10));
+    END;
+
+    PROCEDURE GetCSV@1000000029(XMLDoc@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1000000002 : Text[80]) : Text[80];
+    VAR
+      XMLNode@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+    BEGIN
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/CSV',XMLNode) THEN
+        EXIT(COPYSTR(XMLNode.text,1,80));
+    END;
+
+    PROCEDURE GetEstado@1000000028(XMLDoc@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1000000002 : Text[80]) : Text[30];
+    VAR
+      XMLNode@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+    BEGIN
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/RespuestaLinea/EstadoRegistro',XMLNode) THEN
+        EXIT(COPYSTR(XMLNode.text,1,30));
+    END;
+
+    PROCEDURE GetError@1100288000(XMLDoc@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1000000002 : Text[80]) : Text[30];
+    VAR
+      XMLNode@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+    BEGIN
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/RespuestaLinea/CodigoErrorRegistro',XMLNode) THEN
+        EXIT(COPYSTR(XMLNode.text,1,30));
+    END;
+
+    PROCEDURE GetDescError@1100288001(XMLDoc@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1000000002 : Text[80]) : Text[250];
+    VAR
+      XMLNode@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+    BEGIN
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/RespuestaLinea/DescripcionErrorRegistro',XMLNode) THEN
+        EXIT(COPYSTR(XMLNode.text,1,250));
+    END;
+
+    PROCEDURE GetFechaExp@1000000014(XMLDoc@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1000000002 : Text[80]) : Date;
+    VAR
+      XMLNode@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      qFecha@1000000003 : Date;
+    BEGIN
+      qFecha := 0D;
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/RespuestaLinea/IDFactura/FechaExpedicionFacturaEmisor',XMLNode) THEN
+        IF EVALUATE(qFecha, XMLNode.text) THEN;
+
+      EXIT(qFecha);
+    END;
+
+    PROCEDURE GetEstado2@1000000024(paramXMLNode@1000000003 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode") : Text[30];
+    VAR
+      XMLNode@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+    BEGIN
+      IF FunSII.FindNode(paramXMLNode,'EstadoRegistro',XMLNode) THEN
+        EXIT(COPYSTR(XMLNode.text,1,30));
+    END;
+
+    PROCEDURE GetError2@1000000023(paramXMLNode@1000000003 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode") : Text[30];
+    VAR
+      XMLNode@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+    BEGIN
+      IF FunSII.FindNode(paramXMLNode,'CodigoErrorRegistro',XMLNode) THEN
+        EXIT(COPYSTR(XMLNode.text,1,30));
+    END;
+
+    PROCEDURE GetDescError2@1000000022(paramXMLNode@1000000003 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode") : Text[250];
+    VAR
+      XMLNode@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+    BEGIN
+      IF FunSII.FindNode(paramXMLNode,'DescripcionErrorRegistro',XMLNode) THEN
+        EXIT(COPYSTR(XMLNode.text,1,250));
+    END;
+
+    PROCEDURE GetCSV2@1000000008(paramXMLNode@1000000003 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode") : Text[80];
+    VAR
+      XMLNode@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+    BEGIN
+      IF FunSII.FindNode(paramXMLNode,'CSV',XMLNode) THEN
+        EXIT(COPYSTR(XMLNode.text,1,80));
+    END;
+
+    PROCEDURE GetTipoEnvio@1000000013(TipoEnvio@1000000003 : 'Emitidos,Recibidos,BienesInv,Pagos,Cobros,OpIntra,CobMetalico';TipoAccion@1000000002 : ' ,Consulta,Contraste,Baja') : Integer;
+    BEGIN
+      CASE TipoEnvio OF
+        TipoEnvio::Emitidos    :
+          BEGIN
+            IF TipoAccion = TipoAccion::Baja THEN
+              EXIT(2)
+            ELSE
+              EXIT(1);
+          END;
+        TipoEnvio::Recibidos   :
+          BEGIN
+            IF TipoAccion = TipoAccion::Baja THEN
+              EXIT(2)
+            ELSE
+              EXIT(1);
+          END;
+        TipoEnvio::BienesInv   :
+          BEGIN
+            IF TipoAccion = TipoAccion::Baja THEN
+              EXIT(4)
+            ELSE
+              EXIT(3);
+          END;
+        TipoEnvio::OpIntra     :
+          BEGIN
+            IF TipoAccion = TipoAccion::Baja THEN
+              EXIT(2)
+            ELSE
+              EXIT(1);
+          END;
+        TipoEnvio::Cobros      :
+          BEGIN
+            IF TipoAccion = TipoAccion::Baja THEN
+              EXIT(2)
+            ELSE
+              EXIT(1);
+          END;
+        TipoEnvio::Pagos       :
+          BEGIN
+            IF TipoAccion = TipoAccion::Baja THEN
+              EXIT(2)
+            ELSE
+              EXIT(1);
+          END;
+        TipoEnvio::CobMetalico :
+          BEGIN
+            IF TipoAccion = TipoAccion::Baja THEN
+              EXIT(2)
+            ELSE
+              EXIT(1);
+          END;
+      END;
+    END;
+
+    PROCEDURE CargarRespXML@1000000000(NMov@1000000003 : Integer;Fichero@1000000000 : Text[1024];Respuesta@1000000006 : Text[80]);
+    VAR
+      FaultCode@1000000002 : Text[1024];
+      FaultString@1000000001 : Text[1024];
+      CargarFichero@1000000004 : Boolean;
+    BEGIN
+      IF ISCLEAR(XMLDoc) THEN
+        CREATE(XMLDoc);
+
+      CargarFichero := FALSE;
+      IF Fichero <> '' THEN BEGIN
+        XMLDoc.load(Fichero);
+        FunSII.RemoveNameSpace(XMLDoc, XMLDoc);
+        CargarFichero := TRUE;
+      END;
+
+      ModEnvio(NMov, XMLDoc, Respuesta, CargarFichero);
+    END;
+
+    PROCEDURE ProcesarConsultaFactEmitidas@1000000003(XMLDoc@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1100288001 : Text[50]);
+    VAR
+      XMLNodeList@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
+      XMLNodeList2@1100288006 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
+      XMLNode@1000000002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      XMLNode2@1100288002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      regConsul@1000000003 : TEMPORARY Record 88206;
+      NMov@1100288000 : Integer;
+      qTexto@1100288003 : Text[50];
+      qVal@1100288004 : Decimal;
+      qDT@1100288005 : DateTime;
+      qFecha@1100288007 : Date;
+      Resultado@1100288008 : Text[30];
+      qInt@1100288009 : Integer;
+    BEGIN
+      FunSII.RemoveNameSpace(XMLDoc, XMLDoc);
+      regConsul.DELETEALL;
+      regConsul."No. mov." := 0;
+
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/ResultadoConsulta',XMLNode2) THEN
+        Resultado := COPYSTR(XMLNode2.text,1,30);
+
+      IF Resultado = 'SinDatos' THEN BEGIN
+        MESSAGE(Text001);
+        EXIT;
+      END;
+
+      regConsul.Tipo := regConsul.Tipo::E;
+      // Coger datos cabecera
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/Cabecera/Titular/NIF',XMLNode2) THEN
+        regConsul.NIF := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.NIF));
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/PeriodoImpositivo/Ejercicio',XMLNode2) THEN
+        regConsul.Ejercicio := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Ejercicio));
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/PeriodoImpositivo/Periodo',XMLNode2) THEN
+        regConsul.Periodo := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Periodo));
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/IndicadorPaginacion',XMLNode2) THEN
+        regConsul.Paginacion := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Paginacion));
+
+      // Coger los datos de las facturas
+      qTexto := 'RegistroRespuestaConsultaLRFacturasEmitidas';
+      XMLNodeList := XMLDoc.getElementsByTagName(qTexto);
+      XMLNode := XMLNodeList.nextNode;
+      WHILE NOT ISCLEAR(XMLNode) DO BEGIN
+        XMLNode2 := XMLNode.selectSingleNode('IDFactura/IDEmisorFactura/NIF');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."NIF Emisor/Presentador" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Emisor/Presentador"))
+        ELSE
+          regConsul."NIF Emisor/Presentador" := '';
+
+        XMLNode2 := XMLNode.selectSingleNode('IDFactura/NumSerieFacturaEmisor');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul.Documento := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Documento));
+
+        XMLNode2 := XMLNode.selectSingleNode('IDFactura/FechaExpedicionFacturaEmisor');
+        IF NOT ISCLEAR(XMLNode2) THEN BEGIN
+          IF EVALUATE(qFecha, XMLNode2.text) THEN
+            regConsul.Fecha := qFecha;
+        END;
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosFacturaEmitida/TipoFactura');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Tipo factura" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Tipo factura"));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosFacturaEmitida/FacturasRectificadas/IDFacturaRectificada/NumSerieFacturaEmisor');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Factura rectificada" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Factura rectificada"))
+        ELSE
+          regConsul."Factura rectificada" := '';
+
+        regConsul."Fecha factura rectificada" := 0D;
+        XMLNode2 :=XMLNode.selectSingleNode('DatosFacturaEmitida/FacturasRectificadas/IDFacturaRectificada/FechaExpedicionFacturaEmisor');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qFecha, XMLNode2.text) THEN
+            regConsul."Fecha factura rectificada" := qFecha;
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosFacturaEmitida/ClaveRegimenEspecialOTrascendencia');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul.Clave := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Clave));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosFacturaEmitida/ImporteTotal');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Importe / Cuota" := FunSII.Texto2Num(XMLNode2.text);
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosFacturaEmitida/DescripcionOperacion');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul.Descripcion := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Descripcion));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosFacturaEmitida/EmitidaPorTerceros');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Emitida por terceros" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Emitida por terceros"));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosFacturaEmitida/Contraparte/NombreRazon');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Nombre Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Nombre Contraparte"));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosFacturaEmitida/Contraparte/NIF');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."NIF Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Contraparte"))
+        ELSE
+          regConsul."NIF Contraparte" := '';
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosFacturaEmitida/Contraparte/IDOtro/ID');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."NIF Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Contraparte"));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/TimestampPresentacion');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qDT, XMLNode2.text) THEN
+            regConsul."Timestamp presentaci¢n" := qDT;
+
+        XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/EstadoCuadre');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qInt, XMLNode2.text) THEN
+            regConsul."Estado cuadre" := qInt;
+
+        XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/TimestampEstadoCuadre');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qDT, XMLNode2.text) THEN
+            regConsul."Timestamp cuadre" := qDT;
+
+        XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/TimestampUltimaModificacion');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qDT, XMLNode2.text) THEN
+            regConsul."Timestamp ultima modificacion" := qDT;
+
+        XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/EstadoRegistro');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Estado registro" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Estado registro"));
+
+        regConsul."No. mov." := regConsul."No. mov."+1;
+        regConsul.INSERT;
+
+        XMLNode := XMLNodeList.nextNode;
+      END;
+
+      FORM.RUNMODAL(0, regConsul);
+    END;
+
+    PROCEDURE ProcesarConsultaFactRecibidas@1100288002(XMLDoc@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1100288001 : Text[50]);
+    VAR
+      XMLNodeList@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
+      XMLNodeList2@1100288006 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
+      XMLNode@1000000002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      XMLNode2@1100288002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      regConsul@1000000003 : TEMPORARY Record 88206;
+      NMov@1100288000 : Integer;
+      qTexto@1100288003 : Text[50];
+      qVal@1100288004 : Decimal;
+      qDT@1100288005 : DateTime;
+      qFecha@1100288007 : Date;
+      Resultado@1100288008 : Text[30];
+      qInt@1100288009 : Integer;
+    BEGIN
+      FunSII.RemoveNameSpace(XMLDoc, XMLDoc);
+      regConsul.DELETEALL;
+      regConsul."No. mov." := 0;
+
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/ResultadoConsulta',XMLNode2) THEN
+        Resultado := COPYSTR(XMLNode2.text,1,30);
+
+      IF Resultado = 'SinDatos' THEN BEGIN
+        MESSAGE(Text001);
+        EXIT;
+      END;
+
+      regConsul.Tipo := regConsul.Tipo::R;
+      // Coger datos cabecera
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/Cabecera/Titular/NIF',XMLNode2) THEN
+        regConsul.NIF := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.NIF));
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/PeriodoImpositivo/Ejercicio',XMLNode2) THEN
+        regConsul.Ejercicio := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Ejercicio));
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/PeriodoImpositivo/Periodo',XMLNode2) THEN
+        regConsul.Periodo := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Periodo));
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/IndicadorPaginacion',XMLNode2) THEN
+        regConsul.Paginacion := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Paginacion));
+
+      // Coger los datos de las facturas
+      qTexto := 'RegistroRespuestaConsultaLRFacturasRecibidas';
+      XMLNodeList := XMLDoc.getElementsByTagName(qTexto);
+      XMLNode := XMLNodeList.nextNode;
+      WHILE NOT ISCLEAR(XMLNode) DO BEGIN
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/NIFPresentador');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."NIF Emisor/Presentador" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Emisor/Presentador"))
+        ELSE
+          regConsul."NIF Emisor/Presentador" := '';
+
+        XMLNode2 := XMLNode.selectSingleNode('IDFactura/NumSerieFacturaEmisor');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul.Documento := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Documento));
+
+        XMLNode2 := XMLNode.selectSingleNode('IDFactura/FechaExpedicionFacturaEmisor');
+        IF NOT ISCLEAR(XMLNode2) THEN BEGIN
+          IF EVALUATE(qFecha, XMLNode2.text) THEN
+            regConsul.Fecha := qFecha;
+        END;
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosFacturaRecibida/TipoFactura');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Tipo factura" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Tipo factura"));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosFacturaRecibida/ClaveRegimenEspecialOTrascendencia');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul.Clave := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Clave));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosFacturaRecibida/DescripcionOperacion');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul.Descripcion := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Descripcion));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosFacturaRecibida/Contraparte/NombreRazon');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Nombre Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Nombre Contraparte"));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosFacturaRecibida/Contraparte/NIF');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."NIF Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Contraparte"))
+        ELSE
+          regConsul."NIF Contraparte" := '';
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosFacturaRecibida/Contraparte/IDOtro/ID');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."NIF Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Contraparte"));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosFacturaRecibida/CuotaDeducible');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Importe / Cuota" := FunSII.Texto2Num(XMLNode2.text);
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosFacturaRecibida/FechaRegContable');
+        IF NOT ISCLEAR(XMLNode2) THEN BEGIN
+          IF EVALUATE(qFecha, XMLNode2.text) THEN
+            regConsul.Fecha := qFecha;
+        END;
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/TimestampPresentacion');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qDT, XMLNode2.text) THEN
+            regConsul."Timestamp presentaci¢n" := qDT;
+
+        XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/EstadoCuadre');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qInt, XMLNode2.text) THEN
+            regConsul."Estado cuadre" := qInt;
+
+        XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/TimestampEstadoCuadre');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qDT, XMLNode2.text) THEN
+            regConsul."Timestamp cuadre" := qDT;
+
+        XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/TimestampUltimaModificacion');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qDT, XMLNode2.text) THEN
+            regConsul."Timestamp ultima modificacion" := qDT;
+
+        XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/EstadoRegistro');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Estado registro" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Estado registro"));
+
+        regConsul."No. mov." := regConsul."No. mov."+1;
+        regConsul.INSERT;
+
+        XMLNode := XMLNodeList.nextNode;
+      END;
+
+      FORM.RUNMODAL(0, regConsul);
+    END;
+
+    PROCEDURE ProcesarConsultaBienInversion@1100288004(XMLDoc@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1100288001 : Text[50]);
+    VAR
+      XMLNodeList@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
+      XMLNodeList2@1100288006 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
+      XMLNode@1000000002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      XMLNode2@1100288002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      regConsul@1000000003 : TEMPORARY Record 88206;
+      NMov@1100288000 : Integer;
+      qTexto@1100288003 : Text[50];
+      qVal@1100288004 : Decimal;
+      qDT@1100288005 : DateTime;
+      qFecha@1100288007 : Date;
+      Resultado@1100288008 : Text[30];
+    BEGIN
+      FunSII.RemoveNameSpace(XMLDoc, XMLDoc);
+      regConsul.DELETEALL;
+      regConsul."No. mov." := 0;
+
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/ResultadoConsulta',XMLNode2) THEN
+        Resultado := COPYSTR(XMLNode2.text,1,30);
+
+      IF Resultado = 'SinDatos' THEN BEGIN
+        MESSAGE(Text001);
+        EXIT;
+      END;
+
+      regConsul.Tipo := regConsul.Tipo::R;
+      // Coger datos cabecera
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/Cabecera/Titular/NIF',XMLNode2) THEN
+        regConsul.NIF := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.NIF));
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/PeriodoImpositivo/Ejercicio',XMLNode2) THEN
+        regConsul.Ejercicio := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Ejercicio));
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/PeriodoImpositivo/Periodo',XMLNode2) THEN
+        regConsul.Periodo := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Periodo));
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/IndicadorPaginacion',XMLNode2) THEN
+        regConsul.Paginacion := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Paginacion));
+
+      // Coger los datos de las facturas
+      qTexto := 'RegistroRespuestaConsultaLRBienesInversion';
+      XMLNodeList := XMLDoc.getElementsByTagName(qTexto);
+      XMLNode := XMLNodeList.nextNode;
+      WHILE NOT ISCLEAR(XMLNode) DO BEGIN
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/NIFPresentador');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."NIF Emisor/Presentador" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Emisor/Presentador"))
+        ELSE
+          regConsul."NIF Emisor/Presentador" := '';
+
+        XMLNode2 := XMLNode.selectSingleNode('IDFactura/NumSerieFacturaEmisor');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul.Documento := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Documento));
+
+        XMLNode2 := XMLNode.selectSingleNode('IDFactura/IDEmisorFactura/NombreRazon');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Nombre Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Nombre Contraparte"));
+
+        XMLNode2 := XMLNode.selectSingleNode('IDFactura/IDEmisorFactura/NIF');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."NIF Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Contraparte"));
+
+        XMLNode2 := XMLNode.selectSingleNode('IDFactura/FechaExpedicionFacturaEmisor');
+        IF NOT ISCLEAR(XMLNode2) THEN BEGIN
+          IF EVALUATE(qFecha, XMLNode2.text) THEN
+            regConsul.Fecha := qFecha;
+        END;
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosBienInversion/IdentificacionBien');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Identificacion Bien" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Identificacion Bien"));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosBienInversion/FechaInicioUtilizacion');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qFecha, XMLNode2.text) THEN
+            regConsul."Fecha Inicio Utilizacion" := qFecha;
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosBienInversion/ProrrataAnualDefinitiva');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qVal, CONVERTSTR(XMLNode2.text, '.', ',')) THEN
+            regConsul."Prorrata anual definitiva" := qVal;
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/TimestampPresentacion');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qDT, XMLNode2.text) THEN
+            regConsul."Timestamp presentaci¢n" := qDT;
+
+        XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/TimestampUltimaModificacion');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qDT, XMLNode2.text) THEN
+            regConsul."Timestamp ultima modificacion" := qDT;
+
+        XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/EstadoRegistro');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Estado registro" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Estado registro"));
+
+        regConsul."No. mov." := regConsul."No. mov."+1;
+        regConsul.INSERT;
+
+        XMLNode := XMLNodeList.nextNode;
+      END;
+
+      FORM.RUNMODAL(0, regConsul);
+    END;
+
+    PROCEDURE ProcesarConsultaCobros@1000000005(XMLDoc@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1100288001 : Text[50]);
+    VAR
+      XMLNodeList@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
+      XMLNodeList2@1100288006 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
+      XMLNode@1000000002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      XMLNode2@1100288002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      regConsul@1000000003 : TEMPORARY Record 88206;
+      NMov@1100288000 : Integer;
+      qTexto@1100288003 : Text[50];
+      qVal@1100288004 : Decimal;
+      qDT@1100288005 : DateTime;
+      qFecha@1100288007 : Date;
+      Resultado@1100288008 : Text[30];
+      qInt@1100288009 : Integer;
+    BEGIN
+      FunSII.RemoveNameSpace(XMLDoc, XMLDoc);
+      regConsul.DELETEALL;
+      regConsul."No. mov." := 0;
+
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/ResultadoConsulta',XMLNode2) THEN
+        Resultado := COPYSTR(XMLNode2.text,1,30);
+
+      IF Resultado = 'SinDatos' THEN BEGIN
+        MESSAGE(Text001);
+        EXIT;
+      END;
+
+      regConsul.Tipo := regConsul.Tipo::R;
+      // Coger datos cabecera
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/Cabecera/Titular/NIF',XMLNode2) THEN
+        regConsul.NIF := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.NIF));
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/IndicadorPaginacion',XMLNode2) THEN
+        regConsul.Paginacion := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Paginacion));
+
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/IDFactura/IDEmisorFactura/NombreRazon',XMLNode2) THEN
+        regConsul."Nombre Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Nombre Contraparte"));
+
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/IDFactura/IDEmisorFactura/NIF',XMLNode2) THEN
+        regConsul."NIF Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Contraparte"));
+
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/IDFactura/NumSerieFacturaEmisor',XMLNode2) THEN
+        regConsul.Documento := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Documento));
+
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/IDFactura/FechaExpedicionFacturaEmisor',XMLNode2) THEN BEGIN
+        IF EVALUATE(qFecha, XMLNode2.text) THEN
+          regConsul.Fecha := qFecha;
+      END;
+
+      // Coger los datos del pago
+      qTexto := 'RegistroRespuestaConsultaCobros';
+      XMLNodeList := XMLDoc.getElementsByTagName(qTexto);
+      XMLNode := XMLNodeList.nextNode;
+      WHILE NOT ISCLEAR(XMLNode) DO BEGIN
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosPago/Fecha');
+        IF NOT ISCLEAR(XMLNode2) THEN BEGIN
+          IF EVALUATE(qFecha, XMLNode2.text) THEN
+            regConsul."Fecha pago" := qFecha;
+        END;
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosPago/Importe');
+        IF NOT ISCLEAR(XMLNode2) THEN BEGIN
+          IF EVALUATE(qVal, XMLNode2.text) THEN
+            regConsul."Importe pago" := qVal;
+        END;
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosPago/Medio');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Medio pago" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Medio pago"));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/NIFPresentador');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."NIF Emisor/Presentador" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Emisor/Presentador"));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/TimestampPresentacion');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qDT, XMLNode2.text) THEN
+            regConsul."Timestamp presentaci¢n" := qDT;
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/CSV');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul.CSV := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.CSV));
+
+        regConsul."No. mov." := regConsul."No. mov."+1;
+        regConsul.INSERT;
+
+        XMLNode := XMLNodeList.nextNode;
+      END;
+
+      FORM.RUNMODAL(0, regConsul);
+    END;
+
+    PROCEDURE ProcesarConsultaPagos@1000000004(XMLDoc@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1100288001 : Text[50]);
+    VAR
+      XMLNodeList@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
+      XMLNodeList2@1100288006 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
+      XMLNode@1000000002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      XMLNode2@1100288002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      regConsul@1000000003 : TEMPORARY Record 88206;
+      NMov@1100288000 : Integer;
+      qTexto@1100288003 : Text[50];
+      qVal@1100288004 : Decimal;
+      qDT@1100288005 : DateTime;
+      qFecha@1100288007 : Date;
+      Resultado@1100288008 : Text[30];
+      qInt@1100288009 : Integer;
+    BEGIN
+      FunSII.RemoveNameSpace(XMLDoc, XMLDoc);
+      regConsul.DELETEALL;
+      regConsul."No. mov." := 0;
+
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/ResultadoConsulta',XMLNode2) THEN
+        Resultado := COPYSTR(XMLNode2.text,1,30);
+
+      IF Resultado = 'SinDatos' THEN BEGIN
+        MESSAGE(Text001);
+        EXIT;
+      END;
+
+      regConsul.Tipo := regConsul.Tipo::R;
+      // Coger datos cabecera
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/Cabecera/Titular/NIF',XMLNode2) THEN
+        regConsul.NIF := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.NIF));
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/IndicadorPaginacion',XMLNode2) THEN
+        regConsul.Paginacion := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Paginacion));
+
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/IDFactura/IDEmisorFactura/NombreRazon',XMLNode2) THEN
+        regConsul."Nombre Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Nombre Contraparte"));
+
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/IDFactura/IDEmisorFactura/NIF',XMLNode2) THEN
+        regConsul."NIF Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Contraparte"));
+
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/IDFactura/NumSerieFacturaEmisor',XMLNode2) THEN
+        regConsul.Documento := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Documento));
+
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/IDFactura/FechaExpedicionFacturaEmisor',XMLNode2) THEN BEGIN
+        IF EVALUATE(qFecha, XMLNode2.text) THEN
+          regConsul.Fecha := qFecha;
+      END;
+
+      // Coger los datos del pago
+      qTexto := 'RegistroRespuestaConsultaPagos';
+      XMLNodeList := XMLDoc.getElementsByTagName(qTexto);
+      XMLNode := XMLNodeList.nextNode;
+      WHILE NOT ISCLEAR(XMLNode) DO BEGIN
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosPago/Fecha');
+        IF NOT ISCLEAR(XMLNode2) THEN BEGIN
+          IF EVALUATE(qFecha, XMLNode2.text) THEN
+            regConsul."Fecha pago" := qFecha;
+        END;
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosPago/Importe');
+        IF NOT ISCLEAR(XMLNode2) THEN BEGIN
+          IF EVALUATE(qVal, XMLNode2.text) THEN
+            regConsul."Importe pago" := qVal;
+        END;
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosPago/Medio');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Medio pago" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Medio pago"));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/NIFPresentador');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."NIF Emisor/Presentador" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Emisor/Presentador"));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/TimestampPresentacion');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qDT, XMLNode2.text) THEN
+            regConsul."Timestamp presentaci¢n" := qDT;
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/CSV');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul.CSV := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.CSV));
+
+        regConsul."No. mov." := regConsul."No. mov."+1;
+        regConsul.INSERT;
+
+        XMLNode := XMLNodeList.nextNode;
+      END;
+
+      FORM.RUNMODAL(0, regConsul);
+    END;
+
+    PROCEDURE ProcesarContraste@1100288005(XMLDoc@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1100288001 : Text[50];RegistroRespuesta@1100288010 : Text[50]);
+    VAR
+      XMLNodeList@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
+      XMLNodeList2@1100288006 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
+      XMLNode@1000000002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      XMLNode2@1100288002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      regConsul@1000000003 : TEMPORARY Record 88206;
+      NMov@1100288000 : Integer;
+      qTexto@1100288003 : Text[50];
+      qVal@1100288004 : Decimal;
+      qDT@1100288005 : DateTime;
+      qFecha@1100288007 : Date;
+      Resultado@1100288008 : Text[30];
+      qInt@1100288009 : Integer;
+      TabDocSII@1100288011 : Record 88208;
+    BEGIN
+      FunSII.RemoveNameSpace(XMLDoc, XMLDoc);
+
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/ResultadoConsulta',XMLNode2) THEN
+        Resultado := COPYSTR(XMLNode2.text,1,30);
+
+      IF Resultado = 'SinDatos' THEN
+        EXIT;
+
+      // Coger los datos de las facturas
+      TabDocSII.SETCURRENTKEY(CSV);
+      qTexto := RegistroRespuesta;
+      XMLNodeList := XMLDoc.getElementsByTagName(qTexto);
+      XMLNode := XMLNodeList.nextNode;
+      WHILE NOT ISCLEAR(XMLNode) DO BEGIN
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/CSV');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul.CSV := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.CSV))
+        ELSE
+          regConsul.CSV := '';
+
+        XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/EstadoCuadre');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qInt, XMLNode2.text) THEN
+            regConsul."Estado cuadre" := qInt;
+
+        XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/TimestampEstadoCuadre');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qDT, XMLNode2.text) THEN
+            regConsul."Timestamp cuadre" := qDT;
+
+        // Buscamos el registro que cumpla los filtros y lo actualizamos
+        IF regConsul.CSV <> '' THEN BEGIN
+          TabDocSII.SETRANGE(CSV, regConsul.CSV);
+          IF TabDocSII.FIND('-') THEN BEGIN
+             TabDocSII."Estado cuadre"    := regConsul."Estado cuadre";
+             TabDocSII."Timestamp cuadre" := regConsul."Timestamp cuadre";
+             TabDocSII.MODIFY;
+          END;
+        END;
+
+        XMLNode := XMLNodeList.nextNode;
+      END;
+    END;
+
+    PROCEDURE ProcesarConsultaOpIntra@1000000011(XMLDoc@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1100288001 : Text[50]);
+    VAR
+      XMLNodeList@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
+      XMLNodeList2@1100288006 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
+      XMLNode@1000000002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      XMLNode2@1100288002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      regConsul@1000000003 : TEMPORARY Record 88206;
+      NMov@1100288000 : Integer;
+      qTexto@1100288003 : Text[80];
+      qVal@1100288004 : Decimal;
+      qDT@1100288005 : DateTime;
+      qFecha@1100288007 : Date;
+      Resultado@1100288008 : Text[30];
+    BEGIN
+      FunSII.RemoveNameSpace(XMLDoc, XMLDoc);
+      regConsul.DELETEALL;
+      regConsul."No. mov." := 0;
+
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/ResultadoConsulta',XMLNode2) THEN
+        Resultado := COPYSTR(XMLNode2.text,1,30);
+
+      IF Resultado = 'SinDatos' THEN BEGIN
+        MESSAGE(Text001);
+        EXIT;
+      END;
+
+      regConsul.Tipo := regConsul.Tipo::R;
+      // Coger datos cabecera
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/Cabecera/Titular/NIF',XMLNode2) THEN
+        regConsul.NIF := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.NIF));
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/PeriodoImpositivo/Ejercicio',XMLNode2) THEN
+        regConsul.Ejercicio := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Ejercicio));
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/PeriodoImpositivo/Periodo',XMLNode2) THEN
+        regConsul.Periodo := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Periodo));
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/IndicadorPaginacion',XMLNode2) THEN
+        regConsul.Paginacion := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Paginacion));
+
+      // Coger los datos de las facturas
+      qTexto := 'RegistroRespuestaConsultaLRDetOperIntracomunitarias';
+      XMLNodeList := XMLDoc.getElementsByTagName(qTexto);
+      XMLNode := XMLNodeList.nextNode;
+      WHILE NOT ISCLEAR(XMLNode) DO BEGIN
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/NIFPresentador');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."NIF Emisor/Presentador" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Emisor/Presentador"))
+        ELSE
+          regConsul."NIF Emisor/Presentador" := '';
+
+        XMLNode2 := XMLNode.selectSingleNode('IDFactura/NumSerieFacturaEmisor');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul.Documento := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Documento));
+
+      //  XMLNode2 := XMLNode.selectSingleNode('IDFactura/IDEmisorFactura/NombreRazon');
+      //  IF NOT ISCLEAR(XMLNode2) THEN
+      //     := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Nombre Contraparte"));
+
+        XMLNode2 := XMLNode.selectSingleNode('IDFactura/IDEmisorFactura/NIF');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul.NIF := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.NIF));
+
+        XMLNode2 := XMLNode.selectSingleNode('IDFactura/FechaExpedicionFacturaEmisor');
+        IF NOT ISCLEAR(XMLNode2) THEN BEGIN
+          IF EVALUATE(qFecha, XMLNode2.text) THEN
+            regConsul.Fecha := qFecha;
+        END;
+
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosDetOperIntracomunitarias/Contraparte/NombreRazon');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Nombre Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Nombre Contraparte"));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosDetOperIntracomunitarias/Contraparte/NIF');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."NIF Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Contraparte"));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosDetOperIntracomunitarias/DetOperIntracomunitarias/TipoOperacion');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Tipo factura" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Tipo factura"));
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/TimestampPresentacion');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qDT, XMLNode2.text) THEN
+            regConsul."Timestamp presentaci¢n" := qDT;
+
+        XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/TimestampUltimaModificacion');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qDT, XMLNode2.text) THEN
+            regConsul."Timestamp ultima modificacion" := qDT;
+
+        XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/EstadoRegistro');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Estado registro" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Estado registro"));
+
+        regConsul."No. mov." := regConsul."No. mov."+1;
+        regConsul.INSERT;
+
+        XMLNode := XMLNodeList.nextNode;
+      END;
+
+      FORM.RUNMODAL(0, regConsul);
+    END;
+
+    PROCEDURE ProcesarConsultaCobMetalico@1000000012(XMLDoc@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1100288001 : Text[50]);
+    VAR
+      XMLNodeList@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
+      XMLNodeList2@1100288006 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
+      XMLNode@1000000002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      XMLNode2@1100288002 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";
+      regConsul@1000000003 : TEMPORARY Record 88206;
+      NMov@1100288000 : Integer;
+      qTexto@1100288003 : Text[50];
+      qVal@1100288004 : Decimal;
+      qDT@1100288005 : DateTime;
+      qFecha@1100288007 : Date;
+      Resultado@1100288008 : Text[30];
+    BEGIN
+      FunSII.RemoveNameSpace(XMLDoc, XMLDoc);
+      regConsul.DELETEALL;
+      regConsul."No. mov." := 0;
+
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/ResultadoConsulta',XMLNode2) THEN
+        Resultado := COPYSTR(XMLNode2.text,1,30);
+
+      IF Resultado = 'SinDatos' THEN BEGIN
+        MESSAGE(Text001);
+        EXIT;
+      END;
+
+      regConsul.Tipo := regConsul.Tipo::R;
+      // Coger datos cabecera
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/Cabecera/Titular/NIF',XMLNode2) THEN
+        regConsul.NIF := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.NIF));
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/PeriodoImpositivo/Ejercicio',XMLNode2) THEN
+        regConsul.Ejercicio := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Ejercicio));
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/PeriodoImpositivo/Periodo',XMLNode2) THEN
+        regConsul.Periodo := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Periodo));
+      IF FunSII.FindNode(XMLDoc,'//Envelope/Body/'+Respuesta+'/IndicadorPaginacion',XMLNode2) THEN
+        regConsul.Paginacion := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Paginacion));
+
+      // Coger los datos de las facturas
+      qTexto := 'RegistroRespuestaConsultaLRCobrosMetalico';
+      XMLNodeList := XMLDoc.getElementsByTagName(qTexto);
+      XMLNode := XMLNodeList.nextNode;
+      WHILE NOT ISCLEAR(XMLNode) DO BEGIN
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/NIFPresentador');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."NIF Emisor/Presentador" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Emisor/Presentador"))
+        ELSE
+          regConsul."NIF Emisor/Presentador" := '';
+
+        XMLNode2 := XMLNode.selectSingleNode('IDFactura/NumSerieFacturaEmisor');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul.Documento := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Documento));
+
+        XMLNode2 := XMLNode.selectSingleNode('IDFactura/IDEmisorFactura/NombreRazon');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Nombre Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Nombre Contraparte"));
+
+        XMLNode2 := XMLNode.selectSingleNode('IDFactura/IDEmisorFactura/NIF');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."NIF Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Contraparte"));
+
+        XMLNode2 := XMLNode.selectSingleNode('IDFactura/FechaExpedicionFacturaEmisor');
+        IF NOT ISCLEAR(XMLNode2) THEN BEGIN
+          IF EVALUATE(qFecha, XMLNode2.text) THEN
+            regConsul.Fecha := qFecha;
+        END;
+
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/TimestampPresentacion');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qDT, XMLNode2.text) THEN
+            regConsul."Timestamp presentaci¢n" := qDT;
+
+        XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/TimestampUltimaModificacion');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qDT, XMLNode2.text) THEN
+            regConsul."Timestamp ultima modificacion" := qDT;
+
+        XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/EstadoRegistro');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Estado registro" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Estado registro"));
+
+        regConsul."No. mov." := regConsul."No. mov."+1;
+        regConsul.INSERT;
+
+        XMLNode := XMLNodeList.nextNode;
+      END;
+
+      FORM.RUNMODAL(0, regConsul);
+    END;
+
+    PROCEDURE CogerURL@1000000009(TipoEnvio@1000000000 : 'Emitidos,Recibidos,BienesInv,Cobros,Pagos,OpIntra,CobMetalico,NIF') : Text[250];
+    VAR
+      URL@1000000001 : Text[250];
+    BEGIN
+      IF FunSII.DevEnPruebas THEN BEGIN
+        CASE TipoEnvio OF
+          TipoEnvio::Emitidos    : URL := URL_WS7_FE;
+          TipoEnvio::Recibidos   : URL := URL_WS7_FR;
+          TipoEnvio::BienesInv   : URL := URL_WS7_BI;
+          TipoEnvio::Cobros      : URL := URL_WS7_CE;
+          TipoEnvio::Pagos       : URL := URL_WS7_PR;
+          TipoEnvio::OpIntra     : URL := URL_WS7_OI;
+          TipoEnvio::CobMetalico : URL := URL_WS7_CM;
+          TipoEnvio::NIF         : URL := URL_WS_CD;
+        END;
+      END ELSE BEGIN
+        CASE TipoEnvio OF
+          TipoEnvio::Emitidos    : URL := URL_WS1_FE;
+          TipoEnvio::Recibidos   : URL := URL_WS1_FR;
+          TipoEnvio::BienesInv   : URL := URL_WS1_BI;
+          TipoEnvio::Cobros      : URL := URL_WS1_CE;
+          TipoEnvio::Pagos       : URL := URL_WS1_PR;
+          TipoEnvio::OpIntra     : URL := URL_WS1_OI;
+          TipoEnvio::CobMetalico : URL := URL_WS1_CM;
+          TipoEnvio::NIF         : URL := URL_WS_CD;
+        END;
+      END;
+      EXIT(URL);
+    END;
+
+    BEGIN
+    {
+      // HTTPREQUEST_PROXYSETTING_DEFAULT = 0
+      XmlHttp2.SetProxy(0);
+
+      // HTTPREQUEST_SETCREDENTIALS_FOR_PROXY = 1
+      //XmlHttp2.SetCredentials(usuario, password, 1);
+
+      //  AutoLogonPolicy_Always             = 0
+      //  AutoLogonPolicy_OnlyIfBypassProxy  = 1
+      //  AutoLogonPolicy_Never              = 2
+      //XmlHttp2.SetAutoLogonPolicy(0);
+    }
+    END.
+  }
+}

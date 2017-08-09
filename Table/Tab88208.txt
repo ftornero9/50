@@ -1,0 +1,318 @@
+OBJECT Table 88208 Documentos SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=28/07/17;
+    Time=[ 9:59:37];
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    OnInsert=BEGIN
+               ERROR('No se puede realizar directamente esta acci¢n.');
+
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnModify=BEGIN
+               IF ("Tipo envio" IN ["Tipo envio"::Env¡o,"Tipo envio"::"BI Env¡o"]) AND ("Estado env¡o" = "Estado env¡o"::Correcto) THEN
+                 ERROR('No se puede modificar un documento enviado.');
+
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnDelete=BEGIN
+               IF NOT FunPer.DevEnPruebas THEN
+                 ERROR('No se puede realizar directamente esta acci¢n.');
+
+               FunPer.ComprobarPermisoModificaSII;
+
+               Lin.SETRANGE(NMovDoc, NMov);
+               Lin.DELETEALL;
+             END;
+
+    OnRename=BEGIN
+               ERROR('No se puede realizar directamente esta acci¢n.');
+
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    CaptionML=[ENU=SII documents;
+               ESP=Documentos SII];
+  }
+  FIELDS
+  {
+    { 1   ;   ;NMov                ;Integer       ;CaptionML=[ENU=NMov;
+                                                              ESP=NMov] }
+    { 2   ;   ;TipoSII             ;Option        ;CaptionML=[ENU=SIIType;
+                                                              ESP=TipoSII];
+                                                   OptionCaptionML=ESP=E,R;
+                                                   OptionString=E,R }
+    { 3   ;   ;Tipo                ;Option        ;CaptionML=[ENU=Type;
+                                                              ESP=Tipo];
+                                                   OptionCaptionML=ESP=Factura,Pago,OpInt,CobMet;
+                                                   OptionString=Factura,Pago,OpInt,CobMet }
+    { 4   ;   ;Documento           ;Code20        ;CaptionML=[ENU=Document;
+                                                              ESP=Documento] }
+    { 5   ;   ;Fecha               ;Date          ;CaptionML=[ENU=Date;
+                                                              ESP=Fecha] }
+    { 6   ;   ;NIF                 ;Code20        ;CaptionML=[ENU=VAT Number;
+                                                              ESP=NIF] }
+    { 7   ;   ;RazonSocial         ;Text120       ;CaptionML=[ENU=Company name;
+                                                              ESP=RazonSocial] }
+    { 8   ;   ;DocumentoTercero    ;Text35        ;CaptionML=[ENU=Third party document;
+                                                              ESP=Documento tercero] }
+    { 9   ;   ;Fecha documento     ;Date          ;CaptionML=[ENU=Document date;
+                                                              ESP=Fecha documento] }
+    { 10  ;   ;NumTercero          ;Code20        ;TableRelation=IF (TipoSII=CONST(E)) Customer.No.
+                                                                 ELSE IF (TipoSII=CONST(R)) Vendor.No.;
+                                                   OnValidate=BEGIN
+                                                                IF TipoSII = TipoSII::E THEN BEGIN
+                                                                  IF Clien.GET(NumTercero) THEN BEGIN
+                                                                    NIF         := Clien."VAT Registration No.";
+                                                                    RazonSocial := Clien.Name;
+                                                                    "Cod. pais" := Clien."Country/Region Code";
+                                                                    IDOtro      := FunPer.esIDOtro("Cod. pais");
+                                                                  END;
+                                                                END;
+
+                                                                IF TipoSII = TipoSII::R THEN BEGIN
+                                                                  IF Prove.GET(NumTercero) THEN BEGIN
+                                                                    NIF         := Prove."VAT Registration No.";
+                                                                    RazonSocial := Prove.Name;
+                                                                    "Cod. pais" := Prove."Country/Region Code";
+                                                                    IDOtro      := FunPer.esIDOtro("Cod. pais");
+                                                                  END;
+                                                                END;
+
+                                                                IF NIF = '' THEN BEGIN
+                                                                 IF (IDOtro AND NOT FunXML.PaisUE("Cod. pais")) THEN
+                                                                    NIF := NumTercero;
+                                                                END ELSE
+                                                                  NIF := RepMovIVASII.NormVATNumber(NIF, IDOtro, "Cod. pais");
+                                                              END;
+
+                                                   CaptionML=[ENU=Third party No.;
+                                                              ESP=NumTercero] }
+    { 11  ;   ;TextoRegistro       ;Text100       ;CaptionML=[ENU=Posting text;
+                                                              ESP=TextoRegistro] }
+    { 12  ;   ;Cod. divisa         ;Code20        ;CaptionML=[ENU=Currency code;
+                                                              ESP=C¢d. divisa] }
+    { 13  ;   ;Factor divisa       ;Decimal       ;CaptionML=[ENU=Currency rate;
+                                                              ESP=Factor divisa] }
+    { 14  ;   ;Cod. pais           ;Code10        ;CaptionML=[ENU=Country code;
+                                                              ESP=C¢d. pa¡s] }
+    { 15  ;   ;Tipo factura rectificativa;Code10  ;CaptionML=[ENU=Corrected invoice type;
+                                                              ESP=Tipo factura rectificativa];
+                                                   Description=S,I }
+    { 16  ;   ;Factura corregida   ;Code35        ;CaptionML=[ENU=Corrected invoice;
+                                                              ESP=Factura corregida] }
+    { 17  ;   ;Fecha factura corregida;Date       ;CaptionML=[ENU=Corrected invoice date;
+                                                              ESP=Fecha factura corregida] }
+    { 18  ;   ;DUA                 ;Text50        ;CaptionML=[ENU=DUA;
+                                                              ESP=DUA] }
+    { 19  ;   ;Fecha DUA           ;Date          ;CaptionML=[ENU=DUA date;
+                                                              ESP=Fecha DUA] }
+    { 20  ;   ;Situacion inmueble  ;Code10        ;CaptionML=[ENU=Property status;
+                                                              ESP=Situaci¢n inmueble];
+                                                   Description=1,2,3,4 }
+    { 21  ;   ;Referencia catastral;Text50        ;CaptionML=[ENU=Cadastral reference;
+                                                              ESP=Referencia catrastal] }
+    { 22  ;   ;Tipo factura        ;Code10        ;CaptionML=[ENU=Invoice type;
+                                                              ESP=Tipo factura] }
+    { 23  ;   ;Clave operacion     ;Option        ;CaptionML=[ENU=Operation key;
+                                                              ESP=Clave operaci¢n];
+                                                   OptionCaptionML=ESP=" ,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15";
+                                                   OptionString=[ ,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15];
+                                                   Description=01,02...,15 }
+    { 24  ;   ;Emitida por terceros;Code10        ;CaptionML=[ENU=Issued by third parties;
+                                                              ESP=Emitida por terceros];
+                                                   Description=S,N }
+    { 25  ;   ;Medio de pago/cobro ;Code10        ;CaptionML=[ENU=Paiment method;
+                                                              ESP=Medio de pago/cobro];
+                                                   Description=01,02,03,04 }
+    { 26  ;   ;Tipo operacion intracomu.;Code10   ;CaptionML=[ENU=Intra-community operation type;
+                                                              ESP=Tipo operaci¢n intracomu.];
+                                                   Description=A,B }
+    { 27  ;   ;Clave declarado intracomu.;Code10  ;CaptionML=[ENU=Intra-community declared key;
+                                                              ESP=Clave declarado intracomu.];
+                                                   Description=D,R }
+    { 28  ;   ;Base                ;Decimal       ;FieldClass=FlowField;
+                                                   CalcFormula=Sum("Lin. Documentos SII".Base WHERE (NMovDoc=FIELD(NMov),
+                                                                                                     Retencion=CONST(No)));
+                                                   CaptionML=[ENU=Taxable base;
+                                                              ESP=Base];
+                                                   BlankZero=Yes;
+                                                   Editable=No }
+    { 29  ;   ;IDOtro              ;Boolean       ;CaptionML=[ENU=OtherID;
+                                                              ESP=IDOtro];
+                                                   Description=Indica que el identificador no es un CIF/NIF }
+    { 30  ;   ;Causa Exenci¢n      ;Code10        ;CaptionML=[ENU=Cause of exemption;
+                                                              ESP=Causa Exenci¢n] }
+    { 31  ;   ;Cuota               ;Decimal       ;FieldClass=FlowField;
+                                                   CalcFormula=Sum("Lin. Documentos SII".Cuota WHERE (NMovDoc=FIELD(NMov),
+                                                                                                      Retencion=CONST(No)));
+                                                   CaptionML=[ENU=Fee;
+                                                              ESP=Cuota];
+                                                   BlankZero=Yes;
+                                                   Editable=No }
+    { 32  ;   ;Bien de inversion   ;Boolean       ;CaptionML=[ENU=Investment asset;
+                                                              ESP=Bien de inversi¢n] }
+    { 33  ;   ;Identificacion Bien ;Text40        ;CaptionML=[ENU=Asset identification;
+                                                              ESP=Identificaci¢n Bien] }
+    { 34  ;   ;Fecha Inicio Utilizacion;Date      ;CaptionML=[ENU=Start date of utilization;
+                                                              ESP=Fecha Inicio Utilizaci¢n] }
+    { 35  ;   ;Prorrata anual definitiva;Decimal  ;CaptionML=[ENU=Final annual prorated;
+                                                              ESP=Prorrata anual definitiva];
+                                                   DecimalPlaces=2:2;
+                                                   MinValue=0;
+                                                   MaxValue=9.999;
+                                                   BlankZero=Yes }
+    { 36  ;   ;Base rectificada    ;Decimal       ;CaptionML=[ENU=Rectified taxable base;
+                                                              ESP=Base rectificada];
+                                                   BlankZero=Yes }
+    { 37  ;   ;Cuota rectificada   ;Decimal       ;CaptionML=[ENU=Rectified fee;
+                                                              ESP=Cuota rectificada];
+                                                   BlankZero=Yes }
+    { 38  ;   ;Recargo rectificada ;Decimal       ;CaptionML=[ENU=Rectified surcharge;
+                                                              ESP=Recargo rectificada];
+                                                   BlankZero=Yes }
+    { 39  ;   ;No enviar           ;Boolean       ;CaptionML=[ENU=Don't send;
+                                                              ESP=No enviar] }
+    { 40  ;   ;Base no realizada   ;Decimal       ;FieldClass=FlowField;
+                                                   CalcFormula=Sum("Lin. Documentos SII"."Base no realizada" WHERE (NMovDoc=FIELD(NMov),
+                                                                                                                    Retencion=CONST(No)));
+                                                   CaptionML=[ENU=Taxable base not performed;
+                                                              ESP=Base no realizada];
+                                                   BlankZero=Yes;
+                                                   Editable=No }
+    { 41  ;   ;Cuota no realizada  ;Decimal       ;FieldClass=FlowField;
+                                                   CalcFormula=Sum("Lin. Documentos SII"."Importe no realizado" WHERE (NMovDoc=FIELD(NMov),
+                                                                                                                       Retencion=CONST(No)));
+                                                   CaptionML=[ENU=Fee not performed;
+                                                              ESP=Cuota no realizada];
+                                                   BlankZero=Yes;
+                                                   Editable=No }
+    { 42  ;   ;Factura DUA         ;Boolean       ;OnValidate=BEGIN
+                                                                IF "Factura DUA" AND (TipoSII = TipoSII::R) THEN
+                                                                  "Tipo factura" := 'F5'
+                                                                ELSE BEGIN
+                                                                  IF ("Tipo factura" = 'F5') THEN
+                                                                    "Tipo factura" := 'F1';
+                                                                END;
+                                                              END;
+
+                                                   CaptionML=[ENU=DUA invoice;
+                                                              ESP=Factura DUA] }
+    { 43  ;   ;Global Dimension 1 Code;Code20     ;CaptionML=[ENU=Global Dimension 1 Code;
+                                                              ESP=Global Dimension 1 Code] }
+    { 44  ;   ;IDTipo              ;Code10        ;CaptionML=[ENU=IDType;
+                                                              ESP=IDTipo] }
+    { 45  ;   ;Cuota deducible     ;Decimal       ;FieldClass=FlowField;
+                                                   CalcFormula=Sum("Lin. Documentos SII"."Cuota deducible" WHERE (NMovDoc=FIELD(NMov)));
+                                                   CaptionML=[ENU=Deductible fee;
+                                                              ESP=Cuota deducible];
+                                                   BlankZero=Yes;
+                                                   Editable=No }
+    { 46  ;   ;Proveedor DUA       ;Code20        ;TableRelation=Vendor;
+                                                   CaptionML=[ENU=DUA supplier;
+                                                              ESP=Proveedor DUA] }
+    { 47  ;   ;Fecha operacion     ;Date          ;CaptionML=[ENU=Operation date;
+                                                              ESP=Fecha operaci¢n] }
+    { 48  ;   ;DireccionOperador   ;Text120       ;CaptionML=[ENU=Operator address;
+                                                              ESP=Direcci¢n Operador];
+                                                   Description=Determinadas Adquisiciones Intracomunitarias }
+    { 49  ;   ;Creation date       ;Date          ;CaptionML=[ENU=Creation date;
+                                                              ESP=Fecha creacion] }
+    { 50  ;   ;NMov IVA            ;Integer       ;CaptionML=[ENU=NMov VAT;
+                                                              ESP=NMov IVA];
+                                                   Editable=No }
+    { 55  ;   ;Lineas documento    ;Integer       ;FieldClass=FlowField;
+                                                   CalcFormula=Count("Lin. Documentos SII" WHERE (NMovDoc=FIELD(NMov)));
+                                                   BlankZero=Yes;
+                                                   Editable=No }
+    { 60  ;   ;Factura resumen inicio;Code20      ;CaptionML=[ENU=Start summary invoice;
+                                                              ESP=Factura resumen inicio];
+                                                   Description=TipoFactura = F4 }
+    { 61  ;   ;Factura resumen fin ;Code20        ;CaptionML=[ENU=End summary invoice;
+                                                              ESP=Factura resumen fin];
+                                                   Description=TipoFactura = F4 }
+    { 65  ;   ;DocumentoPago       ;Text35        ;Editable=No }
+    { 70  ;   ;Cobro Metalico      ;Decimal       ;CaptionML=[ENU=Cash payment;
+                                                              ESP=Cobro Met lico] }
+    { 75  ;   ;Fecha expedicion factura;Date       }
+    { 80  ;   ;Estado env¡o        ;Option        ;CaptionML=[ENU=Send status;
+                                                              ESP=Estado env¡o];
+                                                   OptionCaptionML=ESP=" ,Correcto,AceptadoConErrores,Incorrecto,Error";
+                                                   OptionString=[ ,Correcto,AceptadoConErrores,Incorrecto,Error];
+                                                   Editable=No }
+    { 81  ;   ;Timestamp presentaci¢n;DateTime    ;CaptionML=[ENU=Presentation timestamp;
+                                                              ESP=Timestamp presentaci¢n];
+                                                   Editable=No }
+    { 82  ;   ;Tipo comunicaci¢n   ;Code10        ;CaptionML=[ENU=Communication type;
+                                                              ESP=Tipo comunicaci¢n];
+                                                   Editable=No }
+    { 83  ;   ;CSV                 ;Text50        ;CaptionML=[ENU=CSV;
+                                                              ESP=CSV];
+                                                   Editable=No }
+    { 84  ;   ;Codigo Error        ;Text30        ;CaptionML=[ENU=Error code;
+                                                              ESP=C¢digo Error];
+                                                   Editable=No }
+    { 85  ;   ;Descripcion Error   ;Text250       ;CaptionML=[ENU=Error description;
+                                                              ESP=Descripci¢n Error];
+                                                   Editable=No }
+    { 86  ;   ;Tipo envio          ;Option        ;CaptionML=[ENU=Send type;
+                                                              ESP=Tipo env¡o];
+                                                   OptionCaptionML=ESP=" ,Env¡o,Baja,BI Env¡o,BI Baja,Contraste,Cobro,Pago";
+                                                   OptionString=[ ,Env¡o,Baja,BI Env¡o,BI Baja,Contraste,Cobro,Pago];
+                                                   Editable=No }
+    { 87  ;   ;Env¡os              ;Integer       ;FieldClass=FlowField;
+                                                   CalcFormula=Count("Env¡os SII" WHERE (NMov DocSII=FIELD(NMov)));
+                                                   CaptionML=[ENU=Sendings;
+                                                              ESP=Env¡os];
+                                                   BlankZero=Yes;
+                                                   Editable=No }
+    { 88  ;   ;Estado cuadre       ;Option        ;CaptionML=[ENU=Balance status;
+                                                              ESP=Estado cuadre];
+                                                   OptionCaptionML=[ENU=" ,No contrastable,En proceso de contraste,No contrastada,Parcialmente contrastada,Contrastada";
+                                                                    ESP=" ,No contrastable,En proceso de contraste,No contrastada,Parcialmente contrastada,Contrastada"];
+                                                   OptionString=[ ,No contrastable,En proceso de contraste,No contrastada,Parcialmente contrastada,Contrastada] }
+    { 89  ;   ;Timestamp cuadre    ;DateTime      ;CaptionML=[ENU=Balance timestamp;
+                                                              ESP=Timestamp cuadre] }
+  }
+  KEYS
+  {
+    {    ;NMov                                    ;Clustered=Yes }
+    {    ;TipoSII,Bien de inversion,Tipo,Documento,Fecha }
+    {    ;NMov IVA                                 }
+    {    ;TipoSII,Tipo envio,Estado env¡o,Fecha    }
+    {    ;CSV                                      }
+    {    ;Documento,Fecha                          }
+    {    ;DocumentoTercero,Fecha documento         }
+    {    ;Fecha,Factura resumen inicio,Factura resumen fin }
+    {    ;TipoSII,Bien de inversion,NMov IVA,Estado env¡o }
+    {    ;TipoSII,NumTercero,DocumentoPago,DocumentoTercero }
+  }
+  CODE
+  {
+    VAR
+      Lin@1100288000 : Record 88209;
+      Clien@1000000000 : Record 18;
+      Prove@1000000001 : Record 23;
+      FunPer@1000000003 : Codeunit 88201;
+      FunXML@1000000004 : Codeunit 88203;
+      RepMovIVASII@1000000002 : Report 88201;
+
+    PROCEDURE Navegar@2();
+    VAR
+      FormNavegar@1000000000 : Form 344;
+    BEGIN
+      FormNavegar.SetDoc(Fecha,Documento);
+      FormNavegar.RUN;
+    END;
+
+    BEGIN
+    END.
+  }
+}

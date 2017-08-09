@@ -1,0 +1,112 @@
+OBJECT Form 88200 Series/Clientes SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=19/07/17;
+    Time=14:51:32;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    Width=9790;
+    Height=6710;
+    CaptionML=[ENU=SII Series/Customers;
+               ESP=Series/Clientes SII];
+    TableBoxID=1000000000;
+    SourceTable=Table88206;
+    AutoSplitKey=Yes;
+    SourceTableView=SORTING(Tipo registro,Tipo,Code,No. mov.);
+  }
+  CONTROLS
+  {
+    { 1000000000;TableBox;220 ;220  ;9350 ;5500 ;HorzGlue=Both;
+                                                 VertGlue=Both;
+                                                 HeadingHeight=1100 }
+    { 1000000001;TextBox;0    ;0    ;2253 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Code }
+    { 1000000002;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000001;
+                                                 InColumnHeading=Yes }
+    { 1000000014;TextBox;6509 ;770  ;1874 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Tipo serie";
+                                                 OnValidate=BEGIN
+                                                              ComprobarSeries;
+                                                            END;
+                                                             }
+    { 1000000015;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000014;
+                                                 InColumnHeading=Yes }
+    { 1000000012;CheckBox;1588;330  ;884  ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr="Es prefijo";
+                                                 OnValidate=BEGIN
+                                                              ComprobarCliente;
+                                                            END;
+                                                             }
+    { 1000000013;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000012;
+                                                 InColumnHeading=Yes }
+    { 1000000010;TextBox;5345 ;660  ;1764 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 FontBold=Yes;
+                                                 SourceExpr="Tipo factura simplificada" }
+    { 1000000011;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000010;
+                                                 InColumnHeading=Yes;
+                                                 FontBold=Yes }
+    { 1000000003;TextBox;0    ;0    ;1540 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Tipo factura rectificativa";
+                                                 OnValidate=BEGIN
+                                                              ComprobarCliente;
+                                                            END;
+                                                             }
+    { 1000000004;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000003;
+                                                 InColumnHeading=Yes }
+    { 1000000008;TextBox;4868 ;1760 ;1637 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Tipo rectificativa";
+                                                 OnValidate=BEGIN
+                                                              ComprobarCliente;
+                                                            END;
+                                                             }
+    { 1000000009;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000008;
+                                                 InColumnHeading=Yes }
+    { 1000000005;CommandButton;2530;5940;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 Default=Yes;
+                                                 PushAction=LookupOK;
+                                                 InvalidActionAppearance=Hide }
+    { 1000000006;CommandButton;4950;5940;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 Cancel=Yes;
+                                                 PushAction=LookupCancel;
+                                                 InvalidActionAppearance=Hide }
+    { 1000000007;CommandButton;7370;5940;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 PushAction=FormHelp }
+  }
+  CODE
+  {
+    VAR
+      Err001@1000000000 : TextConst 'ENU=This informatrion is not allowed in Customers/Exclude;ESP=No se puede aportar esta informaci¢n para Clientes/Excluir';
+
+    PROCEDURE ComprobarCliente@1000000000();
+    BEGIN
+      IF ("Tipo registro" = "Tipo registro"::Clientes) OR ("Tipo registro" = "Tipo registro"::Excluir) THEN
+        ERROR(Err001);
+    END;
+
+    PROCEDURE ComprobarSeries@1000000001();
+    BEGIN
+      IF ("Tipo registro" = "Tipo registro"::Clientes) THEN
+        ERROR(Err001);
+    END;
+
+    BEGIN
+    END.
+  }
+}

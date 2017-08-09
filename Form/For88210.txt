@@ -1,0 +1,178 @@
+OBJECT Form 88210 Config. cod. operaci¢n SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=11/07/17;
+    Time=23:23:33;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    Width=18810;
+    Height=6710;
+    CaptionML=[ENU=SII operation code config.;
+               ESP=Config. cod. operaci¢n SII];
+    InsertAllowed=No;
+    DeleteAllowed=No;
+    TableBoxID=1100000;
+    SourceTable=Table88207;
+    OnOpenForm=BEGIN
+                 IniTabla;
+                 SETRANGE(Ocultar, FALSE);
+               END;
+
+  }
+  CONTROLS
+  {
+    { 1100000;TableBox  ;220  ;220  ;18370;5500 ;HorzGlue=Both;
+                                                 VertGlue=Both;
+                                                 HeadingHeight=1210 }
+    { 1100001;TextBox   ;0    ;0    ;1980 ;0    ;ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Grupo registro IVA neg." }
+    { 1100002;Label     ;0    ;0    ;0    ;0    ;ParentControl=1100001;
+                                                 InColumnHeading=Yes }
+    { 1100003;TextBox   ;1980 ;0    ;1980 ;0    ;ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Grupo registro IVA prod." }
+    { 1100004;Label     ;0    ;0    ;0    ;0    ;ParentControl=1100003;
+                                                 InColumnHeading=Yes }
+    { 1000000008;CheckBox;3360;880  ;1035 ;440  ;ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr=Service }
+    { 1000000009;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000008;
+                                                 InColumnHeading=Yes }
+    { 1100288000;CheckBox;3334;880  ;1035 ;440  ;ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr=Ocultar }
+    { 1100288001;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288000;
+                                                 InColumnHeading=Yes }
+    { 1000000006;CheckBox;3704;990  ;1035 ;440  ;ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr="No enviar" }
+    { 1000000007;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000006;
+                                                 InColumnHeading=Yes }
+    { 1100015;TextBox   ;3960 ;0    ;2025 ;0    ;ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="C¢d. operacion recibidas" }
+    { 1100016;Label     ;0    ;0    ;0    ;0    ;ParentControl=1100015;
+                                                 InColumnHeading=Yes }
+    { 1100020;TextBox   ;5390 ;1870 ;5656 ;440  ;Editable=No;
+                                                 ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 CaptionML=[ENU=Received description;
+                                                            ESP=Descripci¢n recibidas];
+                                                 SourceExpr=DevDescCodOperaRecibida }
+    { 1100021;Label     ;0    ;0    ;0    ;0    ;ParentControl=1100020;
+                                                 InColumnHeading=Yes }
+    { 1000000014;CheckBox;13970;660 ;1350 ;440  ;ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr=Retencion }
+    { 1000000015;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000014;
+                                                 InColumnHeading=Yes }
+    { 1000000010;CheckBox;13256;550 ;800  ;440  ;ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr=DUA }
+    { 1000000011;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000010;
+                                                 InColumnHeading=Yes }
+    { 1000000004;CheckBox;10054;550 ;1366 ;440  ;ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 ShowCaption=No;
+                                                 SourceExpr="Inversion sujeto pasivo" }
+    { 1000000005;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000004;
+                                                 InColumnHeading=Yes }
+    { 1000000000;TextBox;11655;1870 ;2090 ;440  ;ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="C¢d. operacion emitidas" }
+    { 1000000001;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000000;
+                                                 InColumnHeading=Yes }
+    { 1000000002;TextBox;13745;2310 ;5060 ;440  ;Editable=No;
+                                                 ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 CaptionML=[ENU=Submitted description;
+                                                            ESP=Descripci¢n emitidas];
+                                                 SourceExpr=DevDescCodOperaEmitida }
+    { 1000000003;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000002;
+                                                 InColumnHeading=Yes }
+    { 1000000012;TextBox;23336;660  ;1276 ;440  ;ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Causa Exencion" }
+    { 1000000013;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000012;
+                                                 InColumnHeading=Yes }
+    { 1100005;TextBox   ;5390 ;0    ;1430 ;0    ;ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 DrillDown=No;
+                                                 SourceExpr="Tipo c lculo IVA" }
+    { 1100006;Label     ;0    ;0    ;0    ;0    ;ParentControl=1100005;
+                                                 InColumnHeading=Yes }
+    { 1000000016;TextBox;27543;660  ;2838 ;440  ;ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Tipo No Sujeto" }
+    { 1000000017;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000016;
+                                                 InColumnHeading=Yes }
+    { 1100007;TextBox   ;0    ;0    ;2200 ;0    ;ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 DrillDown=No;
+                                                 SourceExpr="% IVA+RE" }
+    { 1100008;Label     ;0    ;0    ;0    ;0    ;ParentControl=1100007;
+                                                 InColumnHeading=Yes }
+    { 1100009;TextBox   ;9016 ;0    ;1650 ;0    ;ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 DrillDown=No;
+                                                 SourceExpr="Tipo IVA no realizado" }
+    { 1100010;Label     ;0    ;0    ;0    ;0    ;ParentControl=1100009;
+                                                 InColumnHeading=Yes }
+    { 1100013;TextBox   ;15616;0    ;1540 ;0    ;ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 DrillDown=No;
+                                                 SourceExpr="% IVA" }
+    { 1100014;Label     ;0    ;0    ;0    ;0    ;ParentControl=1100013;
+                                                 InColumnHeading=Yes }
+    { 1100011;TextBox   ;13966;0    ;1650 ;0    ;ParentControl=1100000;
+                                                 InColumn=Yes;
+                                                 DrillDown=No;
+                                                 SourceExpr="% RE" }
+    { 1100012;Label     ;0    ;0    ;0    ;0    ;ParentControl=1100011;
+                                                 InColumnHeading=Yes }
+    { 1100017;CommandButton;9130;5940;2200;550  ;HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 Default=Yes;
+                                                 PushAction=LookupOK;
+                                                 InvalidActionAppearance=Hide }
+    { 1100018;CommandButton;11550;5940;2200;550 ;HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 Cancel=Yes;
+                                                 PushAction=LookupCancel;
+                                                 InvalidActionAppearance=Hide }
+    { 1100019;CommandButton;16390;5940;2200;550 ;HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 PushAction=FormHelp }
+    { 1100288002;MenuButton;13970;5940;2200;550 ;HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 CaptionML=[ENU=Actions;
+                                                            ESP=Acciones];
+                                                 Menu=MENUITEMS
+                                                 {
+                                                   { ID=1100288003;
+                                                     CaptionML=[ENU=Actions;
+                                                                ESP=Mostar ocultos];
+                                                     OnPush=BEGIN
+                                                              SETRANGE(Ocultar, TRUE);
+                                                            END;
+                                                             }
+                                                 }
+                                                  }
+  }
+  CODE
+  {
+
+    BEGIN
+    END.
+  }
+}

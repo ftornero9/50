@@ -1,0 +1,196 @@
+OBJECT Form 88202 Env¡os SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=22/06/17;
+    Time=15:50:54;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    Width=16500;
+    Height=6710;
+    Editable=No;
+    CaptionML=[ENU=SII sendings;
+               ESP=Env¡os SII];
+    TableBoxID=1000000000;
+    SourceTable=Table88204;
+    DataCaptionFields=Tipo,Documento,Fecha;
+  }
+  CONTROLS
+  {
+    { 1000000000;TableBox;220 ;220  ;16060;5500 ;HorzGlue=Both;
+                                                 VertGlue=Both;
+                                                 HeadingHeight=770 }
+    { 1000000016;TextBox;0    ;770  ;933  ;440  ;Name=Tipo;
+                                                 Visible=No;
+                                                 ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Tipo }
+    { 1000000017;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000016;
+                                                 InColumnHeading=Yes }
+    { 1000000001;TextBox;0    ;0    ;2247 ;0    ;Name=Documento;
+                                                 Visible=No;
+                                                 ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Documento }
+    { 1000000002;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000001;
+                                                 InColumnHeading=Yes }
+    { 1000000003;TextBox;0    ;0    ;1700 ;0    ;Name=Fecha;
+                                                 Visible=No;
+                                                 ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Fecha }
+    { 1000000004;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000003;
+                                                 InColumnHeading=Yes }
+    { 1000000026;TextBox;4128 ;770  ;1675 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Tipo envio" }
+    { 1000000027;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000026;
+                                                 InColumnHeading=Yes }
+    { 1000000005;TextBox;0    ;0    ;2931 ;0    ;HorzGlue=Both;
+                                                 ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Estado env¡o" }
+    { 1000000006;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000005;
+                                                 InColumnHeading=Yes }
+    { 1000000009;TextBox;0    ;0    ;1255 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Tipo comunicaci¢n" }
+    { 1000000010;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000009;
+                                                 InColumnHeading=Yes }
+    { 1000000007;TextBox;0    ;0    ;2537 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Timestamp presentaci¢n" }
+    { 1000000008;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000007;
+                                                 InColumnHeading=Yes }
+    { 1000000028;TextBox;13097;660  ;2078 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Usuario }
+    { 1000000030;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000028;
+                                                 InColumnHeading=Yes }
+    { 1000000011;TextBox;0    ;0    ;3740 ;0    ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=CSV }
+    { 1000000012;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000011;
+                                                 InColumnHeading=Yes }
+    { 1100288000;TextBox;16642;660  ;1556 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Codigo Error" }
+    { 1100288001;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288000;
+                                                 InColumnHeading=Yes }
+    { 1100288002;TextBox;21042;660  ;4400 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Descripcion Error" }
+    { 1100288003;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288002;
+                                                 InColumnHeading=Yes }
+    { 1000000023;TextBox;19950;2750 ;1935 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="NMov agrupacion" }
+    { 1000000029;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000023;
+                                                 InColumnHeading=Yes }
+    { 1100288004;TextBox;29184;550  ;1700 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="XML envio" }
+    { 1100288009;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288004;
+                                                 InColumnHeading=Yes }
+    { 1000000021;TextBox;14314;440  ;1700 ;440  ;ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="XML respuesta" }
+    { 1000000022;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000021;
+                                                 InColumnHeading=Yes }
+    { 1000000013;CommandButton;6820;5940;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 Default=Yes;
+                                                 PushAction=LookupOK;
+                                                 InvalidActionAppearance=Hide }
+    { 1000000014;CommandButton;9240;5940;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 Cancel=Yes;
+                                                 PushAction=LookupCancel;
+                                                 InvalidActionAppearance=Hide }
+    { 1000000015;CommandButton;14080;5940;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 PushAction=FormHelp }
+    { 1000000018;MenuButton;11660;5940;2200;550 ;HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 CaptionML=[ENU=Actions;
+                                                            ESP=Acciones];
+                                                 Menu=MENUITEMS
+                                                 {
+                                                   { ID=1100288006;
+                                                     CaptionML=ESP=Peticion }
+                                                   { ID=1000000019;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Ver XML;
+                                                     OnPush=VAR
+                                                              FileName@1000000000 : Text[1024];
+                                                            BEGIN
+                                                              Fun.VerXMLPeticionEnvio(Rec);
+                                                            END;
+                                                             }
+                                                   { ID=1000000024;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Exportar XML;
+                                                     OnPush=BEGIN
+                                                              CALCFIELDS("XML envio");
+                                                              IF "XML envio".HASVALUE THEN
+                                                                "XML envio".EXPORT('*.xml', TRUE);
+                                                            END;
+                                                             }
+                                                   { ID=1100288007;
+                                                     CaptionML=ESP=Respuesta }
+                                                   { ID=1100288008;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Ver XML;
+                                                     OnPush=VAR
+                                                              FileName@1100288000 : Text[1024];
+                                                            BEGIN
+                                                              Fun.VerXMLRespuestaEnvio(Rec);
+                                                            END;
+                                                             }
+                                                   { ID=1100288005;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Exportar XML;
+                                                     OnPush=BEGIN
+                                                              CALCFIELDS("XML respuesta");
+                                                              IF "XML respuesta".HASVALUE THEN
+                                                                "XML respuesta".EXPORT('*.xml', TRUE);
+                                                            END;
+                                                             }
+                                                   { ID=1000000020;
+                                                     Visible=No;
+                                                     CaptionML=ESP=Cargar XML;
+                                                     OnPush=BEGIN
+                                                              IF "XML respuesta".IMPORT('*.xml', TRUE) = '' THEN
+                                                                EXIT
+                                                              ELSE
+                                                                MODIFY;
+                                                            END;
+                                                             }
+                                                   { ID=1000000025;
+                                                     Visible=No;
+                                                     CaptionML=ESP=Procesar XML;
+                                                     OnPush=BEGIN
+                                                              //FunWS.CargarRespXML("No. mov.", '', 'RespuestaLRBajaFacturasEmitidas');
+                                                              FunWS.CargarRespXML("No. mov.", '', 'RespuestaLRPagosRecibidas');
+                                                            END;
+                                                             }
+                                                 }
+                                                  }
+  }
+  CODE
+  {
+    VAR
+      Fun@1000000000 : Codeunit 88201;
+      Fichero@1000000003 : Text[1024];
+      FunWS@1000000001 : Codeunit 88202;
+
+    BEGIN
+    END.
+  }
+}

@@ -1,0 +1,144 @@
+OBJECT Table 88209 Lin. Documentos SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=19/07/17;
+    Time=20:59:19;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    OnInsert=BEGIN
+               ERROR('No se puede realizar directamente esta acci¢n.');
+
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnModify=BEGIN
+               IF DocRec.GET(NMovDoc) THEN
+                 IF (DocRec."Tipo envio" IN [DocRec."Tipo envio"::Env¡o,DocRec."Tipo envio"::"BI Env¡o"])
+                   AND (DocRec."Estado env¡o" = DocRec."Estado env¡o"::Correcto) THEN
+                   ERROR('No se puede modificar un documento enviado.');
+
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnDelete=BEGIN
+               ERROR('No se puede realizar directamente esta acci¢n.');
+
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    OnRename=BEGIN
+               ERROR('No se puede realizar directamente esta acci¢n.');
+
+               FunPer.ComprobarPermisoModificaSII;
+             END;
+
+    CaptionML=[ENU=SII documents lin.;
+               ESP=Lin. Documentos SII];
+    LookupFormID=Form88205;
+    DrillDownFormID=Form88205;
+  }
+  FIELDS
+  {
+    { 1   ;   ;NMovDoc             ;Integer       ;CaptionML=[ENU=NMovDoc;
+                                                              ESP=NMovDoc] }
+    { 2   ;   ;NMov                ;Integer       ;CaptionML=[ENU=NMov;
+                                                              ESP=NMov] }
+    { 3   ;   ;Base                ;Decimal       ;CaptionML=[ENU=Taxable base;
+                                                              ESP=Base];
+                                                   BlankZero=Yes }
+    { 4   ;   ;Cuota               ;Decimal       ;CaptionML=[ENU=Fee;
+                                                              ESP=Cuota];
+                                                   BlankZero=Yes }
+    { 5   ;   ;%IVA                ;Decimal       ;CaptionML=[ENU=%VAT;
+                                                              ESP=%IVA];
+                                                   BlankZero=Yes }
+    { 6   ;   ;%RE                 ;Decimal       ;CaptionML=[ENU=%ER;
+                                                              ESP=%RE];
+                                                   BlankZero=Yes }
+    { 8   ;   ;ImporteIVA          ;Decimal       ;CaptionML=[ENU=VAT amount;
+                                                              ESP=Importe IVA];
+                                                   BlankZero=Yes }
+    { 9   ;   ;ImporteRE           ;Decimal       ;CaptionML=[ENU=ER amount;
+                                                              ESP=Importe RE];
+                                                   BlankZero=Yes }
+    { 10  ;   ;Tipo IVA            ;Option        ;CaptionML=[ENU=VAT rate;
+                                                              ESP=Tipo IVA];
+                                                   OptionCaptionML=ESP=Normal,Reversi¢n,Total,Impto. venta,No sujeto,Exento;
+                                                   OptionString=Normal,Reversi¢n,Total,Impto. venta,No sujeto,Exento;
+                                                   Editable=No }
+    { 14  ;   ;Service             ;Boolean       ;CaptionML=[ENU=Service;
+                                                              ESP=Servicio] }
+    { 22  ;   ;Importe no realizado;Decimal       ;CaptionML=[ENU=Amount not performed;
+                                                              ESP=Importe no realizado];
+                                                   BlankZero=Yes;
+                                                   AutoFormatType=1 }
+    { 23  ;   ;Base no realizada   ;Decimal       ;CaptionML=[ENU=Taxable base not performed;
+                                                              ESP=Base no realizada];
+                                                   BlankZero=Yes;
+                                                   AutoFormatType=1 }
+    { 24  ;   ;Cuota deducible     ;Decimal       ;CaptionML=[ENU=Deductible fee;
+                                                              ESP=Cuota deducible];
+                                                   BlankZero=Yes }
+    { 39  ;   ;Grupo registro IVA neg.;Code20     ;TableRelation="VAT Business Posting Group";
+                                                   CaptionML=[ENU=Business VAT group;
+                                                              ESP=Grupo registro IVA neg.] }
+    { 40  ;   ;Grupo registro IVA prod.;Code20    ;TableRelation="VAT Product Posting Group";
+                                                   CaptionML=[ENU=Product VAT group;
+                                                              ESP=Grupo registro IVA prod.] }
+    { 90001;  ;Sujeta_NoExenta     ;Code10        ;CaptionML=[ENU=Subject Not Exempt;
+                                                              ESP=Sujeta_NoExenta];
+                                                   Description=S1,S2 }
+    { 90002;  ;Causa exencion      ;Code10        ;CaptionML=[ENU=Cause of exemption;
+                                                              ESP=Causa exenci¢n];
+                                                   Description=E1,E2,E3,E4,E5,E6 }
+    { 90003;  ;No Sujeto           ;Boolean       ;CaptionML=[ENU=Not subject;
+                                                              ESP=No sujeto] }
+    { 90004;  ;NMov IVA            ;Integer       ;TableRelation="VAT Entry";
+                                                   CaptionML=[ENU=VAT NMov;
+                                                              ESP=NMov IVA] }
+    { 90005;  ;NMov IVA no realizado;Integer      ;TableRelation="VAT Entry";
+                                                   CaptionML=[ENU=Not performed VAT NMov;
+                                                              ESP=NMov IVA no realizado] }
+    { 90006;  ;Inversion sujeto pasivo;Boolean    ;CaptionML=[ENU=Reversion of taxable person;
+                                                              ESP=Inversi¢n sujeto pasivo] }
+    { 90007;  ;Criterio de IVA de caja;Boolean    ;CaptionML=[ENU=Cash VAT criteria;
+                                                              ESP=Criterio de IVA de caja] }
+    { 90008;  ;DUA                 ;Boolean       ;CaptionML=[ENU=DUA;
+                                                              ESP=DUA] }
+    { 90009;  ;Retencion           ;Boolean       ;CaptionML=[ENU=Retention;
+                                                              ESP=Retenci¢n] }
+    { 90010;  ;No enviar           ;Boolean        }
+    { 90011;  ;Tipo No Sujeto      ;Option        ;CaptionML=[ENU=No Taxable VAT Type;
+                                                              ESP=Tipo No Sujeto];
+                                                   OptionCaptionML=[ENU=" ,ReglasLocalizacion,Articulo7_14";
+                                                                    ESP=" ,ReglasLocalizacion,Articulo7_14"];
+                                                   OptionString=[ ,ReglasLocalizacion,Articulo7_14] }
+    { 99050;  ;Documento           ;Code20        ;FieldClass=FlowField;
+                                                   CalcFormula=Lookup("Documentos SII".Documento WHERE (NMov=FIELD(NMovDoc)));
+                                                   Editable=No }
+    { 99051;  ;Fecha registro      ;Date          ;FieldClass=FlowField;
+                                                   CalcFormula=Lookup("Documentos SII".Fecha WHERE (NMov=FIELD(NMovDoc)));
+                                                   Editable=No }
+  }
+  KEYS
+  {
+    {    ;NMovDoc,NMov                            ;SumIndexFields=Base,Cuota,Importe no realizado,Base no realizada,Cuota deducible;
+                                                   Clustered=Yes }
+    {    ;NMovDoc,NMov IVA                         }
+    {    ;NMov IVA                                 }
+    {    ;NMovDoc,Retencion                       ;SumIndexFields=Base,Cuota,Importe no realizado,Base no realizada,Cuota deducible }
+  }
+  CODE
+  {
+    VAR
+      FunPer@1000000000 : Codeunit 88201;
+      DocRec@1000000001 : Record 88208;
+
+    BEGIN
+    END.
+  }
+}

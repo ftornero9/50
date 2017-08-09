@@ -1,0 +1,528 @@
+OBJECT Form 88207 Env¡os SII por Empresa lin.
+{
+  OBJECT-PROPERTIES
+  {
+    Date=26/07/17;
+    Time=23:57:20;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    Width=15730;
+    Height=5060;
+    Editable=Yes;
+    CaptionML=[ENU=SII sendings by company lin.;
+               ESP=Env¡os SII por Empresa lin.];
+    SaveValues=Yes;
+    InsertAllowed=No;
+    DeleteAllowed=No;
+    ModifyAllowed=No;
+    TableBoxID=1;
+    SourceTable=Table2000000006;
+    SourceTableView=SORTING(Name);
+    OnCloseForm=BEGIN
+                  GblSII.SetGblEmpresa('');
+                END;
+
+    OnFindRecord=BEGIN
+                   EXIT(FunSII.BuscaEmpresa(Which,Rec));
+                 END;
+
+    OnNextRecord=BEGIN
+                   EXIT(FunSII.SigEmpresa(Steps,Rec));
+                 END;
+
+    OnAfterGetRecord=BEGIN
+                       DefLoc;
+                     END;
+
+  }
+  CONTROLS
+  {
+    { 1   ;TableBox     ;0    ;0    ;15730;5060 ;HorzGlue=Both;
+                                                 VertGlue=Both;
+                                                 Editable=No;
+                                                 HeadingHeight=1650 }
+    { 7   ;TextBox      ;133  ;990  ;3793 ;440  ;HorzGlue=Both;
+                                                 ParentControl=1;
+                                                 InColumn=Yes;
+                                                 CaptionML=[ENU=Name;
+                                                            ESP=Nombre];
+                                                 SourceExpr=Name }
+    { 8   ;Label        ;0    ;0    ;0    ;0    ;ParentControl=7;
+                                                 InColumnHeading=Yes }
+    { 1100288012;TextBox;3890 ;990  ;1641 ;440  ;ParentControl=1;
+                                                 InColumn=Yes;
+                                                 CaptionML=[ENU=VAT No.;
+                                                            ESP=NIF];
+                                                 SourceExpr=NIF }
+    { 1100288013;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288012;
+                                                 InColumnHeading=Yes }
+    { 1100288014;TextBox;6298 ;1980 ;1755 ;440  ;Name=FechaCert;
+                                                 ParentControl=1;
+                                                 InColumn=Yes;
+                                                 CaptionML=[ENU=Certificate valid to;
+                                                            ESP=Certificado valido hasta];
+                                                 SourceExpr=CertificadoHasta;
+                                                 OnFormat=BEGIN
+                                                            IF CertificadoHasta < TODAY THEN BEGIN
+                                                              CurrForm.FechaCert.UPDATEFORECOLOR(255);
+                                                              CurrForm.FechaCert.UPDATEFONTBOLD(TRUE);
+                                                            END;
+                                                          END;
+                                                           }
+    { 1100288015;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288014;
+                                                 InColumnHeading=Yes }
+    { 16  ;TextBox      ;9975 ;4180 ;1793 ;440  ;ParentControl=1;
+                                                 InColumn=Yes;
+                                                 FontBold=Yes;
+                                                 CaptionML=[ENU=Sale documents;
+                                                            ESP=Documentos Emitidos];
+                                                 DecimalPlaces=0:5;
+                                                 BlankZero=Yes;
+                                                 SourceExpr=numDocEmitidos;
+                                                 OnDrillDown=BEGIN
+                                                               MostrarDocEmitidos(Name);
+                                                             END;
+                                                              }
+    { 17  ;Label        ;0    ;0    ;0    ;0    ;ParentControl=16;
+                                                 InColumnHeading=Yes;
+                                                 FontBold=Yes;
+                                                 CaptionML=[ENU=Sale documents;
+                                                            ESP=Documentos Emitidos] }
+    { 1000000000;TextBox;8758 ;2640 ;1534 ;440  ;ParentControl=1;
+                                                 InColumn=Yes;
+                                                 ForeColor=32768;
+                                                 FontBold=Yes;
+                                                 CaptionML=[ENU=Sale docs. to send;
+                                                            ESP=D.Emitidos por enviar];
+                                                 BlankZero=Yes;
+                                                 SourceExpr=FVEnviadas[6];
+                                                 OnDrillDown=BEGIN
+                                                               MostrarEmitidosEnviar(Name);
+                                                             END;
+                                                              }
+    { 1000000001;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000000;
+                                                 InColumnHeading=Yes;
+                                                 ForeColor=32768;
+                                                 FontBold=Yes;
+                                                 CaptionML=[ENU=Sale docs. to send;
+                                                            ESP=D.Emitidos por enviar] }
+    { 10  ;TextBox      ;4763 ;2860 ;1640 ;440  ;ParentControl=1;
+                                                 InColumn=Yes;
+                                                 DrillDown=Yes;
+                                                 CaptionML=[ENU="Sale docs. sent correct ";
+                                                            ESP=D.Emitidos enviados Correctos];
+                                                 DecimalPlaces=0:5;
+                                                 BlankZero=Yes;
+                                                 SourceExpr=FVEnviadas[2];
+                                                 OnDrillDown=BEGIN
+                                                               MostrarEnviosEmitidos(Name, 1);
+                                                             END;
+                                                              }
+    { 11  ;Label        ;0    ;0    ;0    ;0    ;ParentControl=10;
+                                                 InColumnHeading=Yes;
+                                                 CaptionML=[ENU="Sale docs. sent correct ";
+                                                            ESP=D.Emitidos enviados Correctos] }
+    { 1100288016;TextBox;16854;880  ;1689 ;440  ;ParentControl=1;
+                                                 InColumn=Yes;
+                                                 CaptionML=[ENU=Sale docs. Voided;
+                                                            ESP=D.Emitidos Anulados];
+                                                 BlankZero=Yes;
+                                                 SourceExpr=FVEnviadas[7];
+                                                 OnDrillDown=BEGIN
+                                                               MostrarEmitidosAnulados(Name);
+                                                             END;
+                                                              }
+    { 1100288017;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288016;
+                                                 InColumnHeading=Yes;
+                                                 CaptionML=[ENU=Sale docs. Voided;
+                                                            ESP=D.Emitidos Anulados] }
+    { 12  ;TextBox      ;6271 ;2530 ;1640 ;440  ;ParentControl=1;
+                                                 InColumn=Yes;
+                                                 ForeColor=125;
+                                                 DrillDown=Yes;
+                                                 CaptionML=[ENU=Sale dcos. sent accepted with error;
+                                                            ESP=D.Emitidos enviados Aceptados con Errores];
+                                                 DecimalPlaces=0:5;
+                                                 BlankZero=Yes;
+                                                 SourceExpr=FVEnviadas[3];
+                                                 OnDrillDown=BEGIN
+                                                               MostrarEnviosEmitidos(Name, 2);
+                                                             END;
+                                                              }
+    { 13  ;Label        ;0    ;0    ;0    ;0    ;ParentControl=12;
+                                                 InColumnHeading=Yes;
+                                                 ForeColor=125;
+                                                 CaptionML=[ENU=Sale dcos. sent accepted with error;
+                                                            ESP=D.Emitidos enviados Aceptados con Errores] }
+    { 2   ;TextBox      ;12806;880  ;1640 ;440  ;ParentControl=1;
+                                                 InColumn=Yes;
+                                                 ForeColor=255;
+                                                 CaptionML=[ENU=Sale docs. sent incorrect;
+                                                            ESP=D.Emitidos enviados Incorrectos];
+                                                 DecimalPlaces=0:0;
+                                                 BlankZero=Yes;
+                                                 SourceExpr=FVEnviadas[4];
+                                                 OnDrillDown=BEGIN
+                                                               MostrarEnviosEmitidos(Name, 3);
+                                                             END;
+                                                              }
+    { 3   ;Label        ;0    ;0    ;0    ;0    ;ParentControl=2;
+                                                 InColumnHeading=Yes;
+                                                 ForeColor=255;
+                                                 CaptionML=[ENU=Sale docs. sent incorrect;
+                                                            ESP=D.Emitidos enviados Incorrectos] }
+    { 20  ;TextBox      ;12231;5060 ;1640 ;440  ;ParentControl=1;
+                                                 InColumn=Yes;
+                                                 ForeColor=255;
+                                                 CaptionML=[ENU=Sale docs. sent with ERROR;
+                                                            ESP=D.Emitidos enviados con ERROR];
+                                                 DecimalPlaces=0:5;
+                                                 BlankZero=Yes;
+                                                 SourceExpr=FVEnviadas[5];
+                                                 OnDrillDown=BEGIN
+                                                               MostrarEnviosEmitidos(Name, 4);
+                                                             END;
+                                                              }
+    { 21  ;Label        ;11563;1090 ;3300 ;440  ;ParentControl=20;
+                                                 InColumnHeading=Yes;
+                                                 ForeColor=255;
+                                                 CaptionML=[ENU=Sale docs. sent with ERROR;
+                                                            ESP=D.Emitidos enviados con ERROR] }
+    { 1100288000;TextBox;13044;2860 ;1640 ;440  ;ParentControl=1;
+                                                 InColumn=Yes;
+                                                 FontBold=Yes;
+                                                 CaptionML=[ENU=Purchase documents;
+                                                            ESP=Documentos Recibidos];
+                                                 BlankZero=Yes;
+                                                 SourceExpr=numDocRecibidos;
+                                                 OnDrillDown=BEGIN
+                                                               MostrarDocRecibidos(Name);
+                                                             END;
+                                                              }
+    { 1100288001;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288000;
+                                                 InColumnHeading=Yes;
+                                                 FontBold=Yes;
+                                                 CaptionML=[ENU=Purchase documents;
+                                                            ESP=Documentos Recibidos] }
+    { 1100288002;TextBox;15082;2750 ;1436 ;440  ;ParentControl=1;
+                                                 InColumn=Yes;
+                                                 ForeColor=32768;
+                                                 FontBold=Yes;
+                                                 CaptionML=[ENU=Purchase docs. to send;
+                                                            ESP=D.Recibidos por enviar];
+                                                 BlankZero=Yes;
+                                                 SourceExpr=FCEnviadas[6];
+                                                 OnDrillDown=BEGIN
+                                                               MostrarRecibidosEnviar(Name);
+                                                               //MostrarEnviosRecibidos(Name, 0);
+                                                             END;
+                                                              }
+    { 1100288003;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288002;
+                                                 InColumnHeading=Yes;
+                                                 ForeColor=32768;
+                                                 FontBold=Yes;
+                                                 CaptionML=[ENU=Purchase docs. to send;
+                                                            ESP=D.Recibidos por enviar] }
+    { 1100288010;TextBox;20135;2530 ;1640 ;440  ;ParentControl=1;
+                                                 InColumn=Yes;
+                                                 CaptionML=[ENU=Received sent correct doc.;
+                                                            ESP=D.Recibidos enviados Correctos];
+                                                 BlankZero=Yes;
+                                                 SourceExpr=FCEnviadas[2];
+                                                 OnDrillDown=BEGIN
+                                                               MostrarEnviosRecibidos(Name, 1);
+                                                             END;
+                                                              }
+    { 1100288011;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288010;
+                                                 InColumnHeading=Yes }
+    { 1100288018;TextBox;26803;2860 ;1806 ;440  ;ParentControl=1;
+                                                 InColumn=Yes;
+                                                 CaptionML=[ENU=Purchase docs. Voided;
+                                                            ESP=D.Recibidos Anulados];
+                                                 BlankZero=Yes;
+                                                 SourceExpr=FCEnviadas[7];
+                                                 OnDrillDown=BEGIN
+                                                               MostrarRecibidosAnulados(Name);
+                                                             END;
+                                                              }
+    { 1100288019;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288018;
+                                                 InColumnHeading=Yes;
+                                                 CaptionML=[ENU=Purchase docs. Voided;
+                                                            ESP=D.Recibidos Anulados] }
+    { 1100288008;TextBox;18971;3190 ;1640 ;440  ;ParentControl=1;
+                                                 InColumn=Yes;
+                                                 ForeColor=125;
+                                                 CaptionML=[ENU=Received sent accepted with error doc.;
+                                                            ESP=D.Recibidos enviados Aceptados con Errores];
+                                                 BlankZero=Yes;
+                                                 SourceExpr=FCEnviadas[3];
+                                                 OnDrillDown=BEGIN
+                                                               MostrarEnviosRecibidos(Name, 2);
+                                                             END;
+                                                              }
+    { 1100288009;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288008;
+                                                 InColumnHeading=Yes;
+                                                 ForeColor=125 }
+    { 1100288006;TextBox;18865;3190 ;1640 ;440  ;ParentControl=1;
+                                                 InColumn=Yes;
+                                                 ForeColor=255;
+                                                 CaptionML=[ENU=Received sent incorrect doc.;
+                                                            ESP=D.Recibidos enviados Incorrectos];
+                                                 BlankZero=Yes;
+                                                 SourceExpr=FCEnviadas[4];
+                                                 OnDrillDown=BEGIN
+                                                               MostrarEnviosRecibidos(Name, 3);
+                                                             END;
+                                                              }
+    { 1100288007;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288006;
+                                                 InColumnHeading=Yes;
+                                                 ForeColor=255 }
+    { 1100288004;TextBox;16987;2090 ;1640 ;440  ;ParentControl=1;
+                                                 InColumn=Yes;
+                                                 ForeColor=255;
+                                                 CaptionML=[ENU=Received sent with ERROR doc.;
+                                                            ESP=D.Recibidos enviados con ERROR];
+                                                 BlankZero=Yes;
+                                                 SourceExpr=FCEnviadas[5];
+                                                 OnDrillDown=BEGIN
+                                                               MostrarEnviosRecibidos(Name, 4);
+                                                             END;
+                                                              }
+    { 1100288005;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288004;
+                                                 InColumnHeading=Yes;
+                                                 ForeColor=255 }
+  }
+  CODE
+  {
+    VAR
+      LongPeriodoProd@1000000011 : 'D¡a,Semana,Mes,Trimestre,A¤o,Periodo';
+      TipImporte@1000000012 : 'Saldo periodo,Acumulado hasta fecha';
+      locCuenta@1100288005 : Record 15;
+      FVEnviadas@1100288007 : ARRAY [7] OF Integer;
+      FCEnviadas@1100288010 : ARRAY [7] OF Integer;
+      NIF@1100288011 : Code[20];
+      CfgEmp@1100288012 : Record 79;
+      CertificadoHasta@1100288013 : Date;
+      CfgSII@1100288014 : Record 88201;
+      FunSII@1000000006 : Codeunit 88201;
+      GblSII@1100288017 : Codeunit 88200;
+      TabDocSII@1100288018 : Record 88208;
+      numDocEmitidos@1100288019 : Integer;
+      numDocRecibidos@1100288020 : Integer;
+
+    PROCEDURE Def@1(VAR Cuenta@1100288000 : Record 15;LongPeriodoNueProd@1000000001 : Integer;NuevTipImpor@1000000002 : 'Saldo periodo,Acumulado hasta fecha');
+    BEGIN
+      locCuenta.COPYFILTERS(Cuenta);
+
+      LongPeriodoProd := LongPeriodoNueProd;
+      TipImporte := NuevTipImpor;
+      CurrForm.UPDATE(FALSE);
+    END;
+
+    PROCEDURE DefLoc@4();
+    BEGIN
+      CambiarEmpresa(Name);
+      CalcularCampos(Name);
+    END;
+
+    PROCEDURE MostrarDocEmitidos@1100288006(NEmpresa@1100288000 : Text[30]);
+    BEGIN
+      DefLoc;
+      GblSII.SetGblEmpresa(NEmpresa);
+      TabDocSII.RESET;
+      TabDocSII.SETCURRENTKEY(TipoSII,"Bien de inversion",Tipo,Documento,Fecha);
+      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Date Filter"));
+      FORM.RUNMODAL(FORM::"Documentos emitidos SII",TabDocSII);
+    END;
+
+    PROCEDURE MostrarDocRecibidos@1100288002(NEmpresa@1100288000 : Text[30]);
+    BEGIN
+      DefLoc;
+      GblSII.SetGblEmpresa(NEmpresa);
+      TabDocSII.RESET;
+      TabDocSII.SETCURRENTKEY(TipoSII,"Bien de inversion",Tipo,Documento,Fecha);
+      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Date Filter"));
+      FORM.RUNMODAL(FORM::"Documentos recibidos SII",TabDocSII);
+    END;
+
+    LOCAL PROCEDURE MostrarEnviosEmitidos@2(NEmpresa@1100288000 : Text[30];Cuales@1100288001 : Integer);
+    BEGIN
+      DefLoc;
+      GblSII.SetGblEmpresa(NEmpresa);
+      TabDocSII.RESET;
+      TabDocSII.SETCURRENTKEY(TipoSII,"Tipo envio","Estado env¡o", Fecha);
+      TabDocSII.SETRANGE(TipoSII, TabDocSII.TipoSII::E);
+      TabDocSII.SETRANGE("Tipo envio", TabDocSII."Tipo envio"::Env¡o);
+      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Date Filter"));
+      IF Cuales > 0 THEN
+        TabDocSII.SETRANGE("Estado env¡o", Cuales);
+
+      FORM.RUNMODAL(FORM::"Documentos emitidos SII", TabDocSII);
+    END;
+
+    LOCAL PROCEDURE MostrarEnviosRecibidos@1100288001(NEmpresa@1100288000 : Text[30];Cuales@1100288001 : Integer);
+    BEGIN
+      DefLoc;
+      GblSII.SetGblEmpresa(NEmpresa);
+      TabDocSII.RESET;
+      TabDocSII.SETCURRENTKEY(TipoSII,"Tipo envio","Estado env¡o", Fecha);
+      TabDocSII.SETRANGE(TipoSII, TabDocSII.TipoSII::R);
+      TabDocSII.SETRANGE("Tipo envio", TabDocSII."Tipo envio"::Env¡o);
+      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Date Filter"));
+      IF Cuales > 0 THEN
+        TabDocSII.SETRANGE("Estado env¡o", Cuales);
+
+      FORM.RUNMODAL(FORM::"Documentos recibidos SII", TabDocSII);
+    END;
+
+    PROCEDURE MostrarEmitidosEnviar@1000000001(NEmpresa@1100288000 : Text[30]);
+    BEGIN
+      DefLoc;
+      GblSII.SetGblEmpresa(NEmpresa);
+      TabDocSII.RESET;
+      TabDocSII.SETCURRENTKEY(TipoSII,"Tipo envio","Estado env¡o", Fecha);
+      TabDocSII.SETRANGE(TipoSII, TabDocSII.TipoSII::E);
+      TabDocSII.SETRANGE("Estado env¡o", 0);
+      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Date Filter"));
+      TabDocSII.SETRANGE("No enviar", FALSE);
+      FORM.RUNMODAL(FORM::"Documentos emitidos SII",TabDocSII);
+    END;
+
+    PROCEDURE MostrarRecibidosEnviar@1100288000(NEmpresa@1100288000 : Text[30]);
+    BEGIN
+      DefLoc;
+      GblSII.SetGblEmpresa(NEmpresa);
+      TabDocSII.RESET;
+      TabDocSII.SETCURRENTKEY(TipoSII,"Tipo envio","Estado env¡o", Fecha);
+      TabDocSII.SETRANGE(TipoSII, TabDocSII.TipoSII::R);
+      TabDocSII.SETRANGE("Estado env¡o", 0);
+      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Date Filter"));
+      TabDocSII.SETRANGE("No enviar", FALSE);
+      FORM.RUNMODAL(FORM::"Documentos recibidos SII",TabDocSII);
+    END;
+
+    PROCEDURE MostrarEmitidosAnulados@1100288004(NEmpresa@1100288000 : Text[30]);
+    BEGIN
+      DefLoc;
+      GblSII.SetGblEmpresa(NEmpresa);
+      TabDocSII.RESET;
+      TabDocSII.SETCURRENTKEY(TipoSII,"Tipo envio","Estado env¡o", Fecha);
+      TabDocSII.SETRANGE(TipoSII, TabDocSII.TipoSII::E);
+      TabDocSII.SETRANGE("Tipo envio", TabDocSII."Tipo envio"::Baja);
+      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Date Filter"));
+      TabDocSII.SETRANGE("No enviar", FALSE);
+      FORM.RUNMODAL(FORM::"Documentos emitidos SII",TabDocSII);
+    END;
+
+    PROCEDURE MostrarRecibidosAnulados@1100288003(NEmpresa@1100288000 : Text[30]);
+    BEGIN
+      DefLoc;
+      GblSII.SetGblEmpresa(NEmpresa);
+      TabDocSII.RESET;
+      TabDocSII.SETCURRENTKEY(TipoSII,"Tipo envio","Estado env¡o", Fecha);
+      TabDocSII.SETRANGE(TipoSII, TabDocSII.TipoSII::R);
+      TabDocSII.SETRANGE("Tipo envio", TabDocSII."Tipo envio"::Baja);
+      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Date Filter"));
+      TabDocSII.SETRANGE("No enviar", FALSE);
+      FORM.RUNMODAL(FORM::"Documentos recibidos SII",TabDocSII);
+    END;
+
+    PROCEDURE CambiarEmpresa@9(NEmpresa@1000000000 : Text[30]);
+    BEGIN
+      TabDocSII.CHANGECOMPANY(NEmpresa);
+      CfgEmp.CHANGECOMPANY(NEmpresa);
+      CfgSII.CHANGECOMPANY(NEmpresa);
+    END;
+
+    PROCEDURE CalcularCampos@11(NEmpresa@1000000000 : Text[30]);
+    BEGIN
+      TabDocSII.RESET;
+      TabDocSII.SETCURRENTKEY(TipoSII,"Tipo envio","Estado env¡o", Fecha);
+      TabDocSII.SETRANGE(TipoSII, TabDocSII.TipoSII::E);
+      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Date Filter"));
+      TabDocSII.SETRANGE(TabDocSII.Tipo, TabDocSII.Tipo::Factura, TabDocSII.Tipo::Pago);
+      numDocEmitidos := TabDocSII.COUNT;
+
+      TabDocSII.SETRANGE("Tipo envio", TabDocSII."Tipo envio"::" ");
+      TabDocSII.SETRANGE("Estado env¡o", TabDocSII."Estado env¡o"::" ");
+      TabDocSII.SETRANGE("No enviar", FALSE);
+      FVEnviadas[6] := TabDocSII.COUNT;
+
+      TabDocSII.SETRANGE("No enviar");
+      TabDocSII.SETRANGE("Tipo envio", TabDocSII."Tipo envio"::Env¡o);
+      TabDocSII.SETRANGE("Estado env¡o");
+      FVEnviadas[1] := TabDocSII.COUNT;
+
+      TabDocSII.SETRANGE("Estado env¡o", TabDocSII."Estado env¡o"::Correcto);
+      FVEnviadas[2] := TabDocSII.COUNT;
+
+      TabDocSII.SETRANGE("Estado env¡o", TabDocSII."Estado env¡o"::AceptadoConErrores);
+      FVEnviadas[3] := TabDocSII.COUNT;
+
+      TabDocSII.SETRANGE("Estado env¡o", TabDocSII."Estado env¡o"::Incorrecto);
+      FVEnviadas[4] := TabDocSII.COUNT;
+
+      TabDocSII.SETRANGE("Estado env¡o", TabDocSII."Estado env¡o"::Error);
+      FVEnviadas[5] := TabDocSII.COUNT;
+
+      TabDocSII.SETRANGE("Tipo envio", TabDocSII."Tipo envio"::Baja);
+      TabDocSII.SETRANGE("Estado env¡o");
+      FVEnviadas[7] := TabDocSII.COUNT;
+
+      TabDocSII.SETRANGE("Estado env¡o");
+      TabDocSII.SETRANGE("Tipo envio");
+      TabDocSII.SETRANGE(TipoSII, TabDocSII.TipoSII::R);
+      numDocRecibidos := TabDocSII.COUNT;
+
+      TabDocSII.SETRANGE("Tipo envio", TabDocSII."Tipo envio"::" ");
+      TabDocSII.SETRANGE("Estado env¡o", TabDocSII."Estado env¡o"::" ");
+      TabDocSII.SETRANGE("No enviar", FALSE);
+      FCEnviadas[6] := TabDocSII.COUNT;
+
+      TabDocSII.SETRANGE("No enviar");
+      TabDocSII.SETRANGE("Tipo envio", TabDocSII."Tipo envio"::Env¡o);
+      TabDocSII.SETRANGE("Estado env¡o");
+      FCEnviadas[1] := TabDocSII.COUNT;
+
+      TabDocSII.SETRANGE("Estado env¡o", TabDocSII."Estado env¡o"::Correcto);
+      FCEnviadas[2] := TabDocSII.COUNT;
+
+      TabDocSII.SETRANGE("Estado env¡o", TabDocSII."Estado env¡o"::AceptadoConErrores);
+      FCEnviadas[3] := TabDocSII.COUNT;
+
+      TabDocSII.SETRANGE("Estado env¡o", TabDocSII."Estado env¡o"::Incorrecto);
+      FCEnviadas[4] := TabDocSII.COUNT;
+
+      TabDocSII.SETRANGE("Estado env¡o", TabDocSII."Estado env¡o"::Error);
+      FCEnviadas[5] := TabDocSII.COUNT;
+
+      TabDocSII.SETRANGE("Tipo envio", TabDocSII."Tipo envio"::Baja);
+      TabDocSII.SETRANGE("Estado env¡o");
+      FCEnviadas[7] := TabDocSII.COUNT;
+
+      IF CfgEmp.GET THEN
+        NIF := CfgEmp."VAT Registration No."
+      ELSE
+        NIF := '';
+
+      IF CfgSII.GET THEN
+        CertificadoHasta := CfgSII."Valido hasta"
+      ELSE
+        CertificadoHasta := 0D;
+    END;
+
+    PROCEDURE ActualizarEmpresa@1000000000(LimpiarEmpresa@1000000000 : Boolean);
+    BEGIN
+      IF LimpiarEmpresa THEN
+        GblSII.SetGblEmpresa('')
+      ELSE
+        GblSII.SetGblEmpresa(Name);
+    END;
+
+    BEGIN
+    END.
+  }
+}

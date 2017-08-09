@@ -1,0 +1,190 @@
+OBJECT Form 88208 Consulta SII
+{
+  OBJECT-PROPERTIES
+  {
+    Date=22/06/17;
+    Time=15:55:10;
+    Modified=Yes;
+    Version List=SII;
+  }
+  PROPERTIES
+  {
+    Width=16500;
+    Height=6710;
+    Editable=No;
+    CaptionML=[ENU=SII queries;
+               ESP=Consultas SII];
+    TableBoxID=1100288000;
+    SourceTable=Table88206;
+  }
+  CONTROLS
+  {
+    { 1100288000;TableBox;220 ;220  ;16060;5500 ;HorzGlue=Both;
+                                                 VertGlue=Both;
+                                                 HeadingHeight=1210 }
+    { 1100288001;TextBox;0    ;0    ;1923 ;0    ;Visible=No;
+                                                 ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=NIF }
+    { 1100288002;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288001;
+                                                 InColumnHeading=Yes }
+    { 1100288003;TextBox;0    ;0    ;1100 ;0    ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Ejercicio }
+    { 1100288004;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288003;
+                                                 InColumnHeading=Yes }
+    { 1100288005;TextBox;0    ;0    ;1167 ;0    ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Periodo }
+    { 1100288006;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288005;
+                                                 InColumnHeading=Yes }
+    { 1100288009;TextBox;0    ;0    ;2015 ;0    ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="NIF Emisor/Presentador" }
+    { 1100288010;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288009;
+                                                 InColumnHeading=Yes }
+    { 1100288017;TextBox;0    ;0    ;1085 ;0    ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Tipo factura" }
+    { 1100288018;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288017;
+                                                 InColumnHeading=Yes }
+    { 1100288013;TextBox;0    ;0    ;2032 ;0    ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Documento }
+    { 1100288014;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288013;
+                                                 InColumnHeading=Yes }
+    { 1100288015;TextBox;0    ;0    ;1700 ;0    ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Fecha }
+    { 1100288016;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288015;
+                                                 InColumnHeading=Yes }
+    { 1100288011;TextBox;9419 ;880  ;1930 ;440  ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Factura rectificada" }
+    { 1100288012;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288011;
+                                                 InColumnHeading=Yes }
+    { 1100288040;TextBox;11113;880  ;1700 ;440  ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Fecha factura rectificada" }
+    { 1100288041;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288040;
+                                                 InColumnHeading=Yes }
+    { 1100288019;TextBox;0    ;0    ;770  ;0    ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Clave }
+    { 1100288020;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288019;
+                                                 InColumnHeading=Yes }
+    { 1100288021;TextBox;0    ;0    ;2200 ;0    ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Importe / Cuota" }
+    { 1100288022;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288021;
+                                                 InColumnHeading=Yes }
+    { 1100288023;TextBox;0    ;0    ;4400 ;0    ;HorzGlue=Both;
+                                                 ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Descripcion }
+    { 1100288024;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288023;
+                                                 InColumnHeading=Yes }
+    { 1100288027;TextBox;0    ;0    ;4400 ;0    ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Nombre Contraparte" }
+    { 1100288028;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288027;
+                                                 InColumnHeading=Yes }
+    { 1100288029;TextBox;0    ;0    ;2038 ;0    ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="NIF Contraparte" }
+    { 1100288030;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288029;
+                                                 InColumnHeading=Yes }
+    { 1000000000;TextBox;27861;660  ;1700 ;440  ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Fecha pago" }
+    { 1000000001;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000000;
+                                                 InColumnHeading=Yes }
+    { 1000000002;TextBox;29561;660  ;2200 ;440  ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Importe pago" }
+    { 1000000003;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000002;
+                                                 InColumnHeading=Yes }
+    { 1000000004;TextBox;31761;660  ;1700 ;440  ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Medio pago" }
+    { 1000000005;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000004;
+                                                 InColumnHeading=Yes }
+    { 1100288042;TextBox;28125;1100 ;4400 ;440  ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Identificacion Bien" }
+    { 1100288043;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288042;
+                                                 InColumnHeading=Yes }
+    { 1100288044;TextBox;32525;1100 ;1700 ;440  ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Fecha Inicio Utilizacion" }
+    { 1100288045;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288044;
+                                                 InColumnHeading=Yes }
+    { 1100288046;TextBox;34225;1100 ;2200 ;440  ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Prorrata anual definitiva" }
+    { 1100288047;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288046;
+                                                 InColumnHeading=Yes }
+    { 1100288048;TextBox;36275;1430 ;2822 ;440  ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Estado cuadre" }
+    { 1100288049;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288048;
+                                                 InColumnHeading=Yes }
+    { 1100288050;TextBox;36825;1430 ;2191 ;440  ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Timestamp cuadre" }
+    { 1100288051;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288050;
+                                                 InColumnHeading=Yes }
+    { 1100288031;TextBox;0    ;0    ;2177 ;0    ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Timestamp presentaci¢n" }
+    { 1100288032;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288031;
+                                                 InColumnHeading=Yes }
+    { 1100288033;TextBox;0    ;0    ;2310 ;0    ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Timestamp ultima modificacion" }
+    { 1100288034;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288033;
+                                                 InColumnHeading=Yes }
+    { 1000000006;TextBox;51435;770  ;4400 ;440  ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=CSV }
+    { 1000000007;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000006;
+                                                 InColumnHeading=Yes }
+    { 1100288035;TextBox;0    ;0    ;2394 ;0    ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Estado registro" }
+    { 1100288036;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288035;
+                                                 InColumnHeading=Yes }
+    { 1100288025;TextBox;0    ;0    ;1456 ;0    ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Emitida por terceros" }
+    { 1100288026;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288025;
+                                                 InColumnHeading=Yes }
+    { 1100288007;TextBox;0    ;0    ;1295 ;0    ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=Paginacion }
+    { 1100288008;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288007;
+                                                 InColumnHeading=Yes }
+    { 1100288037;CommandButton;9240;5940;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 Default=Yes;
+                                                 PushAction=LookupOK;
+                                                 InvalidActionAppearance=Hide }
+    { 1100288038;CommandButton;11660;5940;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 Cancel=Yes;
+                                                 PushAction=LookupCancel;
+                                                 InvalidActionAppearance=Hide }
+    { 1100288039;CommandButton;14080;5940;2200;550;
+                                                 HorzGlue=Right;
+                                                 VertGlue=Bottom;
+                                                 PushAction=FormHelp }
+  }
+  CODE
+  {
+
+    BEGIN
+    END.
+  }
+}
