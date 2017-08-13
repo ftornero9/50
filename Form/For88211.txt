@@ -392,3 +392,4 @@ OBJECT Form 88211 Bienes inversi¢n SII
     END.
   }
 }
+

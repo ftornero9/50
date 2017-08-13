@@ -332,3 +332,4 @@ OBJECT Codeunit 88204 Obtencion datos SII
     END.
   }
 }
+

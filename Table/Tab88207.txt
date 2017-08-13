@@ -95,7 +95,8 @@ OBJECT Table 88207 Config. c¢d. operaci¢n SII
                                                    OptionString=[ ,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15] }
     { 88202;  ;Inversion sujeto pasivo;Boolean    ;CaptionML=[ENU=Reversion of taxable person;
                                                               ESP=Inversi¢n sujeto pasivo] }
-    { 88203;  ;No enviar           ;Boolean       ;CaptionML=[ENU=Don't send
+    { 88203;  ;No enviar           ;Boolean       ;CaptionML=[ENU=Don't send
+
                                                               ;
                                                               ESP=No enviar] }
     { 88204;  ;Ocultar             ;Boolean       ;CaptionML=[ENU=Hide;
@@ -222,3 +223,4 @@ OBJECT Table 88207 Config. c¢d. operaci¢n SII
     END.
   }
 }
+
