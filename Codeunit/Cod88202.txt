@@ -2,8 +2,8 @@ OBJECT Codeunit 88202 WebService SII
 {
   OBJECT-PROPERTIES
   {
-    Date=06/08/17;
-    Time=11:15:59;
+    Date=17/08/17;
+    Time=21:22:30;
     Modified=Yes;
     Version List=SII;
   }
@@ -209,7 +209,7 @@ OBJECT Codeunit 88202 WebService SII
         TipoAccion::Consulta:
           BEGIN
             IF ProcesarRespuesta THEN BEGIN
-      //        FunSII.GuardarXMLRes(XMLDoc2);
+              FunSII.GuardarXMLRes(XMLDoc2);
               CASE TipoEnvio OF
                 TipoEnvio::Emitidos    : ProcesarConsultaFactEmitidas(XMLDoc2, Respuesta);
                 TipoEnvio::Recibidos   : ProcesarConsultaFactRecibidas(XMLDoc2, Respuesta);
@@ -893,6 +893,7 @@ OBJECT Codeunit 88202 WebService SII
       qFecha@1100288007 : Date;
       Resultado@1100288008 : Text[30];
       qInt@1100288009 : Integer;
+      DocSII@1000000004 : Record 88208;
     BEGIN
       FunSII.RemoveNameSpace(XMLDoc, XMLDoc);
       regConsul.DELETEALL;
@@ -905,6 +906,8 @@ OBJECT Codeunit 88202 WebService SII
         MESSAGE(Text001);
         EXIT;
       END;
+
+      DocSII.SETCURRENTKEY(Documento, Fecha);
 
       regConsul.Tipo := regConsul.Tipo::E;
       // Coger datos cabecera
@@ -922,31 +925,39 @@ OBJECT Codeunit 88202 WebService SII
       XMLNodeList := XMLDoc.getElementsByTagName(qTexto);
       XMLNode := XMLNodeList.nextNode;
       WHILE NOT ISCLEAR(XMLNode) DO BEGIN
+        regConsul."NIF Emisor/Presentador" := '';
         XMLNode2 := XMLNode.selectSingleNode('IDFactura/IDEmisorFactura/NIF');
         IF NOT ISCLEAR(XMLNode2) THEN
-          regConsul."NIF Emisor/Presentador" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Emisor/Presentador"))
-        ELSE
-          regConsul."NIF Emisor/Presentador" := '';
+          regConsul."NIF Emisor/Presentador" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Emisor/Presentador"));
 
+        regConsul.Documento := '';
         XMLNode2 := XMLNode.selectSingleNode('IDFactura/NumSerieFacturaEmisor');
         IF NOT ISCLEAR(XMLNode2) THEN
           regConsul.Documento := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Documento));
 
+        regConsul.Fecha := 0D;
         XMLNode2 := XMLNode.selectSingleNode('IDFactura/FechaExpedicionFacturaEmisor');
         IF NOT ISCLEAR(XMLNode2) THEN BEGIN
           IF EVALUATE(qFecha, XMLNode2.text) THEN
             regConsul.Fecha := qFecha;
         END;
 
+        DocSII.SETRANGE(Documento, regConsul.Documento);
+        DocSII.SETRANGE(Fecha, regConsul.Fecha);
+        IF DocSII.FIND('-') THEN
+          regConsul.MovDocSII := DocSII.NMov
+        ELSE
+          regConsul.MovDocSII := 0;
+
+        regConsul."Tipo factura" := '';
         XMLNode2 := XMLNode.selectSingleNode('DatosFacturaEmitida/TipoFactura');
         IF NOT ISCLEAR(XMLNode2) THEN
           regConsul."Tipo factura" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Tipo factura"));
 
+        regConsul."Factura rectificada" := '';
         XMLNode2 := XMLNode.selectSingleNode('DatosFacturaEmitida/FacturasRectificadas/IDFacturaRectificada/NumSerieFacturaEmisor');
         IF NOT ISCLEAR(XMLNode2) THEN
-          regConsul."Factura rectificada" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Factura rectificada"))
-        ELSE
-          regConsul."Factura rectificada" := '';
+          regConsul."Factura rectificada" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Factura rectificada"));
 
         regConsul."Fecha factura rectificada" := 0D;
         XMLNode2 :=XMLNode.selectSingleNode('DatosFacturaEmitida/FacturasRectificadas/IDFacturaRectificada/FechaExpedicionFacturaEmisor');
@@ -954,56 +965,65 @@ OBJECT Codeunit 88202 WebService SII
           IF EVALUATE(qFecha, XMLNode2.text) THEN
             regConsul."Fecha factura rectificada" := qFecha;
 
+        regConsul.Clave := '';
         XMLNode2 := XMLNode.selectSingleNode('DatosFacturaEmitida/ClaveRegimenEspecialOTrascendencia');
         IF NOT ISCLEAR(XMLNode2) THEN
           regConsul.Clave := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Clave));
 
+        regConsul."Importe / Cuota" := 0;
         XMLNode2 := XMLNode.selectSingleNode('DatosFacturaEmitida/ImporteTotal');
         IF NOT ISCLEAR(XMLNode2) THEN
           regConsul."Importe / Cuota" := FunSII.Texto2Num(XMLNode2.text);
 
+        regConsul.Descripcion := '';
         XMLNode2 := XMLNode.selectSingleNode('DatosFacturaEmitida/DescripcionOperacion');
         IF NOT ISCLEAR(XMLNode2) THEN
           regConsul.Descripcion := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Descripcion));
 
+        regConsul."Emitida por terceros" := '';
         XMLNode2 := XMLNode.selectSingleNode('DatosFacturaEmitida/EmitidaPorTerceros');
         IF NOT ISCLEAR(XMLNode2) THEN
           regConsul."Emitida por terceros" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Emitida por terceros"));
 
+        regConsul."Nombre Contraparte" := '';
         XMLNode2 := XMLNode.selectSingleNode('DatosFacturaEmitida/Contraparte/NombreRazon');
         IF NOT ISCLEAR(XMLNode2) THEN
           regConsul."Nombre Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Nombre Contraparte"));
 
+        regConsul."NIF Contraparte" := '';
         XMLNode2 := XMLNode.selectSingleNode('DatosFacturaEmitida/Contraparte/NIF');
         IF NOT ISCLEAR(XMLNode2) THEN
-          regConsul."NIF Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Contraparte"))
-        ELSE
-          regConsul."NIF Contraparte" := '';
+          regConsul."NIF Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Contraparte"));
 
         XMLNode2 := XMLNode.selectSingleNode('DatosFacturaEmitida/Contraparte/IDOtro/ID');
         IF NOT ISCLEAR(XMLNode2) THEN
           regConsul."NIF Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Contraparte"));
 
+        regConsul."Timestamp presentaci¢n" := 0DT;
         XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/TimestampPresentacion');
         IF NOT ISCLEAR(XMLNode2) THEN
           IF EVALUATE(qDT, XMLNode2.text) THEN
             regConsul."Timestamp presentaci¢n" := qDT;
 
+        regConsul."Estado cuadre" := 0;
         XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/EstadoCuadre');
         IF NOT ISCLEAR(XMLNode2) THEN
           IF EVALUATE(qInt, XMLNode2.text) THEN
             regConsul."Estado cuadre" := qInt;
 
+        regConsul."Timestamp cuadre" := 0DT;
         XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/TimestampEstadoCuadre');
         IF NOT ISCLEAR(XMLNode2) THEN
           IF EVALUATE(qDT, XMLNode2.text) THEN
             regConsul."Timestamp cuadre" := qDT;
 
+        regConsul."Timestamp ultima modificacion" := 0DT;
         XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/TimestampUltimaModificacion');
         IF NOT ISCLEAR(XMLNode2) THEN
           IF EVALUATE(qDT, XMLNode2.text) THEN
             regConsul."Timestamp ultima modificacion" := qDT;
 
+        regConsul."Estado registro" := '';
         XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/EstadoRegistro');
         IF NOT ISCLEAR(XMLNode2) THEN
           regConsul."Estado registro" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Estado registro"));
@@ -1031,6 +1051,7 @@ OBJECT Codeunit 88202 WebService SII
       qFecha@1100288007 : Date;
       Resultado@1100288008 : Text[30];
       qInt@1100288009 : Integer;
+      DocSII@1000000004 : Record 88208;
     BEGIN
       FunSII.RemoveNameSpace(XMLDoc, XMLDoc);
       regConsul.DELETEALL;
@@ -1043,6 +1064,8 @@ OBJECT Codeunit 88202 WebService SII
         MESSAGE(Text001);
         EXIT;
       END;
+
+      DocSII.SETCURRENTKEY(DocumentoTercero, "Fecha documento");
 
       regConsul.Tipo := regConsul.Tipo::R;
       // Coger datos cabecera
@@ -1060,78 +1083,107 @@ OBJECT Codeunit 88202 WebService SII
       XMLNodeList := XMLDoc.getElementsByTagName(qTexto);
       XMLNode := XMLNodeList.nextNode;
       WHILE NOT ISCLEAR(XMLNode) DO BEGIN
+        regConsul."NIF Emisor/Presentador" := '';
         XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/NIFPresentador');
         IF NOT ISCLEAR(XMLNode2) THEN
-          regConsul."NIF Emisor/Presentador" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Emisor/Presentador"))
-        ELSE
-          regConsul."NIF Emisor/Presentador" := '';
+          regConsul."NIF Emisor/Presentador" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Emisor/Presentador"));
 
+        regConsul.Documento := '';
         XMLNode2 := XMLNode.selectSingleNode('IDFactura/NumSerieFacturaEmisor');
         IF NOT ISCLEAR(XMLNode2) THEN
           regConsul.Documento := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Documento));
 
+        regConsul.Fecha := 0D;
         XMLNode2 := XMLNode.selectSingleNode('IDFactura/FechaExpedicionFacturaEmisor');
         IF NOT ISCLEAR(XMLNode2) THEN BEGIN
           IF EVALUATE(qFecha, XMLNode2.text) THEN
             regConsul.Fecha := qFecha;
         END;
 
+        DocSII.SETRANGE(DocumentoTercero, regConsul.Documento);
+        DocSII.SETRANGE("Fecha documento", regConsul.Fecha);
+        IF DocSII.FIND('-') THEN
+          regConsul.MovDocSII := DocSII.NMov
+        ELSE
+          regConsul.MovDocSII := 0;
+
+        regConsul."Tipo factura" := '';
         XMLNode2 := XMLNode.selectSingleNode('DatosFacturaRecibida/TipoFactura');
         IF NOT ISCLEAR(XMLNode2) THEN
           regConsul."Tipo factura" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Tipo factura"));
 
+        regConsul."Factura rectificada" := '';
+        XMLNode2 := XMLNode.selectSingleNode('DatosFacturaRecibida/FacturasRectificadas/IDFacturaRectificada/NumSerieFacturaEmisor');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."Factura rectificada" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Factura rectificada"));
+
+        regConsul."Fecha factura rectificada" := 0D;
+        XMLNode2:=XMLNode.selectSingleNode('DatosFacturaRecibida/FacturasRectificadas/IDFacturaRectificada/FechaExpedicionFacturaEmisor');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          IF EVALUATE(qFecha, XMLNode2.text) THEN
+            regConsul."Fecha factura rectificada" := qFecha;
+
+        regConsul.Clave := '';
         XMLNode2 := XMLNode.selectSingleNode('DatosFacturaRecibida/ClaveRegimenEspecialOTrascendencia');
         IF NOT ISCLEAR(XMLNode2) THEN
           regConsul.Clave := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Clave));
 
+        regConsul.Descripcion := '';
         XMLNode2 := XMLNode.selectSingleNode('DatosFacturaRecibida/DescripcionOperacion');
         IF NOT ISCLEAR(XMLNode2) THEN
           regConsul.Descripcion := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.Descripcion));
 
+        regConsul."Nombre Contraparte" := '';
         XMLNode2 := XMLNode.selectSingleNode('DatosFacturaRecibida/Contraparte/NombreRazon');
         IF NOT ISCLEAR(XMLNode2) THEN
           regConsul."Nombre Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Nombre Contraparte"));
 
+        regConsul."NIF Contraparte" := '';
         XMLNode2 := XMLNode.selectSingleNode('DatosFacturaRecibida/Contraparte/NIF');
         IF NOT ISCLEAR(XMLNode2) THEN
-          regConsul."NIF Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Contraparte"))
-        ELSE
-          regConsul."NIF Contraparte" := '';
+          regConsul."NIF Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Contraparte"));
 
         XMLNode2 := XMLNode.selectSingleNode('DatosFacturaRecibida/Contraparte/IDOtro/ID');
         IF NOT ISCLEAR(XMLNode2) THEN
           regConsul."NIF Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Contraparte"));
 
+        regConsul."Importe / Cuota" := 0;
         XMLNode2 := XMLNode.selectSingleNode('DatosFacturaRecibida/CuotaDeducible');
         IF NOT ISCLEAR(XMLNode2) THEN
           regConsul."Importe / Cuota" := FunSII.Texto2Num(XMLNode2.text);
 
+        regConsul.FechaRegContable := 0D;
         XMLNode2 := XMLNode.selectSingleNode('DatosFacturaRecibida/FechaRegContable');
         IF NOT ISCLEAR(XMLNode2) THEN BEGIN
           IF EVALUATE(qFecha, XMLNode2.text) THEN
-            regConsul.Fecha := qFecha;
+            regConsul.FechaRegContable := qFecha;
         END;
 
+        regConsul."Timestamp presentaci¢n" := 0DT;
         XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/TimestampPresentacion');
         IF NOT ISCLEAR(XMLNode2) THEN
           IF EVALUATE(qDT, XMLNode2.text) THEN
             regConsul."Timestamp presentaci¢n" := qDT;
 
+        regConsul."Estado cuadre" := 0;
         XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/EstadoCuadre');
         IF NOT ISCLEAR(XMLNode2) THEN
           IF EVALUATE(qInt, XMLNode2.text) THEN
             regConsul."Estado cuadre" := qInt;
 
+        regConsul."Timestamp cuadre" := 0DT;
         XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/TimestampEstadoCuadre');
         IF NOT ISCLEAR(XMLNode2) THEN
           IF EVALUATE(qDT, XMLNode2.text) THEN
             regConsul."Timestamp cuadre" := qDT;
 
+        regConsul."Timestamp ultima modificacion" := 0DT;
         XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/TimestampUltimaModificacion');
         IF NOT ISCLEAR(XMLNode2) THEN
           IF EVALUATE(qDT, XMLNode2.text) THEN
             regConsul."Timestamp ultima modificacion" := qDT;
 
+        regConsul."Estado registro" := '';
         XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/EstadoRegistro');
         IF NOT ISCLEAR(XMLNode2) THEN
           regConsul."Estado registro" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."Estado registro"));

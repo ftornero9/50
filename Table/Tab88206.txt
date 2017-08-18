@@ -2,8 +2,8 @@ OBJECT Table 88206 Series/Clientes/Consultas SII
 {
   OBJECT-PROPERTIES
   {
-    Date=19/07/17;
-    Time=14:48:41;
+    Date=17/08/17;
+    Time=21:43:11;
     Modified=Yes;
     Version List=SII;
   }
@@ -55,7 +55,7 @@ OBJECT Table 88206 Series/Clientes/Consultas SII
     { 10  ;   ;Tipo factura        ;Code2         ;CaptionML=[ENU=Invoice type;
                                                               ESP=Tipo factura] }
     { 11  ;   ;Clave               ;Code2         ;CaptionML=[ENU=Key;
-                                                              ESP=Calve] }
+                                                              ESP=Clave] }
     { 12  ;   ;Importe / Cuota     ;Decimal       ;CaptionML=[ENU=Amount / Fee;
                                                               ESP=Importe / Cuota] }
     { 13  ;   ;Descripcion         ;Text50        ;CaptionML=[ENU=Description;
@@ -70,8 +70,26 @@ OBJECT Table 88206 Series/Clientes/Consultas SII
                                                               ESP=Factura rectificada] }
     { 18  ;   ;Fecha factura rectificada;Date     ;CaptionML=[ENU=Rectified invoice date;
                                                               ESP=Fecha factura rectificada] }
+    { 19  ;   ;FechaRegContable    ;Date           }
     { 20  ;   ;CSV                 ;Text50        ;CaptionML=[ENU=CSV;
                                                               ESP=CSV] }
+    { 21  ;   ;MovDocSII           ;Integer       ;OnLookup=BEGIN
+                                                              IF DocSII.GET(MovDocSII) THEN;
+
+                                                              IF Tipo = Tipo::E THEN BEGIN
+                                                                CLEAR(frmEm);
+                                                                frmEm.SETRECORD(DocSII);
+                                                                frmEm.RUNMODAL;
+                                                              END;
+
+                                                              IF Tipo = Tipo::R THEN BEGIN
+                                                                CLEAR(frmRe);
+                                                                frmRe.SETRECORD(DocSII);
+                                                                frmRe.RUNMODAL;
+                                                              END;
+                                                            END;
+
+                                                   Editable=No }
     { 23  ;   ;Identificacion Bien ;Text40        ;CaptionML=[ENU=Asset identification;
                                                               ESP=Identificaci¢n Bien] }
     { 24  ;   ;Fecha Inicio Utilizacion;Date      ;CaptionML=[ENU=Start date of utilization;
@@ -154,12 +172,15 @@ OBJECT Table 88206 Series/Clientes/Consultas SII
   KEYS
   {
     {    ;Tipo registro,Tipo,Code,No. mov.        ;Clustered=Yes }
-    {    ;NIF,Ejercicio                            }
+    {    ;NIF,Ejercicio,Fecha                      }
   }
   CODE
   {
     VAR
       FunPer@1000000000 : Codeunit 88201;
+      frmEm@1000000001 : Form 88201;
+      frmRe@1000000002 : Form 88209;
+      DocSII@1000000003 : Record 88208;
 
     BEGIN
     END.

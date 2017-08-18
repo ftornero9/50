@@ -1338,7 +1338,8 @@ OBJECT Codeunit 88201 Funciones SII
         IF GestionExternaRespuesta THEN BEGIN
           FichSal := FunPS1.MkFilename('respuesta.xml');
           FunPS1.EjecutarPS1(0, Fichero, FichSal);
-          FunWS.SII_Envio_Externo(Fichero,FichSal,TRUE,'ConsultaLRFacturasEmitidas','RespuestaConsultaLRFacturasEmitidas',0,1,TabDocSII);
+          FunWS.SII_Envio_Externo(Fichero,FichSal,TRUE,'ConsultaLRFacturasEmitidas','RespuestaConsultaLRFacturasEmitidas',0,1,TabDocSII)
+      ;
         END ELSE
           FunWS.SII_Envio(Fichero,TRUE,'ConsultaLRFacturasEmitidas','RespuestaConsultaLRFacturasEmitidas',0,1,TabDocSII);
       END;
@@ -2442,7 +2443,8 @@ OBJECT Codeunit 88201 Funciones SII
         IF GestionExternaRespuesta THEN BEGIN
           FichSal := FunPS1.MkFilename('respuesta.xml');
           FunPS1.EjecutarPS1(0, Fichero, FichSal);
-          FunWS.SII_Envio_Externo(Fichero,FichSal,TRUE,'ConsultaLRFacturasEmitidas','RespuestaConsultaLRFacturasEmitidas',0,2,TabDocSII);
+          FunWS.SII_Envio_Externo(Fichero,FichSal,TRUE,'ConsultaLRFacturasEmitidas','RespuestaConsultaLRFacturasEmitidas',0,2,TabDocSII)
+      ;
         END ELSE
           FunWS.SII_Envio(Fichero,TRUE,'ConsultaLRFacturasEmitidas','RespuestaConsultaLRFacturasEmitidas',0,2,TabDocSII);
       END;

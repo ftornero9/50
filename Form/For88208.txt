@@ -2,8 +2,8 @@ OBJECT Form 88208 Consulta SII
 {
   OBJECT-PROPERTIES
   {
-    Date=22/06/17;
-    Time=15:55:10;
+    Date=17/08/17;
+    Time=15:01:36;
     Modified=Yes;
     Version List=SII;
   }
@@ -43,12 +43,17 @@ OBJECT Form 88208 Consulta SII
                                                  SourceExpr="NIF Emisor/Presentador" }
     { 1100288010;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288009;
                                                  InColumnHeading=Yes }
+    { 1000000010;TextBox;5503 ;660  ;1700 ;440  ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=MovDocSII }
+    { 1000000011;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000010;
+                                                 InColumnHeading=Yes }
     { 1100288017;TextBox;0    ;0    ;1085 ;0    ;ParentControl=1100288000;
                                                  InColumn=Yes;
                                                  SourceExpr="Tipo factura" }
     { 1100288018;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288017;
                                                  InColumnHeading=Yes }
-    { 1100288013;TextBox;0    ;0    ;2032 ;0    ;ParentControl=1100288000;
+    { 1100288013;TextBox;0    ;0    ;2431 ;0    ;ParentControl=1100288000;
                                                  InColumn=Yes;
                                                  SourceExpr=Documento }
     { 1100288014;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288013;
@@ -58,7 +63,12 @@ OBJECT Form 88208 Consulta SII
                                                  SourceExpr=Fecha }
     { 1100288016;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288015;
                                                  InColumnHeading=Yes }
-    { 1100288011;TextBox;9419 ;880  ;1930 ;440  ;ParentControl=1100288000;
+    { 1000000008;TextBox;10663;1210 ;1700 ;440  ;ParentControl=1100288000;
+                                                 InColumn=Yes;
+                                                 SourceExpr=FechaRegContable }
+    { 1000000009;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000008;
+                                                 InColumnHeading=Yes }
+    { 1100288011;TextBox;9419 ;880  ;2398 ;440  ;ParentControl=1100288000;
                                                  InColumn=Yes;
                                                  SourceExpr="Factura rectificada" }
     { 1100288012;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288011;

@@ -2,8 +2,8 @@ OBJECT Codeunit 88203 Generacion XML SII
 {
   OBJECT-PROPERTIES
   {
-    Date=28/07/17;
-    Time=14:59:38;
+    Date=16/08/17;
+    Time=12:43:11;
     Modified=Yes;
     Version List=SII;
   }
@@ -433,8 +433,8 @@ OBJECT Codeunit 88203 Generacion XML SII
         GetCfg;
         SetInfEmp(TabDocSII."Global Dimension 1 Code");
 
-        IF Es1S2017 THEN
-          Fecha := TODAY;
+      //  IF Es1S2017 THEN
+      //    Fecha := TODAY;
 
         CogerPeriodoImpositivo(Fecha);
 
