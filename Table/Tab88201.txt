@@ -82,7 +82,7 @@ OBJECT Table 88201 Config. SII
                                                               ESP=No guardar XML respuesta] }
     { 9   ;   ;XML respuesta       ;BLOB          ;CaptionML=[ENU=Response XML;
                                                               ESP=XML respuesta] }
-    { 10  ;   ;Rol SII             ;Code20        ;TableRelation="Rol usuario";
+    { 10  ;   ;Rol SII             ;Code20        ;TableRelation="User Role";
                                                    CaptionML=[ENU=SII Rol;
                                                               ESP=Rol SII] }
     { 11  ;   ;XML peticion        ;BLOB          ;CaptionML=[ENU=Request XML;
@@ -90,12 +90,12 @@ OBJECT Table 88201 Config. SII
     { 12  ;   ;No guardar XML envio;Boolean       ;CaptionML=[ENU=Don't save request XML;
                                                               ESP=No guardar XML envio] }
     { 13  ;   ;NIF Empresa         ;Text20        ;FieldClass=FlowField;
-                                                   CalcFormula=Lookup("Informaci¢n empresa".CIF/NIF);
+                                                   CalcFormula=Lookup("Company Information"."VAT Registration No.");
                                                    CaptionML=[ENU=Company VAT Number;
                                                               ESP=NIF Empresa];
                                                    Editable=No }
     { 14  ;   ;Raz¢n social        ;Text50        ;FieldClass=FlowField;
-                                                   CalcFormula=Lookup("Informaci¢n empresa".Nombre);
+                                                   CalcFormula=Lookup("Company Information".Name);
                                                    CaptionML=[ENU=Company name;
                                                               ESP=Raz¢n social];
                                                    Editable=No }
@@ -257,7 +257,7 @@ OBJECT Table 88201 Config. SII
 
                                                    CaptionML=[ENU=Path for tempfiles;
                                                               ESP=Ruta para ficheros temporales] }
-    { 50  ;   ;Rol modificacion SII;Code20        ;TableRelation="Rol usuario";
+    { 50  ;   ;Rol modificacion SII;Code20        ;TableRelation="User Role";
                                                    CaptionML=[ENU=SII modify Rol;
                                                               ESP=Rol modificacion SII] }
     { 60  ;   ;Creation date       ;Option        ;CaptionML=[ENU=Creation date;
@@ -340,16 +340,16 @@ OBJECT Table 88201 Config. SII
       qPos@1000000001 : Integer;
     BEGIN
       // Importar Certificado
-      TempBlob.Imagen.IMPORT(FileName, TRUE);
+      TempBlob.Picture.IMPORT(FileName, TRUE);
 
       VALIDATE("ID Certificado", '');
       IF Certificate.HASVALUE THEN BEGIN
         EmptyTempBlob.INIT;
-        Certificate := EmptyTempBlob.Imagen;
+        Certificate := EmptyTempBlob.Picture;
         MODIFY(TRUE);
       END;
 
-      Certificate := TempBlob.Imagen;
+      Certificate := TempBlob.Picture;
       CALCFIELDS(Certificate);
       ValidateCertificatePassword;
       Enabled := TRUE;
@@ -363,7 +363,7 @@ OBJECT Table 88201 Config. SII
         EXIT;
       IF Certificate.HASVALUE THEN BEGIN
         EmptyTempBlob.INIT;
-        Certificate := EmptyTempBlob.Imagen;
+        Certificate := EmptyTempBlob.Picture;
         MODIFY(TRUE);
       END;
       Password := '';

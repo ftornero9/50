@@ -127,9 +127,9 @@ OBJECT Table 88206 Series/Clientes/Consultas SII
                                                    OptionCaptionML=[ENU=" ,Series,Customers,Exclude";
                                                                     ESP=" ,Series,Clientes,Excluir"];
                                                    OptionString=[ ,Series,Clientes,Excluir] }
-    { 80  ;   ;Code                ;Code20        ;TableRelation=IF (Tipo registro=CONST(Series)) "N§ serie"
-                                                                 ELSE IF (Tipo registro=CONST(Clientes)) Cliente
-                                                                 ELSE IF (Tipo registro=CONST(Excluir)) "N§ serie";
+    { 80  ;   ;Code                ;Code20        ;TableRelation=IF (Tipo registro=CONST(Series)) "No. Series"
+                                                                 ELSE IF (Tipo registro=CONST(Clientes)) Customer
+                                                                 ELSE IF (Tipo registro=CONST(Excluir)) "No. Series";
                                                    OnValidate=BEGIN
                                                                 IF "Tipo registro" = "Tipo registro"::Clientes THEN
                                                                   "Tipo factura simplificada" := "Tipo factura simplificada"::F2;

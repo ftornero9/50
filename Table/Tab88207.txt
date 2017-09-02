@@ -33,24 +33,24 @@ OBJECT Table 88207 Config. c¢d. operaci¢n SII
   }
   FIELDS
   {
-    { 1   ;   ;Grupo registro IVA neg.;Code10     ;TableRelation="Grupo registro IVA negocio";
+    { 1   ;   ;Grupo registro IVA neg.;Code10     ;TableRelation="VAT Business Posting Group";
                                                    CaptionML=[ENU=Business VAT group;
                                                               ESP=Grupo registro IVA neg.];
                                                    Editable=No }
-    { 2   ;   ;Grupo registro IVA prod.;Code10    ;TableRelation="Grupo registro IVA producto";
+    { 2   ;   ;Grupo registro IVA prod.;Code10    ;TableRelation="VAT Product Posting Group";
                                                    CaptionML=[ENU=Product VAT group;
                                                               ESP=Grupo registro IVA prod.];
                                                    Editable=No }
     { 3   ;   ;Tipo c lculo IVA    ;Option        ;FieldClass=FlowField;
-                                                   CalcFormula=Lookup("Config. grupos registro IVA"."Tipo c lculo IVA" WHERE (Grupo registro IVA neg.=FIELD(Grupo registro IVA neg.),
-                                                                                                                              Grupo registro IVA prod.=FIELD(Grupo registro IVA prod.)));
+                                                   CalcFormula=Lookup("VAT Posting Setup"."VAT Calculation Type" WHERE (VAT Bus. Posting Group=FIELD(Grupo registro IVA neg.),
+                                                                                                                        VAT Prod. Posting Group=FIELD(Grupo registro IVA prod.)));
                                                    CaptionML=[ENU=VAT calculation type;
                                                               ESP=Tipo c lculo IVA];
                                                    OptionString=Normal,Reversi¢n,Total,Impto. venta,No sujeto;
                                                    Editable=No }
     { 4   ;   ;% IVA+RE            ;Decimal       ;FieldClass=FlowField;
-                                                   CalcFormula=Lookup("Config. grupos registro IVA"."% IVA+RE" WHERE (Grupo registro IVA neg.=FIELD(Grupo registro IVA neg.),
-                                                                                                                      Grupo registro IVA prod.=FIELD(Grupo registro IVA prod.)));
+                                                   CalcFormula=Lookup("VAT Posting Setup"."VAT+EC %" WHERE (VAT Bus. Posting Group=FIELD(Grupo registro IVA neg.),
+                                                                                                            VAT Prod. Posting Group=FIELD(Grupo registro IVA prod.)));
                                                    CaptionML=[ENU=%VAT+ER;
                                                               ESP=% IVA+RE];
                                                    DecimalPlaces=0:5;
@@ -59,8 +59,8 @@ OBJECT Table 88207 Config. c¢d. operaci¢n SII
                                                    BlankZero=Yes;
                                                    Editable=No }
     { 5   ;   ;Tipo IVA no realizado;Option       ;FieldClass=FlowField;
-                                                   CalcFormula=Lookup("Config. grupos registro IVA"."Tipo IVA no realizado" WHERE (Grupo registro IVA neg.=FIELD(Grupo registro IVA neg.),
-                                                                                                                                   Grupo registro IVA prod.=FIELD(Grupo registro IVA prod.)));
+                                                   CalcFormula=Lookup("VAT Posting Setup"."Unrealized VAT Type" WHERE (VAT Bus. Posting Group=FIELD(Grupo registro IVA neg.),
+                                                                                                                       VAT Prod. Posting Group=FIELD(Grupo registro IVA prod.)));
                                                    CaptionML=[ENU=VAT rate not performed;
                                                               ESP=Tipo IVA no realizado];
                                                    OptionString=[ ,Porcentual,Inicial,Final,Inicial (pago completo),Final (pago completo)];
@@ -68,8 +68,8 @@ OBJECT Table 88207 Config. c¢d. operaci¢n SII
     { 14  ;   ;Service             ;Boolean       ;CaptionML=[ENU=Service;
                                                               ESP=Servicio] }
     { 10700;  ;% RE                ;Decimal       ;FieldClass=FlowField;
-                                                   CalcFormula=Lookup("Config. grupos registro IVA"."% RE" WHERE (Grupo registro IVA neg.=FIELD(Grupo registro IVA neg.),
-                                                                                                                  Grupo registro IVA prod.=FIELD(Grupo registro IVA prod.)));
+                                                   CalcFormula=Lookup("VAT Posting Setup"."EC %" WHERE (VAT Bus. Posting Group=FIELD(Grupo registro IVA neg.),
+                                                                                                        VAT Prod. Posting Group=FIELD(Grupo registro IVA prod.)));
                                                    CaptionML=[ENU=% ER;
                                                               ESP=% RE];
                                                    DecimalPlaces=0:5;
@@ -78,8 +78,8 @@ OBJECT Table 88207 Config. c¢d. operaci¢n SII
                                                    BlankZero=Yes;
                                                    Editable=No }
     { 10701;  ;% IVA               ;Decimal       ;FieldClass=FlowField;
-                                                   CalcFormula=Lookup("Config. grupos registro IVA"."% IVA" WHERE (Grupo registro IVA neg.=FIELD(Grupo registro IVA neg.),
-                                                                                                                   Grupo registro IVA prod.=FIELD(Grupo registro IVA prod.)));
+                                                   CalcFormula=Lookup("VAT Posting Setup"."VAT %" WHERE (VAT Bus. Posting Group=FIELD(Grupo registro IVA neg.),
+                                                                                                         VAT Prod. Posting Group=FIELD(Grupo registro IVA prod.)));
                                                    CaptionML=[ENU=% VAT;
                                                               ESP=% IVA];
                                                    DecimalPlaces=0:5;
@@ -136,11 +136,11 @@ OBJECT Table 88207 Config. c¢d. operaci¢n SII
       ConfCruces.RESET;
 
       IF ConfCruces.FIND('-') THEN REPEAT
-        IF ConfCruces."Grupo registro IVA neg." <> '' THEN BEGIN
-          IF NOT ConfigCrucesSII.GET(ConfCruces."Grupo registro IVA neg.",ConfCruces."Grupo registro IVA prod.") THEN BEGIN
+        IF ConfCruces."VAT Bus. Posting Group" <> '' THEN BEGIN
+          IF NOT ConfigCrucesSII.GET(ConfCruces."VAT Bus. Posting Group",ConfCruces."VAT Prod. Posting Group") THEN BEGIN
             ConfigCrucesSII.INIT;
-            ConfigCrucesSII."Grupo registro IVA neg." := ConfCruces."Grupo registro IVA neg.";
-            ConfigCrucesSII."Grupo registro IVA prod." := ConfCruces."Grupo registro IVA prod.";
+            ConfigCrucesSII."Grupo registro IVA neg." := ConfCruces."VAT Bus. Posting Group";
+            ConfigCrucesSII."Grupo registro IVA prod." := ConfCruces."VAT Prod. Posting Group";
             ConfigCrucesSII.INSERT;
           END;
         END;

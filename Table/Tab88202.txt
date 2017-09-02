@@ -21,8 +21,8 @@ OBJECT Table 88202 Mem. int. SII
     { 11  ;   ;%RE                 ;Decimal        }
     { 14  ;   ;Service             ;Boolean       ;CaptionML=[ENU=Service;
                                                               ESP=Servicio] }
-    { 39  ;   ;Grupo registro IVA neg.;Code20     ;TableRelation="Grupo registro IVA negocio" }
-    { 40  ;   ;Grupo registro IVA prod.;Code20    ;TableRelation="Grupo registro IVA producto" }
+    { 39  ;   ;Grupo registro IVA neg.;Code20     ;TableRelation="VAT Business Posting Group" }
+    { 40  ;   ;Grupo registro IVA prod.;Code20    ;TableRelation="VAT Product Posting Group" }
     { 43  ;   ;Global Dimension 1 Code;Code20      }
     { 50000;  ;RE                  ;Code10         }
     { 75000;  ;BaseIVA             ;Decimal        }

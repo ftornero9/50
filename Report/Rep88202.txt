@@ -276,8 +276,8 @@ OBJECT Report 88202 Cargar documentos externos SII
       Importe@1000000001 : Decimal;
     BEGIN
       // Recargo de equivalencia
-      IF (VATEntry."% RE" <> 0) THEN
-        Importe := (VATEntry.Base*VATEntry."% RE")/100
+      IF (VATEntry."EC %" <> 0) THEN
+        Importe := (VATEntry.Base*VATEntry."EC %")/100
       ELSE
         Importe := 0;
       EXIT(Importe);

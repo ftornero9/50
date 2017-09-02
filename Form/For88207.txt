@@ -20,7 +20,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
     ModifyAllowed=No;
     TableBoxID=1;
     SourceTable=Table2000000006;
-    SourceTableView=SORTING(Nombre);
+    SourceTableView=SORTING(Name);
     OnCloseForm=BEGIN
                   GblSII.SetGblEmpresa('');
                 END;
@@ -49,7 +49,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
                                                  InColumn=Yes;
                                                  CaptionML=[ENU=Name;
                                                             ESP=Nombre];
-                                                 SourceExpr=Nombre }
+                                                 SourceExpr=Name }
     { 8   ;Label        ;0    ;0    ;0    ;0    ;ParentControl=7;
                                                  InColumnHeading=Yes }
     { 1100288012;TextBox;3890 ;990  ;1641 ;440  ;ParentControl=1;
@@ -83,7 +83,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
                                                  BlankZero=Yes;
                                                  SourceExpr=numDocEmitidos;
                                                  OnDrillDown=BEGIN
-                                                               MostrarDocEmitidos(Nombre);
+                                                               MostrarDocEmitidos(Name);
                                                              END;
                                                               }
     { 17  ;Label        ;0    ;0    ;0    ;0    ;ParentControl=16;
@@ -100,7 +100,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
                                                  BlankZero=Yes;
                                                  SourceExpr=FVEnviadas[6];
                                                  OnDrillDown=BEGIN
-                                                               MostrarEmitidosEnviar(Nombre);
+                                                               MostrarEmitidosEnviar(Name);
                                                              END;
                                                               }
     { 1000000001;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000000;
@@ -118,7 +118,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
                                                  BlankZero=Yes;
                                                  SourceExpr=FVEnviadas[2];
                                                  OnDrillDown=BEGIN
-                                                               MostrarEnviosEmitidos(Nombre, 1);
+                                                               MostrarEnviosEmitidos(Name, 1);
                                                              END;
                                                               }
     { 11  ;Label        ;0    ;0    ;0    ;0    ;ParentControl=10;
@@ -132,7 +132,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
                                                  BlankZero=Yes;
                                                  SourceExpr=FVEnviadas[7];
                                                  OnDrillDown=BEGIN
-                                                               MostrarEmitidosAnulados(Nombre);
+                                                               MostrarEmitidosAnulados(Name);
                                                              END;
                                                               }
     { 1100288017;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288016;
@@ -149,7 +149,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
                                                  BlankZero=Yes;
                                                  SourceExpr=FVEnviadas[3];
                                                  OnDrillDown=BEGIN
-                                                               MostrarEnviosEmitidos(Nombre, 2);
+                                                               MostrarEnviosEmitidos(Name, 2);
                                                              END;
                                                               }
     { 13  ;Label        ;0    ;0    ;0    ;0    ;ParentControl=12;
@@ -166,7 +166,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
                                                  BlankZero=Yes;
                                                  SourceExpr=FVEnviadas[4];
                                                  OnDrillDown=BEGIN
-                                                               MostrarEnviosEmitidos(Nombre, 3);
+                                                               MostrarEnviosEmitidos(Name, 3);
                                                              END;
                                                               }
     { 3   ;Label        ;0    ;0    ;0    ;0    ;ParentControl=2;
@@ -183,7 +183,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
                                                  BlankZero=Yes;
                                                  SourceExpr=FVEnviadas[5];
                                                  OnDrillDown=BEGIN
-                                                               MostrarEnviosEmitidos(Nombre, 4);
+                                                               MostrarEnviosEmitidos(Name, 4);
                                                              END;
                                                               }
     { 21  ;Label        ;11563;1090 ;3300 ;440  ;ParentControl=20;
@@ -199,7 +199,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
                                                  BlankZero=Yes;
                                                  SourceExpr=numDocRecibidos;
                                                  OnDrillDown=BEGIN
-                                                               MostrarDocRecibidos(Nombre);
+                                                               MostrarDocRecibidos(Name);
                                                              END;
                                                               }
     { 1100288001;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288000;
@@ -216,7 +216,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
                                                  BlankZero=Yes;
                                                  SourceExpr=FCEnviadas[6];
                                                  OnDrillDown=BEGIN
-                                                               MostrarRecibidosEnviar(Nombre);
+                                                               MostrarRecibidosEnviar(Name);
                                                                //MostrarEnviosRecibidos(Name, 0);
                                                              END;
                                                               }
@@ -233,7 +233,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
                                                  BlankZero=Yes;
                                                  SourceExpr=FCEnviadas[2];
                                                  OnDrillDown=BEGIN
-                                                               MostrarEnviosRecibidos(Nombre, 1);
+                                                               MostrarEnviosRecibidos(Name, 1);
                                                              END;
                                                               }
     { 1100288011;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288010;
@@ -245,7 +245,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
                                                  BlankZero=Yes;
                                                  SourceExpr=FCEnviadas[7];
                                                  OnDrillDown=BEGIN
-                                                               MostrarRecibidosAnulados(Nombre);
+                                                               MostrarRecibidosAnulados(Name);
                                                              END;
                                                               }
     { 1100288019;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288018;
@@ -260,7 +260,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
                                                  BlankZero=Yes;
                                                  SourceExpr=FCEnviadas[3];
                                                  OnDrillDown=BEGIN
-                                                               MostrarEnviosRecibidos(Nombre, 2);
+                                                               MostrarEnviosRecibidos(Name, 2);
                                                              END;
                                                               }
     { 1100288009;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288008;
@@ -274,7 +274,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
                                                  BlankZero=Yes;
                                                  SourceExpr=FCEnviadas[4];
                                                  OnDrillDown=BEGIN
-                                                               MostrarEnviosRecibidos(Nombre, 3);
+                                                               MostrarEnviosRecibidos(Name, 3);
                                                              END;
                                                               }
     { 1100288007;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288006;
@@ -288,7 +288,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
                                                  BlankZero=Yes;
                                                  SourceExpr=FCEnviadas[5];
                                                  OnDrillDown=BEGIN
-                                                               MostrarEnviosRecibidos(Nombre, 4);
+                                                               MostrarEnviosRecibidos(Name, 4);
                                                              END;
                                                               }
     { 1100288005;Label  ;0    ;0    ;0    ;0    ;ParentControl=1100288004;
@@ -324,8 +324,8 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
 
     PROCEDURE DefLoc@4();
     BEGIN
-      CambiarEmpresa(Nombre);
-      CalcularCampos(Nombre);
+      CambiarEmpresa(Name);
+      CalcularCampos(Name);
     END;
 
     PROCEDURE MostrarDocEmitidos@1100288006(NEmpresa@1100288000 : Text[30]);
@@ -334,7 +334,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
       GblSII.SetGblEmpresa(NEmpresa);
       TabDocSII.RESET;
       TabDocSII.SETCURRENTKEY(TipoSII,"Bien de inversion",Tipo,Documento,Fecha);
-      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Filtro fecha"));
+      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Date Filter"));
       FORM.RUNMODAL(FORM::"Documentos emitidos SII",TabDocSII);
     END;
 
@@ -344,7 +344,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
       GblSII.SetGblEmpresa(NEmpresa);
       TabDocSII.RESET;
       TabDocSII.SETCURRENTKEY(TipoSII,"Bien de inversion",Tipo,Documento,Fecha);
-      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Filtro fecha"));
+      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Date Filter"));
       FORM.RUNMODAL(FORM::"Documentos recibidos SII",TabDocSII);
     END;
 
@@ -356,7 +356,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
       TabDocSII.SETCURRENTKEY(TipoSII,"Tipo envio","Estado env¡o", Fecha);
       TabDocSII.SETRANGE(TipoSII, TabDocSII.TipoSII::E);
       TabDocSII.SETRANGE("Tipo envio", TabDocSII."Tipo envio"::Env¡o);
-      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Filtro fecha"));
+      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Date Filter"));
       IF Cuales > 0 THEN
         TabDocSII.SETRANGE("Estado env¡o", Cuales);
 
@@ -371,7 +371,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
       TabDocSII.SETCURRENTKEY(TipoSII,"Tipo envio","Estado env¡o", Fecha);
       TabDocSII.SETRANGE(TipoSII, TabDocSII.TipoSII::R);
       TabDocSII.SETRANGE("Tipo envio", TabDocSII."Tipo envio"::Env¡o);
-      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Filtro fecha"));
+      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Date Filter"));
       IF Cuales > 0 THEN
         TabDocSII.SETRANGE("Estado env¡o", Cuales);
 
@@ -386,7 +386,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
       TabDocSII.SETCURRENTKEY(TipoSII,"Tipo envio","Estado env¡o", Fecha);
       TabDocSII.SETRANGE(TipoSII, TabDocSII.TipoSII::E);
       TabDocSII.SETRANGE("Estado env¡o", 0);
-      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Filtro fecha"));
+      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Date Filter"));
       TabDocSII.SETRANGE("No enviar", FALSE);
       FORM.RUNMODAL(FORM::"Documentos emitidos SII",TabDocSII);
     END;
@@ -399,7 +399,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
       TabDocSII.SETCURRENTKEY(TipoSII,"Tipo envio","Estado env¡o", Fecha);
       TabDocSII.SETRANGE(TipoSII, TabDocSII.TipoSII::R);
       TabDocSII.SETRANGE("Estado env¡o", 0);
-      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Filtro fecha"));
+      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Date Filter"));
       TabDocSII.SETRANGE("No enviar", FALSE);
       FORM.RUNMODAL(FORM::"Documentos recibidos SII",TabDocSII);
     END;
@@ -412,7 +412,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
       TabDocSII.SETCURRENTKEY(TipoSII,"Tipo envio","Estado env¡o", Fecha);
       TabDocSII.SETRANGE(TipoSII, TabDocSII.TipoSII::E);
       TabDocSII.SETRANGE("Tipo envio", TabDocSII."Tipo envio"::Baja);
-      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Filtro fecha"));
+      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Date Filter"));
       TabDocSII.SETRANGE("No enviar", FALSE);
       FORM.RUNMODAL(FORM::"Documentos emitidos SII",TabDocSII);
     END;
@@ -425,7 +425,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
       TabDocSII.SETCURRENTKEY(TipoSII,"Tipo envio","Estado env¡o", Fecha);
       TabDocSII.SETRANGE(TipoSII, TabDocSII.TipoSII::R);
       TabDocSII.SETRANGE("Tipo envio", TabDocSII."Tipo envio"::Baja);
-      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Filtro fecha"));
+      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Date Filter"));
       TabDocSII.SETRANGE("No enviar", FALSE);
       FORM.RUNMODAL(FORM::"Documentos recibidos SII",TabDocSII);
     END;
@@ -442,7 +442,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
       TabDocSII.RESET;
       TabDocSII.SETCURRENTKEY(TipoSII,"Tipo envio","Estado env¡o", Fecha);
       TabDocSII.SETRANGE(TipoSII, TabDocSII.TipoSII::E);
-      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Filtro fecha"));
+      TabDocSII.SETFILTER(Fecha, locCuenta.GETFILTER("Date Filter"));
       TabDocSII.SETRANGE(TabDocSII.Tipo, TabDocSII.Tipo::Factura, TabDocSII.Tipo::Pago);
       numDocEmitidos := TabDocSII.COUNT;
 
@@ -504,7 +504,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
       FCEnviadas[7] := TabDocSII.COUNT;
 
       IF CfgEmp.GET THEN
-        NIF := CfgEmp."CIF/NIF"
+        NIF := CfgEmp."VAT Registration No."
       ELSE
         NIF := '';
 
@@ -519,7 +519,7 @@ OBJECT Form 88207 Env¡os SII por Empresa lin.
       IF LimpiarEmpresa THEN
         GblSII.SetGblEmpresa('')
       ELSE
-        GblSII.SetGblEmpresa(Nombre);
+        GblSII.SetGblEmpresa(Name);
     END;
 
     BEGIN

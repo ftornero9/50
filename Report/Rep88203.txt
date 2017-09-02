@@ -26,21 +26,21 @@ OBJECT Report 88203 Comprobar datos Cli/Pro SII
     { PROPERTIES
       {
         DataItemTable=Table18;
-        DataItemTableView=SORTING(N§);
+        DataItemTableView=SORTING(No.);
         OnPreDataItem=BEGIN
                         numcli := 0;
                       END;
 
         OnAfterGetRecord=BEGIN
-                           Vent.UPDATE(1, "N§");
+                           Vent.UPDATE(1, "No.");
 
-                           IF "C¢d. pa¡s" <> '' THEN
-                             IF "C¢d. pa¡s" <> 'ES' THEN
+                           IF "Country/Region Code" <> '' THEN
+                             IF "Country/Region Code" <> 'ES' THEN
                                CurrReport.SKIP;
 
-                           IF "CIF/NIF" <> '' THEN
-                             IF WSSII.CalidadDatos(FunAux.NormVATNumber("CIF/NIF",FALSE,"C¢d. pa¡s"),
-                                                   XMLSII.ConvertStr40(Nombre), TRUE, 1) THEN
+                           IF "VAT Registration No." <> '' THEN
+                             IF WSSII.CalidadDatos(FunAux.NormVATNumber("VAT Registration No.",FALSE,"Country/Region Code"),
+                                                   XMLSII.ConvertStr40(Name), TRUE, 1) THEN
                                CurrReport.SKIP;
 
                            numcli := numcli + 1;
@@ -51,7 +51,7 @@ OBJECT Report 88203 Comprobar datos Cli/Pro SII
                          Vent.UPDATE(1, '');
                        END;
 
-        ReqFilterFields=N§,CIF/NIF,C¢d. pa¡s,Bloqueado,Grupo registro IVA neg.;
+        ReqFilterFields=No.,VAT Registration No.,Country/Region Code,Blocked,VAT Bus. Posting Group;
       }
       SECTIONS
       {
@@ -94,10 +94,10 @@ OBJECT Report 88203 Comprobar datos Cli/Pro SII
           }
           CONTROLS
           {
-            { 1100288000;TextBox;150  ;0    ;1500 ;423  ;SourceExpr="N§" }
-            { 1100288002;TextBox;1800 ;0    ;4500 ;423  ;SourceExpr=Nombre }
-            { 1100288004;TextBox;6450 ;0    ;1500 ;423  ;SourceExpr="CIF/NIF" }
-            { 1100288011;TextBox;8100 ;0    ;4500 ;423  ;SourceExpr="N§ tel‚fono" }
+            { 1100288000;TextBox;150  ;0    ;1500 ;423  ;SourceExpr="No." }
+            { 1100288002;TextBox;1800 ;0    ;4500 ;423  ;SourceExpr=Name }
+            { 1100288004;TextBox;6450 ;0    ;1500 ;423  ;SourceExpr="VAT Registration No." }
+            { 1100288011;TextBox;8100 ;0    ;4500 ;423  ;SourceExpr="Phone No." }
           }
            }
       }
@@ -105,22 +105,22 @@ OBJECT Report 88203 Comprobar datos Cli/Pro SII
     { PROPERTIES
       {
         DataItemTable=Table23;
-        DataItemTableView=SORTING(N§);
+        DataItemTableView=SORTING(No.);
         OnPreDataItem=BEGIN
                         numpro := 0;
                         Primera := TRUE;
                       END;
 
         OnAfterGetRecord=BEGIN
-                           Vent.UPDATE(3, "N§");
+                           Vent.UPDATE(3, "No.");
 
-                           IF "C¢d. pa¡s" <> '' THEN
-                             IF "C¢d. pa¡s" <> 'ES' THEN
+                           IF "Country/Region Code" <> '' THEN
+                             IF "Country/Region Code" <> 'ES' THEN
                                CurrReport.SKIP;
 
-                           IF "CIF/NIF" <> '' THEN
-                             IF WSSII.CalidadDatos(FunAux.NormVATNumber("CIF/NIF",FALSE,"C¢d. pa¡s"),
-                                                   XMLSII.ConvertStr40(Nombre), TRUE, 1) THEN
+                           IF "VAT Registration No." <> '' THEN
+                             IF WSSII.CalidadDatos(FunAux.NormVATNumber("VAT Registration No.",FALSE,"Country/Region Code"),
+                                                   XMLSII.ConvertStr40(Name), TRUE, 1) THEN
                                CurrReport.SKIP;
 
                            numpro := numpro + 1;
@@ -131,7 +131,7 @@ OBJECT Report 88203 Comprobar datos Cli/Pro SII
                          Vent.UPDATE(3, '');
                        END;
 
-        ReqFilterFields=N§,CIF/NIF,C¢d. pa¡s,Bloqueado,Grupo registro IVA neg.;
+        ReqFilterFields=No.,VAT Registration No.,Country/Region Code,Blocked,VAT Bus. Posting Group;
       }
       SECTIONS
       {
@@ -195,10 +195,10 @@ OBJECT Report 88203 Comprobar datos Cli/Pro SII
           }
           CONTROLS
           {
-            { 1100288012;TextBox;150  ;0    ;1500 ;423  ;SourceExpr="N§" }
-            { 1100288014;TextBox;1800 ;0    ;4500 ;423  ;SourceExpr=Nombre }
-            { 1100288016;TextBox;6450 ;0    ;1500 ;423  ;SourceExpr="CIF/NIF" }
-            { 1100288015;TextBox;8100 ;0    ;4500 ;423  ;SourceExpr="N§ tel‚fono" }
+            { 1100288012;TextBox;150  ;0    ;1500 ;423  ;SourceExpr="No." }
+            { 1100288014;TextBox;1800 ;0    ;4500 ;423  ;SourceExpr=Name }
+            { 1100288016;TextBox;6450 ;0    ;1500 ;423  ;SourceExpr="VAT Registration No." }
+            { 1100288015;TextBox;8100 ;0    ;4500 ;423  ;SourceExpr="Phone No." }
           }
            }
       }

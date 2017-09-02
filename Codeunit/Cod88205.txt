@@ -43,7 +43,7 @@ OBJECT Codeunit 88205 Carga Certificado SII
       ReturnValue@1000000005 : Integer;
     BEGIN
       IF InfEmpresa.GET THEN
-        NomEmpresa := InfEmpresa."CIF/NIF";
+        NomEmpresa := InfEmpresa."VAT Registration No.";
 
       IF ConfFTP.GET THEN BEGIN
         RutaCertif := ConfFTP."Path SII";

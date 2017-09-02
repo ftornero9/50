@@ -109,10 +109,10 @@ OBJECT Codeunit 88203 Generacion XML SII
         AppendElement(NewChild[2], 'sii:Cabecera', '', NewChild[3]);
             AppendElement(NewChild[3], 'sii:IDVersionSii', qVersion, NewChild[4]);
             AppendElement(NewChild[3], 'sii:Titular', '', NewChild[4]);
-                AppendElement(NewChild[4], 'sii:NombreRazon', ConvertStr40(InfEmp.Nombre), NewChild[5]);
+                AppendElement(NewChild[4], 'sii:NombreRazon', ConvertStr40(InfEmp.Name), NewChild[5]);
                 IF CfgSII."NIF Representante" <> '' THEN
                   AppendElement(NewChild[4], 'sii:NIFRepresentante', CfgSII."NIF Representante", NewChild[5]);
-                AppendElement(NewChild[4], 'sii:NIF', InfEmp."CIF/NIF", NewChild[5]);
+                AppendElement(NewChild[4], 'sii:NIF', InfEmp."VAT Registration No.", NewChild[5]);
             IF Tipo <> '' THEN
               AppendElement(NewChild[3], 'sii:TipoComunicacion', Tipo, NewChild[4]);
 
@@ -158,10 +158,10 @@ OBJECT Codeunit 88203 Generacion XML SII
           AppendElement(NewChild[2], 'sum:Cabecera', '', NewChild[3]);
               AppendElement(NewChild[3], 'sum:IDVersionSii', qVersion, NewChild[4]);
               AppendElement(NewChild[3], 'sum:Titular', '', NewChild[4]);
-                  AppendElement(NewChild[4], 'sum:NombreRazon', ConvertStr40(InfEmp.Nombre), NewChild[5]);
+                  AppendElement(NewChild[4], 'sum:NombreRazon', ConvertStr40(InfEmp.Name), NewChild[5]);
                   IF CfgSII."NIF Representante" <> '' THEN
                     AppendElement(NewChild[4], 'sum:NIFRepresentante', CfgSII."NIF Representante", NewChild[5]);
-                  AppendElement(NewChild[4], 'sum:NIF', InfEmp."CIF/NIF", NewChild[5]);
+                  AppendElement(NewChild[4], 'sum:NIF', InfEmp."VAT Registration No.", NewChild[5]);
 
           // Filtro
           CASE pTipo OF
@@ -292,7 +292,7 @@ OBJECT Codeunit 88203 Generacion XML SII
 
         AppendElement(NewChild[1], 'siiLR:IDFactura', '', NewChild[2]);
           AppendElement(NewChild[2], 'sii:IDEmisorFactura', '', NewChild[3]);
-            AppendElement(NewChild[3], 'sii:NIF', InfEmp."CIF/NIF", NewChild[4]);
+            AppendElement(NewChild[3], 'sii:NIF', InfEmp."VAT Registration No.", NewChild[4]);
           IF "Tipo factura" = FACT_RESUMEN THEN BEGIN
             AppendElement(NewChild[2], 'sii:NumSerieFacturaEmisor', "Factura resumen inicio", NewChild[3]);
             AppendElement(NewChild[2], 'sii:NumSerieFacturaEmisorResumenFin', "Factura resumen fin", NewChild[3]);
@@ -406,7 +406,7 @@ OBJECT Codeunit 88203 Generacion XML SII
 
         AppendElement(NewChild[1], 'siiLR:IDFactura', '', NewChild[2]);
           AppendElement(NewChild[2], 'sii:IDEmisorFactura', '', NewChild[3]);
-            AppendElement(NewChild[3], 'sii:NIF', InfEmp."CIF/NIF", NewChild[4]);
+            AppendElement(NewChild[3], 'sii:NIF', InfEmp."VAT Registration No.", NewChild[4]);
           AppendElement(NewChild[2], 'sii:NumSerieFacturaEmisor', Documento, NewChild[3]);
           AppendElement(NewChild[2], 'sii:FechaExpedicionFacturaEmisor', Date2Sii(FechaExpedicion), NewChild[3]);
 
@@ -849,9 +849,9 @@ OBJECT Codeunit 88203 Generacion XML SII
         CogerPeriodoImpositivo(Fecha);
 
         IF TipoSII = TipoSII::E THEN BEGIN
-          NIF1 := InfEmp."CIF/NIF";
+          NIF1 := InfEmp."VAT Registration No.";
           IDOtro1 := FALSE;
-          RazonSocial1 := ConvertStr40(InfEmp.Nombre);
+          RazonSocial1 := ConvertStr40(InfEmp.Name);
           NIF2 := NIF;
           IDOtro2 := IDOtro;
           RazonSocial2 := ConvertStr40(RazonSocial);
@@ -859,9 +859,9 @@ OBJECT Codeunit 88203 Generacion XML SII
           NIF1 := NIF;
           IDOtro1 := IDOtro;
           RazonSocial1  := ConvertStr40(RazonSocial);
-          NIF2 := InfEmp."CIF/NIF";
+          NIF2 := InfEmp."VAT Registration No.";
           IDOtro2 := FALSE;
-          RazonSocial2 := ConvertStr40(InfEmp.Nombre);
+          RazonSocial2 := ConvertStr40(InfEmp.Name);
         END;
 
         AppendElement(Node, 'siiLR:'+Registro, '', NewChild[1]);
@@ -1636,8 +1636,8 @@ OBJECT Codeunit 88203 Generacion XML SII
 
       CertSII.SETRANGE("Global Dimension 1 Code", Dim1CodeVal);
       IF CertSII.FIND('-') THEN BEGIN
-        InfEmp."CIF/NIF" := CertSII.CIF;
-        InfEmp.Nombre                   := COPYSTR(CertSII.RazonSocial, 1, MAXSTRLEN(InfEmp.Nombre));
+        InfEmp."VAT Registration No." := CertSII.CIF;
+        InfEmp.Name                   := COPYSTR(CertSII.RazonSocial, 1, MAXSTRLEN(InfEmp.Name));
       END;
     END;
 

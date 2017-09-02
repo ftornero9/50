@@ -572,7 +572,7 @@ OBJECT Codeunit 88201 Funciones SII
           Tabla.SETRANGE(CIF, CertSII.CIF);
         END ELSE BEGIN
           InfEmp.GET;
-          Tabla.SETRANGE(CIF, InfEmp."CIF/NIF");
+          Tabla.SETRANGE(CIF, InfEmp."VAT Registration No.");
         END;
         IF Tabla.FIND('-') THEN
           CertElegido := Tabla.Nombre;
@@ -752,8 +752,8 @@ OBJECT Codeunit 88201 Funciones SII
       XMLStyleSheet@1000000004 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";
       TempTable@1000000005 : TEMPORARY Record 79;
     BEGIN
-      TempTable.Imagen.CREATEOUTSTREAM(OutStreamStylesheet);
-      TempTable.Imagen.CREATEINSTREAM(InStreamStylesheet);
+      TempTable.Picture.CREATEOUTSTREAM(OutStreamStylesheet);
+      TempTable.Picture.CREATEINSTREAM(InStreamStylesheet);
       OutStreamStylesheet.WRITETEXT('<?xml version="1.0" encoding="UTF-8"?>');
       OutStreamStylesheet.WRITETEXT('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">');
       OutStreamStylesheet.WRITETEXT('<xsl:output method="xml" encoding="UTF-8" />');
@@ -789,8 +789,8 @@ OBJECT Codeunit 88201 Funciones SII
       XMLStyleSheet@1000000004 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";
       TempTable@1000000005 : TEMPORARY Record 79;
     BEGIN
-      TempTable.Imagen.CREATEOUTSTREAM(OutStreamStylesheet);
-      TempTable.Imagen.CREATEINSTREAM(InStreamStylesheet);
+      TempTable.Picture.CREATEOUTSTREAM(OutStreamStylesheet);
+      TempTable.Picture.CREATEINSTREAM(InStreamStylesheet);
       OutStreamStylesheet.WRITETEXT('<?xml version="1.0" encoding="UTF-8"?>');
       OutStreamStylesheet.WRITETEXT('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">');
       OutStreamStylesheet.WRITETEXT('<xsl:output method="xml" encoding="UTF-8" />');
@@ -901,21 +901,21 @@ OBJECT Codeunit 88201 Funciones SII
     BEGIN
       Tabla.SETRANGE("My Session",TRUE);
       Tabla.FIND('-');
-      WindowsLogin.SETRANGE("Id.",Tabla."User ID");
+      WindowsLogin.SETRANGE(ID,Tabla."User ID");
       IF NOT WindowsLogin.FIND('-') THEN BEGIN
-        WindowsLogin.SETFILTER("Id.",'%1','@' + Tabla."User ID");
+        WindowsLogin.SETFILTER(ID,'%1','@' + Tabla."User ID");
         WindowsLogin.FIND('-');
       END;
 
       FOR i := 1 TO ARRAYLEN(ListaRoles) DO
         IF ListaRoles[i] <> '' THEN BEGIN
-          MiembroDe.SETRANGE(MiembroDe."Conexi¢n SID",WindowsLogin.SID);
-          MiembroDe.SETFILTER("Rol Id.",ListaRoles[i]);
-          MiembroDe.SETRANGE("Nombre empresa",'');
+          MiembroDe.SETRANGE(MiembroDe."Login SID",WindowsLogin.SID);
+          MiembroDe.SETFILTER("Role ID",ListaRoles[i]);
+          MiembroDe.SETRANGE("Company Name",'');
           IF MiembroDe.FIND('-') THEN
             EXIT(TRUE)
           ELSE BEGIN
-            MiembroDe.SETRANGE("Nombre empresa",COMPANYNAME);
+            MiembroDe.SETRANGE("Company Name",COMPANYNAME);
             IF MiembroDe.FIND('-') THEN
               EXIT(TRUE);
           END;
@@ -930,13 +930,13 @@ OBJECT Codeunit 88201 Funciones SII
     BEGIN
       FOR i := 1 TO ARRAYLEN(ListaRoles) DO
         IF ListaRoles[i] <> '' THEN BEGIN
-          MiembroDe.SETRANGE("Id. usuario",USERID);
-          MiembroDe.SETFILTER("Rol Id.",ListaRoles[i]);
-          MiembroDe.SETRANGE(Empresa,'');
+          MiembroDe.SETRANGE("User ID",USERID);
+          MiembroDe.SETFILTER("Role ID",ListaRoles[i]);
+          MiembroDe.SETRANGE(Company,'');
           IF MiembroDe.FIND('-') THEN
             EXIT(TRUE)
           ELSE BEGIN
-            MiembroDe.SETRANGE(Empresa,COMPANYNAME);
+            MiembroDe.SETRANGE(Company,COMPANYNAME);
             IF MiembroDe.FIND('-') THEN
               EXIT(TRUE);
           END;
@@ -2825,7 +2825,7 @@ OBJECT Codeunit 88201 Funciones SII
 
       Buscar := Empresa.FIND(BuscarCadena);
 
-      CfgSII.CHANGECOMPANY(Empresa.Nombre);
+      CfgSII.CHANGECOMPANY(Empresa.Name);
       IF NOT CfgSII.GET THEN
         CfgSII.INIT;
 
@@ -2833,7 +2833,7 @@ OBJECT Codeunit 88201 Funciones SII
 
       IF (NOT Buscar) AND AuxEmpresa.FIND('-') THEN
         REPEAT
-          CfgSII.CHANGECOMPANY(AuxEmpresa.Nombre);
+          CfgSII.CHANGECOMPANY(AuxEmpresa.Name);
           IF NOT CfgSII.GET THEN
             CfgSII.INIT;
 
@@ -2854,7 +2854,7 @@ OBJECT Codeunit 88201 Funciones SII
       BakEmpresa := Empresa;
       REPEAT
         SigPaso := Empresa.NEXT(SigPaso);
-        CfgSII.CHANGECOMPANY(Empresa.Nombre);
+        CfgSII.CHANGECOMPANY(Empresa.Name);
         IF NOT CfgSII.GET THEN
           CfgSII.INIT;
 
@@ -3065,7 +3065,7 @@ OBJECT Codeunit 88201 Funciones SII
         InfEmp.CHANGECOMPANY(qEmpresa);
 
       IF InfEmp.GET THEN
-        EXIT(InfEmp."CIF/NIF");
+        EXIT(InfEmp."VAT Registration No.");
     END;
 
     PROCEDURE esIDOtro@1100000(CodPais@1100000 : Code[10]) : Boolean;
