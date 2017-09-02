@@ -18,7 +18,7 @@ OBJECT Form 88206 Env¡os SII por Empresa
     ModifyAllowed=No;
     SourceTable=Table15;
     DataCaptionExpr='';
-    DataCaptionFields=No.;
+    DataCaptionFields=N§;
     OnOpenForm=BEGIN
                  //SETRANGE("Date Filter", 010117D, 31129999D);
                  BuscaPerio('');
@@ -46,7 +46,7 @@ OBJECT Form 88206 Env¡os SII por Empresa
                                                  InPage=0;
                                                  CaptionML=[ENU=Date filter;
                                                             ESP=Filtro fecha];
-                                                 SourceExpr="Date Filter" }
+                                                 SourceExpr="Filtro fecha" }
     { 3   ;Label        ;440  ;990  ;3300 ;440  ;ParentControl=4;
                                                  InPage=0 }
     { 9   ;CommandButton;13750;7700 ;2200 ;550  ;HorzGlue=Right;
@@ -204,7 +204,7 @@ OBJECT Form 88206 Env¡os SII por Empresa
                                                           Almac‚n@1000000001 : Record 14;
                                                         BEGIN
                                                           CurrForm.LinsDispProdAlma.FORM.GETRECORD(Almac‚n);
-                                                          UltAlmacen := Almac‚n.Code;
+                                                          UltAlmacen := Almac‚n.C¢digo;
                                                         END;
                                                          }
     { 6   ;CommandButton;11330;7700 ;2200 ;550  ;HorzGlue=Right;
@@ -234,19 +234,19 @@ OBJECT Form 88206 Env¡os SII por Empresa
     VAR
       GestionFormPeriodo@1000000001 : Codeunit 359;
     BEGIN
-      IF GETFILTER("Date Filter") <> '' THEN BEGIN
-        Calendario.SETFILTER("Period Start",GETFILTER("Date Filter"));
-        IF NOT GestionFormPeriodo.FindDate('+',Calendario,LongPeriodoProd) THEN
-          GestionFormPeriodo.FindDate('+',Calendario,LongPeriodoProd::D¡a);
+      IF GETFILTER("Filtro fecha") <> '' THEN BEGIN
+        Calendario.SETFILTER("Period Start",GETFILTER("Filtro fecha"));
+        IF NOT GestionFormPeriodo.BuscaFecha('+',Calendario,LongPeriodoProd) THEN
+          GestionFormPeriodo.BuscaFecha('+',Calendario,LongPeriodoProd::D¡a);
         Calendario.SETRANGE("Period Start");
       END;
-      GestionFormPeriodo.FindDate(BusqTexto,Calendario,LongPeriodoProd);
+      GestionFormPeriodo.BuscaFecha(BusqTexto,Calendario,LongPeriodoProd);
       IF TipImporte = TipImporte::"Saldo periodo" THEN BEGIN
-        SETRANGE("Date Filter",Calendario."Period Start",Calendario."Period End");
-        IF GETRANGEMIN("Date Filter") = GETRANGEMAX("Date Filter") THEN
-          SETRANGE("Date Filter",GETRANGEMIN("Date Filter"));
+        SETRANGE("Filtro fecha",Calendario."Period Start",Calendario."Period End");
+        IF GETRANGEMIN("Filtro fecha") = GETRANGEMAX("Filtro fecha") THEN
+          SETRANGE("Filtro fecha",GETRANGEMIN("Filtro fecha"));
       END ELSE
-        SETRANGE("Date Filter",0D,Calendario."Period End");
+        SETRANGE("Filtro fecha",0D,Calendario."Period End");
     END;
 
     PROCEDURE ActlzSubForm@1();

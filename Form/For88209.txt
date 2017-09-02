@@ -2,8 +2,8 @@ OBJECT Form 88209 Documentos recibidos SII
 {
   OBJECT-PROPERTIES
   {
-    Date=01/08/17;
-    Time=13:28:17;
+    Date=28/08/17;
+    Time=13:02:01;
     Modified=Yes;
     Version List=SII;
   }
@@ -52,6 +52,12 @@ OBJECT Form 88209 Documentos recibidos SII
                                                  InColumn=Yes;
                                                  SourceExpr=Fecha }
     { 1000000004;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000003;
+                                                 InColumnHeading=Yes }
+    { 1000000104;TextBox;4736 ;990  ;2750 ;440  ;Visible=No;
+                                                 ParentControl=1000000000;
+                                                 InColumn=Yes;
+                                                 SourceExpr="Entrada SII" }
+    { 1000000105;Label  ;0    ;0    ;0    ;0    ;ParentControl=1000000104;
                                                  InColumnHeading=Yes }
     { 1000000083;TextBox;4498 ;660  ;1700 ;440  ;ParentControl=1000000000;
                                                  InColumn=Yes;
@@ -383,6 +389,7 @@ OBJECT Form 88209 Documentos recibidos SII
                                                               IF Tipo = Tipo::Factura THEN BEGIN
                                                                 NIF := '';
                                                                 RazonSocial := '';
+                                                                DocumentoTercero := '';
                                                                 FunSII.ConDocRecibidosEnviados(Rec);
                                                               END;
 
@@ -395,11 +402,24 @@ OBJECT Form 88209 Documentos recibidos SII
                                                      CaptionML=[ENU=Period & VAT No;
                                                                 ESP=Periodo y NIF];
                                                      OnPush=BEGIN
-                                                              IF Tipo = Tipo::Factura THEN
+                                                              IF Tipo = Tipo::Factura THEN BEGIN
+                                                                DocumentoTercero := '';
                                                                 FunSII.ConDocRecibidosEnviados(Rec);
+                                                              END;
 
                                                               IF Tipo = Tipo::Pago THEN
                                                                 FunSII.ConPagoRecibidas(Rec);
+                                                            END;
+                                                             }
+                                                   { ID=1000000106;
+                                                     MenuLevel=1;
+                                                     CaptionML=ESP=Documento;
+                                                     OnPush=BEGIN
+                                                              IF Tipo = Tipo::Factura THEN BEGIN
+                                                                NIF := '';
+                                                                RazonSocial := '';
+                                                                FunSII.ConDocRecibidosEnviados(Rec);
+                                                              END;
                                                             END;
                                                              }
                                                    { ID=1000000077;

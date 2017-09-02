@@ -2,8 +2,8 @@ OBJECT Codeunit 88204 Obtencion datos SII
 {
   OBJECT-PROPERTIES
   {
-    Date=25/07/17;
-    Time=16:42:08;
+    Date=23/08/17;
+    Time=11:33:34;
     Modified=Yes;
     Version List=SII;
   }
@@ -31,6 +31,7 @@ OBJECT Codeunit 88204 Obtencion datos SII
       LinDocuSII@1000000004 : Record 88209;
       FunSII@1000000005 : Codeunit 88201;
       i@1000000006 : Integer;
+      Refrescar@1000000007 : Boolean;
     BEGIN
       IF memIntSII.Tipo = memIntSII.Tipo::Impuestos THEN BEGIN
         DocuSII.RESET;
@@ -63,10 +64,12 @@ OBJECT Codeunit 88204 Obtencion datos SII
               LinDocuSII.DELETEALL;
             END;
           END;
+          Refrescar := TRUE;
         END ELSE BEGIN
          DocuSII.INIT;
          DocuSII.NMov := NumMov + 1;
          DocuSII.INSERT;
+         Refrescar := FALSE;
         END;
 
         DocuSII.TipoSII                      := memIntSII.TipoSII;
@@ -111,6 +114,10 @@ OBJECT Codeunit 88204 Obtencion datos SII
         DocuSII."Factura resumen fin"        := memIntSII."Factura resumen fin";
         DocuSII."Creation date"              := memIntSII."Creation date";
         DocuSII.DocumentoPago                := memIntSII.DocumentoPago;
+        IF Refrescar THEN
+          DocuSII."Refresco SII"             := CURRENTDATETIME
+        ELSE
+          DocuSII."Entrada SII"              := CURRENTDATETIME;
         DocuSII.MODIFY;
 
         // Metemos la l¡nea correspondiente

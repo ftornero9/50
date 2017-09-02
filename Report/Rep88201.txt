@@ -2,8 +2,8 @@ OBJECT Report 88201 Procesar Movs. IVA SII
 {
   OBJECT-PROPERTIES
   {
-    Date=01/08/17;
-    Time=18:45:38;
+    Date=21/08/17;
+    Time=12:30:04;
     Modified=Yes;
     Version List=SII;
   }
@@ -16,8 +16,8 @@ OBJECT Report 88201 Procesar Movs. IVA SII
     { PROPERTIES
       {
         DataItemTable=Table254;
-        DataItemTableView=SORTING(Type,Posting Date,Document Type,Document No.,Bill-to/Pay-to No.)
-                          WHERE(Type=FILTER(Purchase|Sale));
+        DataItemTableView=SORTING(Tipo,Fecha registro,Tipo documento,N§ documento,N§ cliente/proveedor)
+                          WHERE(Tipo=FILTER(Compra|Venta));
         OnPreDataItem=BEGIN
                         IF GUIALLOWED THEN
                           Vent.OPEN('Procesando Movs. IVA: #1#######');
@@ -25,19 +25,19 @@ OBJECT Report 88201 Procesar Movs. IVA SII
                         IF CfgSII.GET THEN;
                         NumDoc := '';
                         IF (gblDesdeMov <> 0) AND (gblHastaMov <> 0) THEN BEGIN
-                          SETCURRENTKEY("Entry No.");
-                          SETRANGE("Entry No.", gblDesdeMov, gblHastaMov);
+                          SETCURRENTKEY("N§ mov.");
+                          SETRANGE("N§ mov.", gblDesdeMov, gblHastaMov);
                         END ELSE BEGIN
                           TabLinDocus.SETCURRENTKEY("NMov IVA");
                           IF TabLinDocus.FIND('+') THEN
-                            SETFILTER("Entry No.", '>%1', TabLinDocus."NMov IVA");
+                            SETFILTER("N§ mov.", '>%1', TabLinDocus."NMov IVA");
                         END;
 
                         IF CfgSII."No procesar 1S 2017" THEN
                           FechaProceso := 010717D
                         ELSE
                           FechaProceso := 010117D;
-                        SETFILTER("Posting Date", '>=%1', FechaProceso);
+                        SETFILTER("Fecha registro", '>=%1', FechaProceso);
 
 
                         i := 0;
@@ -52,102 +52,102 @@ OBJECT Report 88201 Procesar Movs. IVA SII
                            IF GUIALLOWED THEN
                              Vent.UPDATE(1, i);
                            CLEAR(memIntSII);
-                           IF (NumDoc <> "Document No.") THEN BEGIN
+                           IF (NumDoc <> "N§ documento") THEN BEGIN
                              IF NumDoc <> '' THEN
                                ComprobarDUA(NMovDoc);
 
 
-                             NumDoc := "Document No.";
+                             NumDoc := "N§ documento";
 
-                             memIntSII.Documento         := "Document No.";
-                             memIntSII.Fecha             := "Posting Date";
-                             memIntSII."Fecha operacion" := "Posting Date";
+                             memIntSII.Documento         := "N§ documento";
+                             memIntSII.Fecha             := "Fecha registro";
+                             memIntSII."Fecha operacion" := "Fecha registro";
                              memIntSII."Fecha documento" := "Document Date";
 
-                             memIntSII."Creation date"   := CogerFechaCreacion("VAT Entry", FALSE);
+                             memIntSII."Creation date"   := CogerFechaCreacion("Mov. IVA", FALSE);
 
-                             memIntSII.NumTercero       := "Bill-to/Pay-to No.";
-                             memIntSII."Tipo documento" := "Document Type";
-                             memIntSII."No enviar"      := CogerNoEnviar("VAT Entry");
+                             memIntSII.NumTercero       := "N§ cliente/proveedor";
+                             memIntSII."Tipo documento" := "Tipo documento";
+                             memIntSII."No enviar"      := CogerNoEnviar("Mov. IVA");
 
-                             memIntSII.DocumentoTercero := "External Document No.";
+                             memIntSII.DocumentoTercero := "N§ documento externo";
 
-                             IF (Type = Type::Sale) THEN BEGIN
+                             IF (Tipo = Tipo::Venta) THEN BEGIN
 
-                               IF BuscarSerieExcluir("VAT Entry", 0) THEN BEGIN
+                               IF BuscarSerieExcluir("Mov. IVA", 0) THEN BEGIN
                                  NumDoc := '';
                                  CurrReport.SKIP;
                                END;
                                memIntSII.TipoSII := memIntSII.TipoSII::E;
-                               memIntSII."Clave operacion" := Get_CO_DocEmitido("VAT Entry", TxtError);
+                               memIntSII."Clave operacion" := Get_CO_DocEmitido("Mov. IVA", TxtError);
                                IF TxtError <> '' THEN BEGIN
                                  memIntSII."Texto error" := TxtError;
                                  memIntSII."Codigo Error" := '-1';
                                END;
-                               IF CLI.GET("Bill-to/Pay-to No.") THEN BEGIN
-                                 memIntSII.NIF := CLI."VAT Registration No.";
-                                 memIntSII.RazonSocial := CLI.Name;
-                                 memIntSII."Cod. pais" := CLI."Country/Region Code";
-                                 memIntSII."Cod. divisa" := CLI."Currency Code";
-                                 memIntSII."Tipo factura" := TipoFactura("VAT Entry", memIntSII.NIF);
+                               IF CLI.GET("N§ cliente/proveedor") THEN BEGIN
+                                 memIntSII.NIF := CLI."CIF/NIF";
+                                 memIntSII.RazonSocial := CLI.Nombre;
+                                 memIntSII."Cod. pais" := CLI."C¢d. pa¡s";
+                                 memIntSII."Cod. divisa" := CLI."C¢d. divisa";
+                                 memIntSII."Tipo factura" := TipoFactura("Mov. IVA", memIntSII.NIF);
                                END;
 
-                               IF "Document Type" = "Document Type"::Invoice THEN BEGIN
-                                 IF FVR.GET("Document No.") THEN BEGIN
-                                   memIntSII.NIF := FVR."VAT Registration No.";
-                                   memIntSII.RazonSocial := FVR."Bill-to Name";
-                                   memIntSII."Cod. divisa" := FVR."Currency Code";
-                                   memIntSII."Factor divisa" := FVR."Currency Factor";
-                                   memIntSII.NumTercero := FVR."Bill-to Customer No.";
-                                   memIntSII.TextoRegistro := FVR."Posting Description";
-                                   memIntSII."Cod. pais" := FVR."Bill-to Country/Region Code";
-                                   memIntSII."Fecha documento" := FVR."Document Date";
-                                   memIntSII."Tipo factura" := TipoFactura("VAT Entry", memIntSII.NIF);
+                               IF "Tipo documento" = "Tipo documento"::Factura THEN BEGIN
+                                 IF FVR.GET("N§ documento") THEN BEGIN
+                                   memIntSII.NIF := FVR."CIF/NIF";
+                                   memIntSII.RazonSocial := FVR."Fact. a-Nombre";
+                                   memIntSII."Cod. divisa" := FVR."C¢d. divisa";
+                                   memIntSII."Factor divisa" := FVR."Factor divisa";
+                                   memIntSII.NumTercero := FVR."Factura-a N§ cliente";
+                                   memIntSII.TextoRegistro := FVR."Texto de registro";
+                                   memIntSII."Cod. pais" := FVR."Fact. a-C¢d. pa¡s";
+                                   memIntSII."Fecha documento" := FVR."Fecha emisi¢n documento";
+                                   memIntSII."Tipo factura" := TipoFactura("Mov. IVA", memIntSII.NIF);
                                    IF CfgSII."Descripcion Factura venta" = CfgSII."Descripcion Factura venta"::"Primera linea documento" THEN BEGIN
-                                     FVRLin.SETRANGE("Document No.", FVR."No.");
+                                     FVRLin.SETRANGE("N§ documento", FVR."N§");
                                      CASE CfgSII."Tipo l¡nea factura Venta" OF
                                        CfgSII."Tipo l¡nea factura Venta"::"Sin tipo ":
-                                         FVRLin.SETRANGE(Type,0 );
+                                         FVRLin.SETRANGE(Tipo,0 );
                                        CfgSII."Tipo l¡nea factura Venta"::"Con tipo":
-                                         FVRLin.SETFILTER(Type,'>0' );
+                                         FVRLin.SETFILTER(Tipo,'>0' );
                                      END;
                                      IF CfgSII."Con cantidad en factura venta" THEN
-                                       FVRLin.SETFILTER(Quantity,'<>0');
+                                       FVRLin.SETFILTER(Cantidad,'<>0');
                                      IF FVRLin.FIND('-') THEN
-                                       memIntSII.TextoRegistro := FVRLin.Description;
+                                       memIntSII.TextoRegistro := FVRLin.Descripci¢n;
                                    END;
                                    IF CfgSII."Descripcion Factura venta" = CfgSII."Descripcion Factura venta"::"N§ documento emitido" THEN
-                                     memIntSII.TextoRegistro := 'N§ Documento ' + FVR."No.";
+                                     memIntSII.TextoRegistro := 'N§ Documento ' + FVR."N§";
                                  END;
                                END;
 
-                               IF "Document Type" = "Document Type"::"Credit Memo" THEN BEGIN
-                                 IF AVR.GET("Document No.") THEN BEGIN
-                                   memIntSII.NIF := AVR."VAT Registration No.";
-                                   memIntSII.RazonSocial := AVR."Bill-to Name";
-                                   memIntSII."Cod. divisa" := AVR."Currency Code";
-                                   memIntSII."Factor divisa" := AVR."Currency Factor";
-                                   memIntSII.NumTercero := AVR."Bill-to Customer No.";
-                                   memIntSII.TextoRegistro := AVR."Posting Description";
-                                   memIntSII."Cod. pais" := AVR."Bill-to Country/Region Code";
-                                   memIntSII."Fecha documento" := AVR."Document Date";
-                                   memIntSII."Tipo factura" := TipoFactura("VAT Entry", memIntSII.NIF);
+                               IF "Tipo documento" = "Tipo documento"::Abono THEN BEGIN
+                                 IF AVR.GET("N§ documento") THEN BEGIN
+                                   memIntSII.NIF := AVR."CIF/NIF";
+                                   memIntSII.RazonSocial := AVR."Fact. a-Nombre";
+                                   memIntSII."Cod. divisa" := AVR."C¢d. divisa";
+                                   memIntSII."Factor divisa" := AVR."Factor divisa";
+                                   memIntSII.NumTercero := AVR."Factura-a N§ cliente";
+                                   memIntSII.TextoRegistro := AVR."Texto de registro";
+                                   memIntSII."Cod. pais" := AVR."Fact. a-C¢d. pa¡s";
+                                   memIntSII."Fecha documento" := AVR."Fecha emisi¢n documento";
+                                   memIntSII."Tipo factura" := TipoFactura("Mov. IVA", memIntSII.NIF);
                                    memIntSII."Factura corregida" := AVR."Corrected Invoice No.";
                                    IF CfgSII."Descripcion Abono venta" = CfgSII."Descripcion Abono venta"::"Primera linea documento" THEN BEGIN
-                                     AVRLin.SETRANGE("Document No.", AVR."No.");
+                                     AVRLin.SETRANGE("N§ documento", AVR."N§");
                                      CASE CfgSII."Tipo l¡nea abono Venta" OF
                                        CfgSII."Tipo l¡nea abono Venta"::"Sin tipo ":
-                                         AVRLin.SETRANGE(Type,0 );
+                                         AVRLin.SETRANGE(Tipo,0 );
                                        CfgSII."Tipo l¡nea abono Venta"::"Con tipo":
-                                         AVRLin.SETFILTER(Type,'>0' );
+                                         AVRLin.SETFILTER(Tipo,'>0' );
                                      END;
                                      IF CfgSII."Con cantidad en abono venta" THEN
-                                       AVRLin.SETFILTER(Quantity,'<>0');
+                                       AVRLin.SETFILTER(Cantidad,'<>0');
                                      IF AVRLin.FIND('-') THEN
-                                       memIntSII.TextoRegistro := AVRLin.Description;
+                                       memIntSII.TextoRegistro := AVRLin.Descripci¢n;
                                    END;
                                    IF CfgSII."Descripcion Abono venta" = CfgSII."Descripcion Abono venta"::"N§ documento emitido" THEN
-                                     memIntSII.TextoRegistro := 'N§ Documento ' + AVR."No.";
+                                     memIntSII.TextoRegistro := 'N§ Documento ' + AVR."N§";
                                    IF (AVR."Corrected Invoice No." <> '') THEN BEGIN
                                      IF FVR.GET(AVR."Corrected Invoice No.") THEN BEGIN
                                        memIntSII."Tipo factura rectificativa" := 'I'; // Por diferencia
@@ -155,48 +155,48 @@ OBJECT Report 88201 Procesar Movs. IVA SII
                                          memIntSII."Tipo factura" := 'R5'
                                        ELSE
                                          memIntSII."Tipo factura" := 'R4';
-                                       memIntSII."Fecha factura corregida" := FVR."Posting Date";
+                                       memIntSII."Fecha factura corregida" := FVR."Fecha registro";
                                      END;
                                    END;
                                  END;
                                END;
 
-                               IF "Document Type" = "Document Type"::"Finance Charge Memo" THEN BEGIN
-                                 IF DocIntEmitido.GET("Document No.") THEN BEGIN
-                                   memIntSII.NIF := DocIntEmitido."VAT Registration No.";
-                                   memIntSII.RazonSocial := DocIntEmitido.Name;
-                                   memIntSII."Cod. divisa" := DocIntEmitido."Currency Code";
-                                   memIntSII.NumTercero := DocIntEmitido."Customer No.";
-                                   memIntSII.TextoRegistro := DocIntEmitido."Posting Description";
-                                   memIntSII."Cod. pais" := DocIntEmitido."Country/Region Code";
-                                   memIntSII."Tipo factura" := TipoFactura("VAT Entry", memIntSII.NIF);
+                               IF "Tipo documento" = "Tipo documento"::"Docs.inter‚s" THEN BEGIN
+                                 IF DocIntEmitido.GET("N§ documento") THEN BEGIN
+                                   memIntSII.NIF := DocIntEmitido."CIF/NIF";
+                                   memIntSII.RazonSocial := DocIntEmitido.Nombre;
+                                   memIntSII."Cod. divisa" := DocIntEmitido."C¢d. divisa";
+                                   memIntSII.NumTercero := DocIntEmitido."N§ cliente";
+                                   memIntSII.TextoRegistro := DocIntEmitido."Texto de registro";
+                                   memIntSII."Cod. pais" := DocIntEmitido."C¢d. pa¡s";
+                                   memIntSII."Tipo factura" := TipoFactura("Mov. IVA", memIntSII.NIF);
                                    memIntSII."Factura corregida" := '';
                                    IF CfgSII."Descripcion Factura venta" = CfgSII."Descripcion Factura venta"::"Primera linea documento" THEN BEGIN
-                                     DocIntEmitidoLin.SETRANGE("Document No.", DocIntEmitido."No.");
+                                     DocIntEmitidoLin.SETRANGE("N§ documento", DocIntEmitido."N§");
                                      CASE CfgSII."Tipo l¡nea factura Venta" OF
                                        CfgSII."Tipo l¡nea factura Venta"::"Sin tipo ":
-                                         DocIntEmitidoLin.SETRANGE(Type,0 );
+                                         DocIntEmitidoLin.SETRANGE(Tipo,0 );
                                        CfgSII."Tipo l¡nea factura Venta"::"Con tipo":
-                                         DocIntEmitidoLin.SETFILTER(Type,'>0' );
+                                         DocIntEmitidoLin.SETFILTER(Tipo,'>0' );
                                      END;
                                      IF CfgSII."Con cantidad en factura venta" THEN
-                                       DocIntEmitidoLin.SETFILTER(Amount,'<>0');
+                                       DocIntEmitidoLin.SETFILTER(Importe,'<>0');
                                      IF DocIntEmitidoLin.FIND('-') THEN
-                                       memIntSII.TextoRegistro := DocIntEmitidoLin.Description;
+                                       memIntSII.TextoRegistro := DocIntEmitidoLin.Descripci¢n;
                                    END;
                                   END;
                                END;
 
-                               IF ("Document Type" = "Document Type"::Payment) OR
-                                  ("Document Type" = "Document Type"::" ") THEN BEGIN
+                               IF ("Tipo documento" = "Tipo documento"::Pago) OR
+                                  ("Tipo documento" = "Tipo documento"::" ") THEN BEGIN
                                  memIntSII.TipoDocumento := memIntSII.TipoDocumento::Pago;
                                  memIntSII."Tipo factura" := '';
-                                 IF "Unrealized VAT Entry No." <> 0 THEN BEGIN
-                                   IF MovIVAAux.GET("Unrealized VAT Entry No.") THEN BEGIN
-                                     IF MovIVAAux."Document Type" = MovIVAAux."Document Type"::Invoice THEN BEGIN
-                                       IF FVR.GET(MovIVAAux."Document No.") THEN BEGIN
-                                         memIntSII.DocumentoTercero := FVR."No.";
-                                         memIntSII."Fecha documento" := FVR."Posting Date";
+                                 IF "N§ mov. IVA no realizado" <> 0 THEN BEGIN
+                                   IF MovIVAAux.GET("N§ mov. IVA no realizado") THEN BEGIN
+                                     IF MovIVAAux."Tipo documento" = MovIVAAux."Tipo documento"::Factura THEN BEGIN
+                                       IF FVR.GET(MovIVAAux."N§ documento") THEN BEGIN
+                                         memIntSII.DocumentoTercero := FVR."N§";
+                                         memIntSII."Fecha documento" := FVR."Fecha registro";
                                          NumDoc := '';
                                        END;
                                      END;
@@ -205,100 +205,100 @@ OBJECT Report 88201 Procesar Movs. IVA SII
                                END;
 
                                // Comprobar si la serie est  en la configuraci¢n
-                               BuscarSerie("VAT Entry", memIntSII, 0);
+                               BuscarSerie("Mov. IVA", memIntSII, 0);
 
                                // Comprobar si el cliente est  en la configuraci¢n
-                               BuscarCliente("VAT Entry", memIntSII);
+                               BuscarCliente("Mov. IVA", memIntSII);
 
-                               memIntSII."Fecha documento" := CogerFechaDocumento("VAT Entry", memIntSII."Fecha documento");;
+                               memIntSII."Fecha documento" := CogerFechaDocumento("Mov. IVA", memIntSII."Fecha documento");;
 
                              END;
 
-                             IF (Type = Type::Purchase) THEN BEGIN
+                             IF (Tipo = Tipo::Compra) THEN BEGIN
 
-                               IF BuscarSerieExcluir("VAT Entry", 1) THEN BEGIN
+                               IF BuscarSerieExcluir("Mov. IVA", 1) THEN BEGIN
                                  NumDoc := '';
                                  CurrReport.SKIP;
                                END;
                                memIntSII.TipoSII := memIntSII.TipoSII::R;
-                               memIntSII."Clave operacion" := Get_CO_DocRecibido("VAT Entry", TxtError);
+                               memIntSII."Clave operacion" := Get_CO_DocRecibido("Mov. IVA", TxtError);
                                IF TxtError <> '' THEN BEGIN
                                  memIntSII."Texto error" := TxtError;
                                  memIntSII."Codigo Error" := '-1';
                                END;
-                               memIntSII.DocumentoTercero := "VAT Entry"."External Document No.";
-                               IF PRO.GET("Bill-to/Pay-to No.") THEN BEGIN
-                                 memIntSII.NIF := PRO."VAT Registration No.";
-                                 memIntSII.RazonSocial := PRO.Name;
-                                 memIntSII."Cod. pais" := PRO."Country/Region Code";
-                                 memIntSII."Cod. divisa" := PRO."Currency Code";
-                                 memIntSII."Tipo factura" := TipoFactura("VAT Entry", 'COMPRA');
+                               memIntSII.DocumentoTercero := "Mov. IVA"."N§ documento externo";
+                               IF PRO.GET("N§ cliente/proveedor") THEN BEGIN
+                                 memIntSII.NIF := PRO."CIF/NIF";
+                                 memIntSII.RazonSocial := PRO.Nombre;
+                                 memIntSII."Cod. pais" := PRO."C¢d. pa¡s";
+                                 memIntSII."Cod. divisa" := PRO."C¢d. divisa";
+                                 memIntSII."Tipo factura" := TipoFactura("Mov. IVA", 'COMPRA');
                                  IF FORMAT(memIntSII."Clave operacion") = COD_REAGP THEN
                                    memIntSII."Tipo factura" := 'F6';
                                END;
 
-                               IF "Document Type" = "Document Type"::Invoice THEN
-                                 IF FCR.GET("Document No.") THEN BEGIN
-                                   memIntSII.NIF := FCR."VAT Registration No.";
-                                   memIntSII.RazonSocial := FCR."Pay-to Name";
-                                   memIntSII."Cod. divisa" := FCR."Currency Code";
-                                   memIntSII."Factor divisa" := FCR."Currency Factor";
-                                   memIntSII.NumTercero := FCR."Pay-to Vendor No.";
-                                   memIntSII.TextoRegistro := FCR."Posting Description";
-                                   memIntSII."Cod. pais" := FCR."Pay-to Country/Region Code";
-                                   memIntSII.DocumentoTercero := FCR."Vendor Invoice No.";
-                                   memIntSII."Fecha documento" := FCR."Document Date";
-                                   memIntSII."Fecha operacion" := FCR."Document Date";
-                                   memIntSII."Tipo factura" := TipoFactura("VAT Entry", 'COMPRA');
+                               IF "Tipo documento" = "Tipo documento"::Factura THEN
+                                 IF FCR.GET("N§ documento") THEN BEGIN
+                                   memIntSII.NIF := FCR."CIF/NIF";
+                                   memIntSII.RazonSocial := FCR."Pago a-Nombre";
+                                   memIntSII."Cod. divisa" := FCR."C¢d. divisa";
+                                   memIntSII."Factor divisa" := FCR."Factor divisa";
+                                   memIntSII.NumTercero := FCR."Pago-a N§ proveedor";
+                                   memIntSII.TextoRegistro := FCR."Texto de registro";
+                                   memIntSII."Cod. pais" := FCR."Pago a-C¢d. pa¡s";
+                                   memIntSII.DocumentoTercero := FCR."N§ factura proveedor";
+                                   memIntSII."Fecha documento" := FCR."Fecha emisi¢n documento";
+                                   memIntSII."Fecha operacion" := FCR."Fecha emisi¢n documento";
+                                   memIntSII."Tipo factura" := TipoFactura("Mov. IVA", 'COMPRA');
                                    IF FORMAT(memIntSII."Clave operacion") = COD_REAGP THEN
                                      memIntSII."Tipo factura" := 'F6';
 
                                    IF CfgSII."Descripcion Factura compra" = CfgSII."Descripcion Factura compra"::"Primera linea documento" THEN BEGIN
-                                     FCRLin.SETRANGE("Document No.", FCR."No.");
+                                     FCRLin.SETRANGE("N§ documento", FCR."N§");
                                      CASE CfgSII."Tipo l¡nea factura compra" OF
                                        CfgSII."Tipo l¡nea factura compra"::"Sin tipo ":
-                                         FCRLin.SETRANGE(Type,0 );
+                                         FCRLin.SETRANGE(Tipo,0 );
                                        CfgSII."Tipo l¡nea factura compra"::"Con tipo":
-                                         FCRLin.SETFILTER(Type,'>0' );
+                                         FCRLin.SETFILTER(Tipo,'>0' );
                                      END;
                                      IF CfgSII."Con cantidad en factura compra" THEN
-                                       FCRLin.SETFILTER(Quantity,'<>0');
+                                       FCRLin.SETFILTER(Cantidad,'<>0');
                                      IF FCRLin.FIND('-') THEN
-                                       memIntSII.TextoRegistro := FCRLin.Description;
+                                       memIntSII.TextoRegistro := FCRLin.Descripci¢n;
                                    END;
                                    IF CfgSII."Descripcion Factura compra" = CfgSII."Descripcion Factura compra"::"N§ documento proveedor" THEN
-                                     memIntSII.TextoRegistro := 'N§ Documento ' + FCR."Vendor Invoice No.";
+                                     memIntSII.TextoRegistro := 'N§ Documento ' + FCR."N§ factura proveedor";
                                  END;
 
-                               IF "Document Type" = "Document Type"::"Credit Memo" THEN
-                                 IF ACR.GET("Document No.") THEN BEGIN
-                                   memIntSII.NIF := ACR."VAT Registration No.";
-                                   memIntSII.RazonSocial := ACR."Pay-to Name";
-                                   memIntSII."Cod. divisa" := ACR."Currency Code";
-                                   memIntSII."Factor divisa" := ACR."Currency Factor";
-                                   memIntSII.NumTercero := ACR."Pay-to Vendor No.";
-                                   memIntSII.TextoRegistro := ACR."Posting Description";
-                                   memIntSII."Cod. pais" := ACR."Pay-to Country/Region Code";
-                                   memIntSII.DocumentoTercero := ACR."Vendor Cr. Memo No.";
-                                   memIntSII."Fecha documento" := ACR."Document Date";
-                                   memIntSII."Fecha operacion" := ACR."Document Date";
-                                   memIntSII."Tipo factura" := TipoFactura("VAT Entry", 'COMPRA');
+                               IF "Tipo documento" = "Tipo documento"::Abono THEN
+                                 IF ACR.GET("N§ documento") THEN BEGIN
+                                   memIntSII.NIF := ACR."CIF/NIF";
+                                   memIntSII.RazonSocial := ACR."Pago a-Nombre";
+                                   memIntSII."Cod. divisa" := ACR."C¢d. divisa";
+                                   memIntSII."Factor divisa" := ACR."Factor divisa";
+                                   memIntSII.NumTercero := ACR."Pago-a N§ proveedor";
+                                   memIntSII.TextoRegistro := ACR."Texto de registro";
+                                   memIntSII."Cod. pais" := ACR."Pago a-C¢d. pa¡s";
+                                   memIntSII.DocumentoTercero := ACR."N§ abono proveedor";
+                                   memIntSII."Fecha documento" := ACR."Fecha emisi¢n documento";
+                                   memIntSII."Fecha operacion" := ACR."Fecha emisi¢n documento";
+                                   memIntSII."Tipo factura" := TipoFactura("Mov. IVA", 'COMPRA');
                                    memIntSII."Factura corregida" := ACR."Corrected Invoice No.";
                                    IF CfgSII."Descripcion Abono compra" = CfgSII."Descripcion Abono compra"::"Primera linea documento" THEN BEGIN
-                                     ACRLin.SETRANGE("Document No.", ACR."No.");
+                                     ACRLin.SETRANGE("N§ documento", ACR."N§");
                                      CASE CfgSII."Tipo l¡nea abono compra" OF
                                        CfgSII."Tipo l¡nea abono compra"::"Sin tipo ":
-                                         ACRLin.SETRANGE(Type,0 );
+                                         ACRLin.SETRANGE(Tipo,0 );
                                        CfgSII."Tipo l¡nea abono compra"::"Con tipo":
-                                         ACRLin.SETFILTER(Type,'>0' );
+                                         ACRLin.SETFILTER(Tipo,'>0' );
                                      END;
                                      IF CfgSII."Con cantidad en abono compra" THEN
-                                       ACRLin.SETFILTER(Quantity,'<>0');
+                                       ACRLin.SETFILTER(Cantidad,'<>0');
                                      IF ACRLin.FIND('-') THEN
-                                       memIntSII.TextoRegistro := ACRLin.Description;
+                                       memIntSII.TextoRegistro := ACRLin.Descripci¢n;
                                    END;
                                    IF CfgSII."Descripcion Abono compra" = CfgSII."Descripcion Abono compra"::"N§ documento proveedor" THEN
-                                     memIntSII.TextoRegistro := 'N§ Documento ' + ACR."Vendor Cr. Memo No.";
+                                     memIntSII.TextoRegistro := 'N§ Documento ' + ACR."N§ abono proveedor";
                                    IF (ACR."Corrected Invoice No." <> '') THEN BEGIN
                                      IF FCR.GET(ACR."Corrected Invoice No.") THEN BEGIN
                                        memIntSII."Tipo factura rectificativa" := 'I'; // Por diferencia
@@ -306,23 +306,23 @@ OBJECT Report 88201 Procesar Movs. IVA SII
                                          memIntSII."Tipo factura" := 'R5'
                                        ELSE
                                          memIntSII."Tipo factura" := 'R4';
-                                       memIntSII."Fecha factura corregida" := FCR."Document Date";
-                                       memIntSII."Factura corregida" := FCR."Vendor Invoice No.";
+                                       memIntSII."Fecha factura corregida" := FCR."Fecha emisi¢n documento";
+                                       memIntSII."Factura corregida" := FCR."N§ factura proveedor";
                                      END;
                                    END;
                                  END;
 
-                               IF ("Document Type" = "Document Type"::Payment) OR
-                                  ("Document Type" = "Document Type"::" ") THEN BEGIN
+                               IF ("Tipo documento" = "Tipo documento"::Pago) OR
+                                  ("Tipo documento" = "Tipo documento"::" ") THEN BEGIN
                                  memIntSII.TipoDocumento := memIntSII.TipoDocumento::Pago;
                                  memIntSII."Tipo factura" := '';
-                                 IF "Unrealized VAT Entry No." <> 0 THEN BEGIN
-                                   IF MovIVAAux.GET("Unrealized VAT Entry No.") THEN BEGIN
-                                     IF MovIVAAux."Document Type" = MovIVAAux."Document Type"::Invoice THEN BEGIN
-                                       IF FCR.GET(MovIVAAux."Document No.") THEN BEGIN
-                                         memIntSII.DocumentoTercero := FCR."Vendor Invoice No.";
-                                         memIntSII."Fecha documento" := FCR."Document Date";
-                                         memIntSII."Fecha operacion" := FCR."Document Date";
+                                 IF "N§ mov. IVA no realizado" <> 0 THEN BEGIN
+                                   IF MovIVAAux.GET("N§ mov. IVA no realizado") THEN BEGIN
+                                     IF MovIVAAux."Tipo documento" = MovIVAAux."Tipo documento"::Factura THEN BEGIN
+                                       IF FCR.GET(MovIVAAux."N§ documento") THEN BEGIN
+                                         memIntSII.DocumentoTercero := FCR."N§ factura proveedor";
+                                         memIntSII."Fecha documento" := FCR."Fecha emisi¢n documento";
+                                         memIntSII."Fecha operacion" := FCR."Fecha emisi¢n documento";
                                          NumDoc := '';
                                          ComprobarREAGYP(memIntSII);
                                        END;
@@ -332,7 +332,7 @@ OBJECT Report 88201 Procesar Movs. IVA SII
                                END;
 
                                // Comprobar si la serie est  en la configuraci¢n
-                               BuscarSerie("VAT Entry", memIntSII, 1);
+                               BuscarSerie("Mov. IVA", memIntSII, 1);
 
                                IF memIntSII."Fecha documento" = 0D THEN
                                  memIntSII."Fecha documento" := memIntSII.Fecha;
@@ -359,10 +359,10 @@ OBJECT Report 88201 Procesar Movs. IVA SII
                                  END;
                                END;
 
-                               CogerDatos("VAT Entry", memIntSII);
+                               CogerDatos("Mov. IVA", memIntSII);
 
                                // <--------------------------------------------------------- LLAMADA FUNCION PERSONALIZACIONES
-                               GblSII.AntesPasarDocSII("VAT Entry", memIntSII);
+                               GblSII.AntesPasarDocSII("Mov. IVA", memIntSII);
                                // <--------------------------------------------------------- LLAMADA FUNCION PERSONALIZACIONES
                                NMovDoc := FunCargaSII.CargarDocSII(memIntSII, TRUE);
 
@@ -374,9 +374,9 @@ OBJECT Report 88201 Procesar Movs. IVA SII
                            END ELSE BEGIN // S¢lo l¡neas
                              memIntSII.Tipo    := memIntSII.Tipo::Lineas;
                              memIntSII.TipoSII := gblTipoSII;
-                             CogerDatos("VAT Entry", memIntSII);
+                             CogerDatos("Mov. IVA", memIntSII);
                            // <--------------------------------------------------------- LLAMADA FUNCION PERSONALIZACIONES
-                             GblSII.AntesPasarLinDocSII("VAT Entry", memIntSII);
+                             GblSII.AntesPasarLinDocSII("Mov. IVA", memIntSII);
                            // <--------------------------------------------------------- LLAMADA FUNCION PERSONALIZACIONES
                              FunCargaSII.CargarDocSII(memIntSII, TRUE);
                            END;
@@ -450,30 +450,30 @@ OBJECT Report 88201 Procesar Movs. IVA SII
 
     PROCEDURE CogerDatos@1000000014(MovIVa@1000000000 : Record 254;VAR mIntSII@1000000001 : Record 88202);
     BEGIN
-      mIntSII."NMov IVA"                  := MovIVa."Entry No.";
-      mIntSII."Grupo registro IVA neg."   := MovIVa."VAT Bus. Posting Group";
-      mIntSII."Grupo registro IVA prod."  := MovIVa."VAT Prod. Posting Group";
-      mIntSII."Tipo IVA"                  := MovIVa."VAT Calculation Type";
-      mIntSII."%IVA"                      := MovIVa."VAT %";
-      mIntSII."%RE"                       := MovIVa."EC %";
-      IF MovIVa.Type = MovIVa.Type::Sale THEN BEGIN
+      mIntSII."NMov IVA"                  := MovIVa."N§ mov.";
+      mIntSII."Grupo registro IVA neg."   := MovIVa."Grupo registro IVA neg.";
+      mIntSII."Grupo registro IVA prod."  := MovIVa."Grupo registro IVA prod.";
+      mIntSII."Tipo IVA"                  := MovIVa."Tipo c lculo IVA";
+      mIntSII."%IVA"                      := MovIVa."% IVA";
+      mIntSII."%RE"                       := MovIVa."% RE";
+      IF MovIVa.Tipo = MovIVa.Tipo::Venta THEN BEGIN
         mIntSII.BaseIVA                     := -MovIVa.Base;
-        mIntSII."Importe no realizado"      := -MovIVa."Unrealized Amount";
-        mIntSII."Base no realizada"         := -MovIVa."Unrealized Base";
+        mIntSII."Importe no realizado"      := -MovIVa."Importe no realizado";
+        mIntSII."Base no realizada"         := -MovIVa."Base no realizada";
         mIntSII.ImporteRE                   := CalcImpRE(MovIVa);
-        mIntSII.ImporteIVA                  := -(MovIVa.Amount-mIntSII.ImporteRE);
+        mIntSII.ImporteIVA                  := -(MovIVa.Importe-mIntSII.ImporteRE);
         mIntSII.ImporteRE                   := -mIntSII.ImporteRE;
         mIntSII.OrigenImporteIVA            := mIntSII.ImporteIVA;
       END ELSE BEGIN
         mIntSII.BaseIVA                     := MovIVa.Base;
-        mIntSII."Importe no realizado"      := MovIVa."Unrealized Amount";
-        mIntSII."Base no realizada"         := MovIVa."Unrealized Base";
+        mIntSII."Importe no realizado"      := MovIVa."Importe no realizado";
+        mIntSII."Base no realizada"         := MovIVa."Base no realizada";
         mIntSII.ImporteRE                   := CalcImpRE(MovIVa);
-        mIntSII.ImporteIVA                  := MovIVa.Amount-mIntSII.ImporteRE;
+        mIntSII.ImporteIVA                  := MovIVa.Importe-mIntSII.ImporteRE;
         mIntSII.OrigenImporteIVA            := mIntSII.ImporteIVA;
       END;
 
-      memIntSII."NMov IVA no realizado"   := MovIVa."Unrealized VAT Entry No.";
+      memIntSII."NMov IVA no realizado"   := MovIVa."N§ mov. IVA no realizado";
       mIntSII."Inversion sujeto pasivo"   := CogerInvSujetoPasivo(mIntSII);
       mIntSII.Service                     := CogerServicios(mIntSII);
       mIntSII.DUA                         := CogerDUA(mIntSII);
@@ -506,20 +506,20 @@ OBJECT Report 88201 Procesar Movs. IVA SII
 
     PROCEDURE CogerDatosDocumento@1000000013(MovIVa@1000000000 : Record 254;VAR mIntSII@1000000001 : Record 88202);
     BEGIN
-      mIntSII."NMov IVA"                  := MovIVa."Entry No.";
-      mIntSII."Grupo registro IVA neg."   := MovIVa."VAT Bus. Posting Group";
-      mIntSII."Grupo registro IVA prod."  := MovIVa."VAT Prod. Posting Group";
-      mIntSII."Tipo IVA"                  := MovIVa."VAT Calculation Type";
-      mIntSII."%IVA"                      := MovIVa."VAT %";
-      mIntSII."%RE"                       := MovIVa."EC %";
+      mIntSII."NMov IVA"                  := MovIVa."N§ mov.";
+      mIntSII."Grupo registro IVA neg."   := MovIVa."Grupo registro IVA neg.";
+      mIntSII."Grupo registro IVA prod."  := MovIVa."Grupo registro IVA prod.";
+      mIntSII."Tipo IVA"                  := MovIVa."Tipo c lculo IVA";
+      mIntSII."%IVA"                      := MovIVa."% IVA";
+      mIntSII."%RE"                       := MovIVa."% RE";
       mIntSII.BaseIVA                     := MovIVa.Base;
-      mIntSII."Importe no realizado"      := MovIVa."Unrealized Amount";
-      mIntSII."Base no realizada"         := MovIVa."Unrealized Base";
+      mIntSII."Importe no realizado"      := MovIVa."Importe no realizado";
+      mIntSII."Base no realizada"         := MovIVa."Base no realizada";
       mIntSII.ImporteRE                   := CalcImpRE(MovIVa);
-      mIntSII.ImporteIVA                  := MovIVa.Amount-mIntSII.ImporteRE;
+      mIntSII.ImporteIVA                  := MovIVa.Importe-mIntSII.ImporteRE;
       mIntSII.OrigenImporteIVA            := mIntSII.ImporteIVA;
 
-      memIntSII."NMov IVA no realizado"   := MovIVa."Unrealized VAT Entry No.";
+      memIntSII."NMov IVA no realizado"   := MovIVa."N§ mov. IVA no realizado";
       mIntSII."Inversion sujeto pasivo"   := CogerInvSujetoPasivo(mIntSII);
       mIntSII.Service                     := CogerServicios(mIntSII);
       mIntSII.DUA                         := CogerDUA(mIntSII);
@@ -555,8 +555,8 @@ OBJECT Report 88201 Procesar Movs. IVA SII
       Importe@1000000001 : Decimal;
     BEGIN
       // Recargo de equivalencia
-      IF (VATEntry."EC %" <> 0) THEN
-        Importe := (VATEntry.Base*VATEntry."EC %")/100
+      IF (VATEntry."% RE" <> 0) THEN
+        Importe := (VATEntry.Base*VATEntry."% RE")/100
       ELSE
         Importe := 0;
       EXIT(Importe);
@@ -613,14 +613,14 @@ OBJECT Report 88201 Procesar Movs. IVA SII
         ConfCruces.CHANGECOMPANY(qEmpresa);
       END;
 
-      Lin.SETCURRENTKEY(Type,"Posting Date","Document Type","Document No.","Bill-to/Pay-to No.");
-      Lin.SETRANGE(Type, Tabla.Type);
-      Lin.SETRANGE("Posting Date", Tabla."Posting Date");
-      Lin.SETRANGE("Document Type", Tabla."Document Type");
-      Lin.SETRANGE("Document No.", Tabla."Document No.");
-      Lin.SETRANGE("Bill-to/Pay-to No.", Tabla."Bill-to/Pay-to No.");
+      Lin.SETCURRENTKEY(Tipo,"Fecha registro","Tipo documento","N§ documento","N§ cliente/proveedor");
+      Lin.SETRANGE(Tipo, Tabla.Tipo);
+      Lin.SETRANGE("Fecha registro", Tabla."Fecha registro");
+      Lin.SETRANGE("Tipo documento", Tabla."Tipo documento");
+      Lin.SETRANGE("N§ documento", Tabla."N§ documento");
+      Lin.SETRANGE("N§ cliente/proveedor", Tabla."N§ cliente/proveedor");
       IF Lin.FIND('-') THEN REPEAT
-        IF NOT ConfCruces.GET(Lin."VAT Bus. Posting Group",Lin."VAT Prod. Posting Group") THEN
+        IF NOT ConfCruces.GET(Lin."Grupo registro IVA neg.",Lin."Grupo registro IVA prod.") THEN
           ConfCruces.INIT;
 
         IF NOT ConfCruces.Retencion THEN BEGIN
@@ -679,14 +679,14 @@ OBJECT Report 88201 Procesar Movs. IVA SII
         ConfCruces.CHANGECOMPANY(qEmpresa);
       END;
 
-      Lin.SETCURRENTKEY(Type,"Posting Date","Document Type","Document No.","Bill-to/Pay-to No.");
-      Lin.SETRANGE(Type, Tabla.Type);
-      Lin.SETRANGE("Posting Date", Tabla."Posting Date");
-      Lin.SETRANGE("Document Type", Tabla."Document Type");
-      Lin.SETRANGE("Document No.", Tabla."Document No.");
-      Lin.SETRANGE("Bill-to/Pay-to No.", Tabla."Bill-to/Pay-to No.");
+      Lin.SETCURRENTKEY(Tipo,"Fecha registro","Tipo documento","N§ documento","N§ cliente/proveedor");
+      Lin.SETRANGE(Tipo, Tabla.Tipo);
+      Lin.SETRANGE("Fecha registro", Tabla."Fecha registro");
+      Lin.SETRANGE("Tipo documento", Tabla."Tipo documento");
+      Lin.SETRANGE("N§ documento", Tabla."N§ documento");
+      Lin.SETRANGE("N§ cliente/proveedor", Tabla."N§ cliente/proveedor");
       IF Lin.FIND('-') THEN REPEAT
-        IF NOT ConfCruces.GET(Lin."VAT Bus. Posting Group",Lin."VAT Prod. Posting Group") THEN
+        IF NOT ConfCruces.GET(Lin."Grupo registro IVA neg.",Lin."Grupo registro IVA prod.") THEN
           ConfCruces.INIT;
 
         IF NOT ConfCruces.Retencion THEN BEGIN
@@ -777,18 +777,18 @@ OBJECT Report 88201 Procesar Movs. IVA SII
 
       i := 0;
       NoEnviar := TRUE;
-      Lin.SETCURRENTKEY(Type,"Posting Date","Document Type","Document No.","Bill-to/Pay-to No.");
-      Lin.SETRANGE(Type, Tabla.Type);
-      Lin.SETRANGE("Posting Date", Tabla."Posting Date");
-      Lin.SETRANGE("Document Type", Tabla."Document Type");
-      Lin.SETRANGE("Document No.", Tabla."Document No.");
-      Lin.SETRANGE("Bill-to/Pay-to No.", Tabla."Bill-to/Pay-to No.");
+      Lin.SETCURRENTKEY(Tipo,"Fecha registro","Tipo documento","N§ documento","N§ cliente/proveedor");
+      Lin.SETRANGE(Tipo, Tabla.Tipo);
+      Lin.SETRANGE("Fecha registro", Tabla."Fecha registro");
+      Lin.SETRANGE("Tipo documento", Tabla."Tipo documento");
+      Lin.SETRANGE("N§ documento", Tabla."N§ documento");
+      Lin.SETRANGE("N§ cliente/proveedor", Tabla."N§ cliente/proveedor");
       IF Lin.FIND('-') THEN REPEAT
-        IF ConfCruces.GET(Lin."VAT Bus. Posting Group",Lin."VAT Prod. Posting Group") THEN BEGIN
-          IF Tabla.Type = Tabla.Type::Purchase THEN BEGIN
+        IF ConfCruces.GET(Lin."Grupo registro IVA neg.",Lin."Grupo registro IVA prod.") THEN BEGIN
+          IF Tabla.Tipo = Tabla.Tipo::Compra THEN BEGIN
             esREAGYP := (FORMAT(ConfCruces."C¢d. operacion recibidas") = COD_REAGP);
-            esPago   := (Tabla."Document Type" = Tabla."Document Type"::" ") OR
-                        (Tabla."Document Type" = Tabla."Document Type"::Payment);
+            esPago   := (Tabla."Tipo documento" = Tabla."Tipo documento"::" ") OR
+                        (Tabla."Tipo documento" = Tabla."Tipo documento"::Pago);
             Procesar := NOT (esREAGYP AND esPago);
             IF Procesar THEN BEGIN // Comprobar que no es factura REAGYP
               IF esREAGYP AND NOT esPago THEN BEGIN
@@ -898,12 +898,12 @@ OBJECT Report 88201 Procesar Movs. IVA SII
 
        CfgSII."Creation date"::"Creation date in table 45":
          BEGIN
-           Tabla45.SETCURRENTKEY("Posting Date");
-           Tabla45.SETRANGE("Posting Date", Tabla."Posting Date");
-           Tabla45.SETFILTER("From VAT Entry No.", '<=%1', Tabla."Entry No.");
-           Tabla45.SETFILTER("To VAT Entry No.", '>=%1', Tabla."Entry No.");
+           Tabla45.SETCURRENTKEY("Fecha registro");
+           Tabla45.SETRANGE("Fecha registro", Tabla."Fecha registro");
+           Tabla45.SETFILTER("Desde n§ mov. IVA", '<=%1', Tabla."N§ mov.");
+           Tabla45.SETFILTER("Hasta n§ mov. IVA", '>=%1', Tabla."N§ mov.");
            IF Tabla45.FIND('-') THEN
-             EXIT(Tabla45."Creation Date")
+             EXIT(Tabla45."Fecha creaci¢n")
            ELSE
              EXIT(TODAY);
          END;
@@ -927,12 +927,12 @@ OBJECT Report 88201 Procesar Movs. IVA SII
          EXIT(Fecha);
        CfgSII."Document date"::"Creation date in table 45":
          BEGIN
-           Tabla45.SETCURRENTKEY("Posting Date");
-           Tabla45.SETRANGE("Posting Date", Tabla."Posting Date");
-           Tabla45.SETFILTER("From VAT Entry No.", '<=%1', Tabla."Entry No.");
-           Tabla45.SETFILTER("To VAT Entry No.", '>=%1', Tabla."Entry No.");
+           Tabla45.SETCURRENTKEY("Fecha registro");
+           Tabla45.SETRANGE("Fecha registro", Tabla."Fecha registro");
+           Tabla45.SETFILTER("Desde n§ mov. IVA", '<=%1', Tabla."N§ mov.");
+           Tabla45.SETFILTER("Hasta n§ mov. IVA", '>=%1', Tabla."N§ mov.");
            IF Tabla45.FIND('-') THEN
-             EXIT(Tabla45."Creation Date")
+             EXIT(Tabla45."Fecha creaci¢n")
            ELSE
              EXIT(Fecha);
          END;
@@ -1106,16 +1106,20 @@ OBJECT Report 88201 Procesar Movs. IVA SII
       WITH mIntSII DO BEGIN
         IF TipoSII = TipoSII::E THEN BEGIN
           IF "Tipo documento" = "Tipo documento"::Factura THEN BEGIN
-            FVLin.SETRANGE("Document No.", Documento);
-            FVLin.SETFILTER(Quantity, '<>%1', 0);
-            FVLin.SETRANGE("VAT Calculation Type", FVLin."VAT Calculation Type"::"No Taxable VAT");
+            FVLin.SETRANGE("N§ documento", Documento);
+            FVLin.SETFILTER(Cantidad, '<>%1', 0);
+            FVLin.SETRANGE("Tipo c lculo IVA", FVLin."Tipo c lculo IVA"::"No sujeto");
             IF FVLin.FIND('-') THEN REPEAT
-               MovIVA."VAT Bus. Posting Group"  := FVLin."VAT Bus. Posting Group";
-               MovIVA."VAT Prod. Posting Group" := FVLin."VAT Prod. Posting Group";
-               MovIVA."VAT Calculation Type"    := FVLin."VAT Calculation Type";
-               MovIVA."VAT %"                   := FVLin."VAT %";
-               MovIVA.Amount                    := FVLin."Amount Including VAT" - FVLin.Amount;
-               MovIVA.Base                      := FVLin.Amount;
+               MovIVA."Grupo registro IVA neg."  := FVLin."Grupo registro IVA neg.";
+               MovIVA."Grupo registro IVA prod." := FVLin."Grupo registro IVA prod.";
+               MovIVA."Tipo c lculo IVA"    := FVLin."Tipo c lculo IVA";
+               MovIVA."% IVA"                   := FVLin."% IVA";
+               MovIVA.Importe                    := FVLin."Importe IVA incl." - FVLin.Importe;
+               MovIVA.Base                      := FVLin.Importe;
+               IF mIntSII."Factor divisa" <> 0 THEN BEGIN
+                 MovIVA.Base    := ROUND(MovIVA.Base / mIntSII."Factor divisa", 0.01);
+                 MovIVA.Importe := ROUND(MovIVA.Importe / mIntSII."Factor divisa", 0.01);
+               END;
                Tipo := mIntSII.Tipo::Lineas;
                CogerDatosDocumento(MovIVA, mIntSII);
       // <--------------------------------------------------------- LLAMADA FUNCION PERSONALIZACIONES
@@ -1125,16 +1129,20 @@ OBJECT Report 88201 Procesar Movs. IVA SII
             UNTIL FVLin.NEXT = 0;
           END;
           IF "Tipo documento" = "Tipo documento"::Abono THEN BEGIN
-            AVLin.SETRANGE("Document No.", Documento);
-            AVLin.SETFILTER(Quantity, '<>%1', 0);
-            AVLin.SETRANGE("VAT Calculation Type", AVLin."VAT Calculation Type"::"No Taxable VAT");
+            AVLin.SETRANGE("N§ documento", Documento);
+            AVLin.SETFILTER(Cantidad, '<>%1', 0);
+            AVLin.SETRANGE("Tipo c lculo IVA", AVLin."Tipo c lculo IVA"::"No sujeto");
             IF AVLin.FIND('-') THEN REPEAT
-               MovIVA."VAT Bus. Posting Group"  := AVLin."VAT Bus. Posting Group";
-               MovIVA."VAT Prod. Posting Group" := AVLin."VAT Prod. Posting Group";
-               MovIVA."VAT Calculation Type"    := AVLin."VAT Calculation Type";
-               MovIVA."VAT %"                   := AVLin."VAT %";
-               MovIVA.Amount                    := -(AVLin."Amount Including VAT" - AVLin.Amount);
-               MovIVA.Base                      := -AVLin.Amount;
+               MovIVA."Grupo registro IVA neg."  := AVLin."Grupo registro IVA neg.";
+               MovIVA."Grupo registro IVA prod." := AVLin."Grupo registro IVA prod.";
+               MovIVA."Tipo c lculo IVA"    := AVLin."Tipo c lculo IVA";
+               MovIVA."% IVA"                   := AVLin."% IVA";
+               MovIVA.Importe                    := -(AVLin."Importe IVA incl." - AVLin.Importe);
+               MovIVA.Base                      := -AVLin.Importe;
+               IF mIntSII."Factor divisa" <> 0 THEN BEGIN
+                 MovIVA.Base    := ROUND(MovIVA.Base / mIntSII."Factor divisa", 0.01);
+                 MovIVA.Importe := ROUND(MovIVA.Importe / mIntSII."Factor divisa", 0.01);
+               END;
                Tipo := mIntSII.Tipo::Lineas;
                CogerDatosDocumento(MovIVA, mIntSII);
       // <--------------------------------------------------------- LLAMADA FUNCION PERSONALIZACIONES
@@ -1145,16 +1153,20 @@ OBJECT Report 88201 Procesar Movs. IVA SII
           END;
         END ELSE BEGIN
           IF "Tipo documento" = "Tipo documento"::Factura THEN BEGIN
-            FCLin.SETRANGE("Document No.", Documento);
-            FCLin.SETFILTER(Quantity, '<>%1', 0);
-            FCLin.SETRANGE("VAT Calculation Type", FCLin."VAT Calculation Type"::"No Taxable VAT");
+            FCLin.SETRANGE("N§ documento", Documento);
+            FCLin.SETFILTER(Cantidad, '<>%1', 0);
+            FCLin.SETRANGE("Tipo c lculo IVA", FCLin."Tipo c lculo IVA"::"No sujeto");
             IF FCLin.FIND('-') THEN REPEAT
-               MovIVA."VAT Bus. Posting Group"  := FCLin."VAT Bus. Posting Group";
-               MovIVA."VAT Prod. Posting Group" := FCLin."VAT Prod. Posting Group";
-               MovIVA."VAT Calculation Type"    := FCLin."VAT Calculation Type";
-               MovIVA."VAT %"                   := FCLin."VAT %";
-               MovIVA.Amount                    := FCLin."Amount Including VAT" - FCLin.Amount;
-               MovIVA.Base                      := FCLin.Amount;
+               MovIVA."Grupo registro IVA neg."  := FCLin."Grupo registro IVA neg.";
+               MovIVA."Grupo registro IVA prod." := FCLin."Grupo registro IVA prod.";
+               MovIVA."Tipo c lculo IVA"    := FCLin."Tipo c lculo IVA";
+               MovIVA."% IVA"                   := FCLin."% IVA";
+               MovIVA.Importe                    := FCLin."Importe IVA incl." - FCLin.Importe;
+               MovIVA.Base                      := FCLin.Importe;
+               IF mIntSII."Factor divisa" <> 0 THEN BEGIN
+                 MovIVA.Base    := ROUND(MovIVA.Base / mIntSII."Factor divisa", 0.01);
+                 MovIVA.Importe := ROUND(MovIVA.Importe / mIntSII."Factor divisa", 0.01);
+               END;
                Tipo := mIntSII.Tipo::Lineas;
                CogerDatosDocumento(MovIVA, mIntSII);
       // <--------------------------------------------------------- LLAMADA FUNCION PERSONALIZACIONES
@@ -1164,16 +1176,20 @@ OBJECT Report 88201 Procesar Movs. IVA SII
             UNTIL FCLin.NEXT = 0;
           END;
           IF "Tipo documento" = "Tipo documento"::Abono THEN BEGIN
-            ACLin.SETRANGE("Document No.", Documento);
-            ACLin.SETFILTER(Quantity, '<>%1', 0);
-            ACLin.SETRANGE("VAT Calculation Type", ACLin."VAT Calculation Type"::"No Taxable VAT");
+            ACLin.SETRANGE("N§ documento", Documento);
+            ACLin.SETFILTER(Cantidad, '<>%1', 0);
+            ACLin.SETRANGE("Tipo c lculo IVA", ACLin."Tipo c lculo IVA"::"No sujeto");
             IF ACLin.FIND('-') THEN REPEAT
-               MovIVA."VAT Bus. Posting Group"  := ACLin."VAT Bus. Posting Group";
-               MovIVA."VAT Prod. Posting Group" := ACLin."VAT Prod. Posting Group";
-               MovIVA."VAT Calculation Type"    := ACLin."VAT Calculation Type";
-               MovIVA."VAT %"                   := ACLin."VAT %";
-               MovIVA.Amount                    := -(ACLin."Amount Including VAT" - ACLin.Amount);
-               MovIVA.Base                      := -ACLin.Amount;
+               MovIVA."Grupo registro IVA neg."  := ACLin."Grupo registro IVA neg.";
+               MovIVA."Grupo registro IVA prod." := ACLin."Grupo registro IVA prod.";
+               MovIVA."Tipo c lculo IVA"    := ACLin."Tipo c lculo IVA";
+               MovIVA."% IVA"                   := ACLin."% IVA";
+               MovIVA.Importe                    := -(ACLin."Importe IVA incl." - ACLin.Importe);
+               MovIVA.Base                      := -ACLin.Importe;
+               IF mIntSII."Factor divisa" <> 0 THEN BEGIN
+                 MovIVA.Base    := ROUND(MovIVA.Base / mIntSII."Factor divisa", 0.01);
+                 MovIVA.Importe := ROUND(MovIVA.Importe / mIntSII."Factor divisa", 0.01);
+               END;
                Tipo := mIntSII.Tipo::Lineas;
                CogerDatosDocumento(MovIVA, mIntSII);
       // <--------------------------------------------------------- LLAMADA FUNCION PERSONALIZACIONES
@@ -1200,7 +1216,7 @@ OBJECT Report 88201 Procesar Movs. IVA SII
         ACRLin.CHANGECOMPANY(qEmpresa);
         CLI.CHANGECOMPANY(qEmpresa);
         PRO.CHANGECOMPANY(qEmpresa);
-        "VAT Entry".CHANGECOMPANY(qEmpresa);
+        "Mov. IVA".CHANGECOMPANY(qEmpresa);
         TabLinDocus.CHANGECOMPANY(qEmpresa);
         CfgSII.CHANGECOMPANY(qEmpresa);
         DocIntEmitido.CHANGECOMPANY(qEmpresa);
@@ -1271,11 +1287,11 @@ OBJECT Report 88201 Procesar Movs. IVA SII
       CLEAR(Series);
       Series.SETRANGE("Tipo registro", Series."Tipo registro"::Series);
       Series.SETRANGE(Tipo, Tipo);
-      Series.SETRANGE(Code, MovIVA."No. Series");
+      Series.SETRANGE(Code, MovIVA."N§ serie");
 
-      IF MovIVA."Document Type" = MovIVA."Document Type"::Invoice THEN
+      IF MovIVA."Tipo documento" = MovIVA."Tipo documento"::Factura THEN
         TipoSerie := 1;
-      IF MovIVA."Document Type" = MovIVA."Document Type"::"Credit Memo" THEN
+      IF MovIVA."Tipo documento" = MovIVA."Tipo documento"::Abono THEN
         TipoSerie := 2;
 
       Series.SETRANGE("Tipo serie", TipoSerie);
@@ -1296,7 +1312,7 @@ OBJECT Report 88201 Procesar Movs. IVA SII
       Series.SETRANGE("Es prefijo", TRUE);
       Salir := FALSE;
       IF Series.FIND('-') THEN REPEAT
-         IF IsPrefix(Series.Code, MovIVA."No. Series") THEN BEGIN
+         IF IsPrefix(Series.Code, MovIVA."N§ serie") THEN BEGIN
            PonerTipoSeries(Series, MovIVA, memIntSII);
            Salir := TRUE;
          END;
@@ -1305,7 +1321,7 @@ OBJECT Report 88201 Procesar Movs. IVA SII
       IF NOT Salir THEN BEGIN
         Series.SETRANGE("Tipo serie", 0);
         IF Series.FIND('-') THEN REPEAT
-           IF IsPrefix(Series.Code, MovIVA."No. Series") THEN BEGIN
+           IF IsPrefix(Series.Code, MovIVA."N§ serie") THEN BEGIN
              PonerTipoSeries(Series, MovIVA, memIntSII);
              Salir := TRUE;
            END;
@@ -1333,11 +1349,11 @@ OBJECT Report 88201 Procesar Movs. IVA SII
       // Comprobar si el cliente est  en la  configuraci¢n de clientes
       CLEAR(Series);
       Series.SETRANGE("Tipo registro", Series."Tipo registro"::Clientes);
-      Series.SETRANGE(Code, MovIVA."Bill-to/Pay-to No.");
+      Series.SETRANGE(Code, MovIVA."N§ cliente/proveedor");
       IF Series.FIND('-') THEN BEGIN
         IF Series."Tipo factura simplificada" = Series."Tipo factura simplificada"::" " THEN
           Series."Tipo factura simplificada" := Series."Tipo factura simplificada"::F2;
-        IF MovIVA."Document Type" = MovIVA."Document Type"::"Credit Memo" THEN BEGIN
+        IF MovIVA."Tipo documento" = MovIVA."Tipo documento"::Abono THEN BEGIN
           memIntSII."Tipo factura" := 'R5';
           memIntSII."Tipo factura rectificativa" := 'I';
         END ELSE BEGIN
@@ -1356,7 +1372,7 @@ OBJECT Report 88201 Procesar Movs. IVA SII
       CLEAR(Series);
       Series.SETRANGE("Tipo registro", Series."Tipo registro"::Excluir);
       Series.SETRANGE(Tipo, Tipo);
-      Series.SETRANGE(Code, MovIVA."No. Series");
+      Series.SETRANGE(Code, MovIVA."N§ serie");
       EXIT(Series.FIND('-'))
     END;
 
@@ -1390,12 +1406,12 @@ OBJECT Report 88201 Procesar Movs. IVA SII
       END;
 
       LocalConfCrucesIVA.RESET;
-      LocalConfCrucesIVA.SETRANGE(LocalConfCrucesIVA."VAT Calculation Type",LocalConfCrucesIVA."VAT Calculation Type"::"No Taxable VAT");
+      LocalConfCrucesIVA.SETRANGE(LocalConfCrucesIVA."Tipo c lculo IVA",LocalConfCrucesIVA."Tipo c lculo IVA"::"No sujeto");
       IF NOT LocalConfCrucesIVA.FIND('-') THEN
         EXIT;
 
       LocalMovIVA.RESET;
-      LocalMovIVA.SETCURRENTKEY(Type,"Posting Date","Document Type","Document No.","Bill-to/Pay-to No.");
+      LocalMovIVA.SETCURRENTKEY(Tipo,"Fecha registro","Tipo documento","N§ documento","N§ cliente/proveedor");
 
       LocalConf.GET;
       LocalMovCli.RESET;
@@ -1403,8 +1419,8 @@ OBJECT Report 88201 Procesar Movs. IVA SII
 
       IF LocalConf."Ult. mov. cli_prov proces" <> 0 THEN BEGIN
         LocUltMov := LocalConf."Ult. mov. cli_prov proces";
-        LocalMovCli.SETFILTER("Entry No.",'>=%1',LocalConf."Ult. mov. cli_prov proces");
-        LocalMovProv.SETFILTER("Entry No.",'>=%1',LocalConf."Ult. mov. cli_prov proces");
+        LocalMovCli.SETFILTER("N§ mov.",'>=%1',LocalConf."Ult. mov. cli_prov proces");
+        LocalMovProv.SETFILTER("N§ mov.",'>=%1',LocalConf."Ult. mov. cli_prov proces");
       END;
 
       IF LocalConf."No procesar 1S 2017" THEN
@@ -1412,45 +1428,45 @@ OBJECT Report 88201 Procesar Movs. IVA SII
       ELSE
         LocFechaProceso := 010117D;
 
-      LocalMovCli.SETFILTER("Posting Date", '>=%1', LocFechaProceso);
-      LocalMovProv.SETFILTER("Posting Date", '>=%1', LocFechaProceso);
+      LocalMovCli.SETFILTER("Fecha registro", '>=%1', LocFechaProceso);
+      LocalMovProv.SETFILTER("Fecha registro", '>=%1', LocFechaProceso);
 
 
 
       IF NumMovRefrescaNoSujeto <> 0 THEN BEGIN
-        LocalMovCli.SETRANGE("Entry No.",NumMovRefrescaNoSujeto);
-        LocalMovProv.SETRANGE("Entry No.",NumMovRefrescaNoSujeto);
+        LocalMovCli.SETRANGE("N§ mov.",NumMovRefrescaNoSujeto);
+        LocalMovProv.SETRANGE("N§ mov.",NumMovRefrescaNoSujeto);
       END;
 
-      LocalMovCli.SETFILTER("Document Type",'%1|%2',LocalMovCli."Document Type"::Invoice,LocalMovCli."Document Type"::"Credit Memo");
-      LocalMovProv.SETFILTER("Document Type",'%1|%2',LocalMovCli."Document Type"::Invoice,LocalMovCli."Document Type"::"Credit Memo");
+      LocalMovCli.SETFILTER("Tipo documento",'%1|%2',LocalMovCli."Tipo documento"::Factura,LocalMovCli."Tipo documento"::Abono);
+      LocalMovProv.SETFILTER("Tipo documento",'%1|%2',LocalMovCli."Tipo documento"::Factura,LocalMovCli."Tipo documento"::Abono);
 
       IF LocalMovCli.FIND('-') THEN REPEAT
         LocalExisteDoc := FALSE;
 
-        IF (LocalMovCli."Entry No." > LocUltMov) OR (NumMovRefrescaNoSujeto <> 0) THEN
-          LocUltMov := LocalMovCli."Entry No.";
+        IF (LocalMovCli."N§ mov." > LocUltMov) OR (NumMovRefrescaNoSujeto <> 0) THEN
+          LocUltMov := LocalMovCli."N§ mov.";
 
           LocalMovIVA.INIT;
-          LocalMovIVA.SETRANGE(Type,LocalMovIVA.Type::Sale);
-          LocalMovIVA.SETRANGE("Posting Date",LocalMovCli."Posting Date");
-          LocalMovIVA.SETRANGE("Document No.",LocalMovCli."Document No.");
-          LocalMovIVA.SETRANGE("Document Type",LocalMovCli."Document Type");
-          LocalMovIVA.SETRANGE("Bill-to/Pay-to No.",LocalMovCli."Customer No.");
+          LocalMovIVA.SETRANGE(Tipo,LocalMovIVA.Tipo::Venta);
+          LocalMovIVA.SETRANGE("Fecha registro",LocalMovCli."Fecha registro");
+          LocalMovIVA.SETRANGE("N§ documento",LocalMovCli."N§ documento");
+          LocalMovIVA.SETRANGE("Tipo documento",LocalMovCli."Tipo documento");
+          LocalMovIVA.SETRANGE("N§ cliente/proveedor",LocalMovCli."N§ cliente");
 
-          CASE LocalMovCli."Document Type" OF
-            LocalMovCli."Document Type"::Invoice: BEGIN
-                LocalExisteDoc := LocalFVR.GET(LocalMovCli."Document No.");
+          CASE LocalMovCli."Tipo documento" OF
+            LocalMovCli."Tipo documento"::Factura: BEGIN
+                LocalExisteDoc := LocalFVR.GET(LocalMovCli."N§ documento");
                 IF LocalExisteDoc THEN BEGIN
-                  LocalMovIVA."No. Series" := LocalFVR."No. Series";
+                  LocalMovIVA."N§ serie" := LocalFVR."N§ serie";
                   IF BuscarSerieExcluir(LocalMovIVA, 0) THEN
                     LocalExisteDoc := FALSE;
                 END;
               END;
-            LocalMovCli."Document Type"::"Credit Memo": BEGIN
-                LocalExisteDoc := LocalAVR.GET(LocalMovCli."Document No.");
+            LocalMovCli."Tipo documento"::Abono: BEGIN
+                LocalExisteDoc := LocalAVR.GET(LocalMovCli."N§ documento");
                 IF LocalExisteDoc THEN BEGIN
-                  LocalMovIVA."No. Series" := LocalAVR."No. Series";
+                  LocalMovIVA."N§ serie" := LocalAVR."N§ serie";
                   IF BuscarSerieExcluir(LocalMovIVA, 0) THEN
                     LocalExisteDoc := FALSE;
                 END;
@@ -1459,19 +1475,19 @@ OBJECT Report 88201 Procesar Movs. IVA SII
 
           // El documento no tiene IVA asociado por lo que tiene que ser completo no sujeto
           IF (NOT LocalMovIVA.FIND('-')) AND LocalExisteDoc THEN BEGIN
-            LocalMovIVA.Type := LocalMovIVA.Type::Sale;
-            LocalMovIVA."Posting Date"       := LocalMovCli."Posting Date";
-            LocalMovIVA."Document No."         := LocalMovCli."Document No.";
-            LocalMovIVA."Document Type"       := LocalMovCli."Document Type";
-            LocalMovIVA."Bill-to/Pay-to No." := LocalMovCli."Customer No.";
+            LocalMovIVA.Tipo := LocalMovIVA.Tipo::Venta;
+            LocalMovIVA."Fecha registro"       := LocalMovCli."Fecha registro";
+            LocalMovIVA."N§ documento"         := LocalMovCli."N§ documento";
+            LocalMovIVA."Tipo documento"       := LocalMovCli."Tipo documento";
+            LocalMovIVA."N§ cliente/proveedor" := LocalMovCli."N§ cliente";
 
             LocalmIntSII.INIT;
             LocalmIntSII.TipoSII := LocalmIntSII.TipoSII::E;
-            LocalmIntSII."Tipo documento" := LocalMovCli."Document Type";
-            LocalmIntSII.Documento := LocalMovCli."Document No.";
-            LocalmIntSII.Fecha := LocalMovCli."Posting Date";
-            LocalmIntSII."Fecha documento" := LocalMovCli."Document Date";
-            LocalmIntSII.NumTercero := LocalMovCli."Customer No.";
+            LocalmIntSII."Tipo documento" := LocalMovCli."Tipo documento";
+            LocalmIntSII.Documento := LocalMovCli."N§ documento";
+            LocalmIntSII.Fecha := LocalMovCli."Fecha registro";
+            LocalmIntSII."Fecha documento" := LocalMovCli."Fecha emisi¢n documento";
+            LocalmIntSII.NumTercero := LocalMovCli."N§ cliente";
 
             InsValoresNoSujeto(LocalmIntSII, LocalMovIVA);
 
@@ -1488,29 +1504,29 @@ OBJECT Report 88201 Procesar Movs. IVA SII
 
       IF LocalMovProv.FIND('-') THEN REPEAT
         LocalExisteDoc := FALSE;
-        IF (LocalMovProv."Entry No." > LocUltMov) OR (NumMovRefrescaNoSujeto <> 0) THEN
-          LocUltMov := LocalMovProv."Entry No.";
+        IF (LocalMovProv."N§ mov." > LocUltMov) OR (NumMovRefrescaNoSujeto <> 0) THEN
+          LocUltMov := LocalMovProv."N§ mov.";
 
           LocalMovIVA.INIT;
-          LocalMovIVA.SETRANGE(Type,LocalMovIVA.Type::Purchase);
-          LocalMovIVA.SETRANGE("Posting Date",LocalMovProv."Posting Date");
-          LocalMovIVA.SETRANGE("Document No.",LocalMovProv."Document No.");
-          LocalMovIVA.SETRANGE("Document Type",LocalMovProv."Document Type");
-          LocalMovIVA.SETRANGE("Bill-to/Pay-to No.",LocalMovProv."Vendor No.");
+          LocalMovIVA.SETRANGE(Tipo,LocalMovIVA.Tipo::Compra);
+          LocalMovIVA.SETRANGE("Fecha registro",LocalMovProv."Fecha registro");
+          LocalMovIVA.SETRANGE("N§ documento",LocalMovProv."N§ documento");
+          LocalMovIVA.SETRANGE("Tipo documento",LocalMovProv."Tipo documento");
+          LocalMovIVA.SETRANGE("N§ cliente/proveedor",LocalMovProv."N§ proveedor");
 
-          CASE LocalMovProv."Document Type" OF
-            LocalMovProv."Document Type"::Invoice: BEGIN
-                LocalExisteDoc := LocalFCR.GET(LocalMovProv."Document No.");
+          CASE LocalMovProv."Tipo documento" OF
+            LocalMovProv."Tipo documento"::Factura: BEGIN
+                LocalExisteDoc := LocalFCR.GET(LocalMovProv."N§ documento");
                 IF LocalExisteDoc THEN BEGIN
-                  LocalMovIVA."No. Series" := LocalFCR."No. Series";
+                  LocalMovIVA."N§ serie" := LocalFCR."N§ serie";
                   IF BuscarSerieExcluir(LocalMovIVA, 1) THEN
                     LocalExisteDoc := FALSE;
                 END;
               END;
-            LocalMovProv."Document Type"::"Credit Memo": BEGIN
-                LocalExisteDoc := LocalACR.GET(LocalMovProv."Document No.");
+            LocalMovProv."Tipo documento"::Abono: BEGIN
+                LocalExisteDoc := LocalACR.GET(LocalMovProv."N§ documento");
                 IF LocalExisteDoc THEN BEGIN
-                  LocalMovIVA."No. Series" := LocalACR."No. Series";
+                  LocalMovIVA."N§ serie" := LocalACR."N§ serie";
                   IF BuscarSerieExcluir(LocalMovIVA, 1) THEN
                     LocalExisteDoc := FALSE;
                 END;
@@ -1519,19 +1535,19 @@ OBJECT Report 88201 Procesar Movs. IVA SII
 
               // El documento no tiene IVA asociado por lo que tiene que ser completo no sujeto
           IF (NOT LocalMovIVA.FIND('-')) AND LocalExisteDoc THEN BEGIN
-            LocalMovIVA.Type := LocalMovIVA.Type::Sale;
-            LocalMovIVA."Posting Date"       := LocalMovProv."Posting Date";
-            LocalMovIVA."Document No."         := LocalMovProv."Document No.";
-            LocalMovIVA."Document Type"       := LocalMovProv."Document Type";
-            LocalMovIVA."Bill-to/Pay-to No." := LocalMovProv."Vendor No.";
+            LocalMovIVA.Tipo := LocalMovIVA.Tipo::Venta;
+            LocalMovIVA."Fecha registro"       := LocalMovProv."Fecha registro";
+            LocalMovIVA."N§ documento"         := LocalMovProv."N§ documento";
+            LocalMovIVA."Tipo documento"       := LocalMovProv."Tipo documento";
+            LocalMovIVA."N§ cliente/proveedor" := LocalMovProv."N§ proveedor";
 
             LocalmIntSII.INIT;
             LocalmIntSII.TipoSII := LocalmIntSII.TipoSII::R;
-            LocalmIntSII."Tipo documento" := LocalMovProv."Document Type";
-            LocalmIntSII.Documento := LocalMovProv."Document No.";
-            LocalmIntSII.Fecha := LocalMovProv."Posting Date";
-            LocalmIntSII."Fecha documento" := LocalMovProv."Document Date";
-            LocalmIntSII.NumTercero := LocalMovProv."Vendor No.";
+            LocalmIntSII."Tipo documento" := LocalMovProv."Tipo documento";
+            LocalmIntSII.Documento := LocalMovProv."N§ documento";
+            LocalmIntSII.Fecha := LocalMovProv."Fecha registro";
+            LocalmIntSII."Fecha documento" := LocalMovProv."Fecha emisi¢n documento";
+            LocalmIntSII.NumTercero := LocalMovProv."N§ proveedor";
 
             InsValoresNoSujeto(LocalmIntSII, LocalMovIVA);
 
@@ -1570,85 +1586,85 @@ OBJECT Report 88201 Procesar Movs. IVA SII
           mIntSII."Codigo Error" := '-1';
         END;
         IF CLI.GET(mIntSII.NumTercero) THEN BEGIN
-          mIntSII.NIF := CLI."VAT Registration No.";
-          mIntSII.RazonSocial := CLI.Name;
-          mIntSII."Cod. pais" := CLI."Country/Region Code";
-          mIntSII."Cod. divisa" := CLI."Currency Code";
-          mIntSII."Tipo factura" := TipoFactura("VAT Entry", mIntSII.NIF);
+          mIntSII.NIF := CLI."CIF/NIF";
+          mIntSII.RazonSocial := CLI.Nombre;
+          mIntSII."Cod. pais" := CLI."C¢d. pa¡s";
+          mIntSII."Cod. divisa" := CLI."C¢d. divisa";
+          mIntSII."Tipo factura" := TipoFactura("Mov. IVA", mIntSII.NIF);
         END;
         IF mIntSII."Tipo documento" = mIntSII."Tipo documento"::Factura THEN BEGIN
           IF FVR.GET(mIntSII.Documento) THEN BEGIN
-            mIntSII.NIF := FVR."VAT Registration No.";
-            mIntSII.RazonSocial := FVR."Bill-to Name";
-            mIntSII."Cod. divisa" := FVR."Currency Code";
-            mIntSII."Factor divisa" := FVR."Currency Factor";
-            mIntSII.TextoRegistro := FVR."Posting Description";
-            mIntSII."Cod. pais" := FVR."Bill-to Country/Region Code";
+            mIntSII.NIF := FVR."CIF/NIF";
+            mIntSII.RazonSocial := FVR."Fact. a-Nombre";
+            mIntSII."Cod. divisa" := FVR."C¢d. divisa";
+            mIntSII."Factor divisa" := FVR."Factor divisa";
+            mIntSII.TextoRegistro := FVR."Texto de registro";
+            mIntSII."Cod. pais" := FVR."Fact. a-C¢d. pa¡s";
             mIntSII."Tipo factura" := TipoFactura(MovIVAAux, mIntSII.NIF);
 
             IF CfgSII."Descripcion Factura venta" = CfgSII."Descripcion Factura venta"::"Primera linea documento" THEN BEGIN
-              FVRLin.SETRANGE(FVRLin."Document No.", FVR."No.");
+              FVRLin.SETRANGE(FVRLin."N§ documento", FVR."N§");
               CASE CfgSII."Tipo l¡nea factura Venta" OF
                 CfgSII."Tipo l¡nea factura Venta"::"Sin tipo ":
-                  FVRLin.SETRANGE(Type,0 );
+                  FVRLin.SETRANGE(Tipo,0 );
                 CfgSII."Tipo l¡nea factura Venta"::"Con tipo":
-                  FVRLin.SETFILTER(Type,'>0' );
+                  FVRLin.SETFILTER(Tipo,'>0' );
               END;
               IF CfgSII."Con cantidad en factura venta" THEN
-                FVRLin.SETFILTER(Quantity,'<>0');
+                FVRLin.SETFILTER(Cantidad,'<>0');
               IF FVRLin.FIND('-') THEN
-                mIntSII.TextoRegistro := FVRLin.Description;
+                mIntSII.TextoRegistro := FVRLin.Descripci¢n;
             END;
 
             IF CfgSII."Descripcion Factura venta" = CfgSII."Descripcion Factura venta"::"N§ documento emitido" THEN
-              mIntSII.TextoRegistro := 'N§ Documento ' + FVR."No.";
+              mIntSII.TextoRegistro := 'N§ Documento ' + FVR."N§";
 
             // Coger CO
-            FVRLin.SETRANGE("Document No.", FVR."No.");
-            FVRLin.SETRANGE(Type);
-            FVRLin.SETFILTER(Quantity,'<>0');
+            FVRLin.SETRANGE("N§ documento", FVR."N§");
+            FVRLin.SETRANGE(Tipo);
+            FVRLin.SETFILTER(Cantidad,'<>0');
             IF FVRLin.FIND('-') THEN
               mIntSII."Clave operacion" := Get_CO_NoSujeto(mIntSII.TipoSII,
-                                                           FVRLin."VAT Bus. Posting Group",
-                                                           FVRLin."VAT Prod. Posting Group",
+                                                           FVRLin."Grupo registro IVA neg.",
+                                                           FVRLin."Grupo registro IVA prod.",
                                                            TxtError);
           END;
         END;
         IF mIntSII."Tipo documento" = mIntSII."Tipo documento"::Abono THEN BEGIN
           IF AVR.GET(mIntSII.Documento) THEN BEGIN
-            mIntSII.NIF := AVR."VAT Registration No.";
-            mIntSII.RazonSocial := AVR."Bill-to Name";
-            mIntSII."Cod. divisa" := AVR."Currency Code";
-            mIntSII."Factor divisa" := AVR."Currency Factor";
-            mIntSII.TextoRegistro := AVR."Posting Description";
-            mIntSII."Cod. pais" := AVR."Bill-to Country/Region Code";
+            mIntSII.NIF := AVR."CIF/NIF";
+            mIntSII.RazonSocial := AVR."Fact. a-Nombre";
+            mIntSII."Cod. divisa" := AVR."C¢d. divisa";
+            mIntSII."Factor divisa" := AVR."Factor divisa";
+            mIntSII.TextoRegistro := AVR."Texto de registro";
+            mIntSII."Cod. pais" := AVR."Fact. a-C¢d. pa¡s";
             mIntSII."Tipo factura" := TipoFactura(MovIVAAux, mIntSII.NIF);
 
             IF CfgSII."Descripcion Abono venta" = CfgSII."Descripcion Abono venta"::"Primera linea documento" THEN BEGIN
-              AVRLin.SETRANGE("Document No.", AVR."No.");
+              AVRLin.SETRANGE("N§ documento", AVR."N§");
               CASE CfgSII."Tipo l¡nea abono Venta" OF
                 CfgSII."Tipo l¡nea abono Venta"::"Sin tipo ":
-                  AVRLin.SETRANGE(Type,0 );
+                  AVRLin.SETRANGE(Tipo,0 );
                 CfgSII."Tipo l¡nea abono Venta"::"Con tipo":
-                  AVRLin.SETFILTER(Type,'>0' );
+                  AVRLin.SETFILTER(Tipo,'>0' );
               END;
               IF CfgSII."Con cantidad en abono venta" THEN
-                AVRLin.SETFILTER(Quantity,'<>0');
+                AVRLin.SETFILTER(Cantidad,'<>0');
               IF AVRLin.FIND('-') THEN
-                mIntSII.TextoRegistro := AVRLin.Description;
+                mIntSII.TextoRegistro := AVRLin.Descripci¢n;
             END;
 
             IF CfgSII."Descripcion Abono venta" = CfgSII."Descripcion Abono venta"::"N§ documento emitido" THEN
-              mIntSII.TextoRegistro := 'N§ Documento ' + AVR."No.";
+              mIntSII.TextoRegistro := 'N§ Documento ' + AVR."N§";
 
             // Coger CO
-            AVRLin.SETRANGE("Document No.", AVR."No.");
-            AVRLin.SETRANGE(Type);
-            AVRLin.SETFILTER(Quantity,'<>0');
+            AVRLin.SETRANGE("N§ documento", AVR."N§");
+            AVRLin.SETRANGE(Tipo);
+            AVRLin.SETFILTER(Cantidad,'<>0');
             IF AVRLin.FIND('-') THEN
               mIntSII."Clave operacion" := Get_CO_NoSujeto(mIntSII.TipoSII,
-                                                           AVRLin."VAT Bus. Posting Group",
-                                                           AVRLin."VAT Prod. Posting Group",
+                                                           AVRLin."Grupo registro IVA neg.",
+                                                           AVRLin."Grupo registro IVA prod.",
                                                            TxtError);
 
             mIntSII."Factura corregida" := AVR."Corrected Invoice No.";
@@ -1659,7 +1675,7 @@ OBJECT Report 88201 Procesar Movs. IVA SII
                   mIntSII."Tipo factura" := 'R5'
                 ELSE
                   mIntSII."Tipo factura" := 'R4';
-                mIntSII."Fecha factura corregida" := FVR."Posting Date";
+                mIntSII."Fecha factura corregida" := FVR."Fecha registro";
               END;
             END;
           END;
@@ -1672,92 +1688,92 @@ OBJECT Report 88201 Procesar Movs. IVA SII
           mIntSII."Codigo Error" := '-1';
         END;
         IF PRO.GET(mIntSII.NumTercero) THEN BEGIN
-          mIntSII.NIF := PRO."VAT Registration No.";
-          mIntSII.RazonSocial := PRO.Name;
-          mIntSII."Cod. pais" := PRO."Country/Region Code";
-          mIntSII."Cod. divisa" := PRO."Currency Code";
-          mIntSII."Tipo factura" := TipoFactura("VAT Entry", mIntSII.NIF);
+          mIntSII.NIF := PRO."CIF/NIF";
+          mIntSII.RazonSocial := PRO.Nombre;
+          mIntSII."Cod. pais" := PRO."C¢d. pa¡s";
+          mIntSII."Cod. divisa" := PRO."C¢d. divisa";
+          mIntSII."Tipo factura" := TipoFactura("Mov. IVA", mIntSII.NIF);
         END;
         IF mIntSII."Tipo documento" = mIntSII."Tipo documento"::Factura THEN BEGIN
           IF FCR.GET(mIntSII.Documento) THEN BEGIN
-            mIntSII.NIF := FCR."VAT Registration No.";
-            mIntSII.RazonSocial := FCR."Pay-to Name";
-            mIntSII."Cod. divisa" := FCR."Currency Code";
-            mIntSII."Factor divisa" := FCR."Currency Factor";
-            mIntSII.TextoRegistro := FCR."Posting Description";
-            mIntSII."Cod. pais" := FCR."Pay-to Country/Region Code";
-            mIntSII.DocumentoTercero := FCR."Vendor Invoice No.";
-            mIntSII."Fecha documento" := FCR."Document Date";
-            mIntSII."Fecha operacion" := FCR."Document Date";
+            mIntSII.NIF := FCR."CIF/NIF";
+            mIntSII.RazonSocial := FCR."Pago a-Nombre";
+            mIntSII."Cod. divisa" := FCR."C¢d. divisa";
+            mIntSII."Factor divisa" := FCR."Factor divisa";
+            mIntSII.TextoRegistro := FCR."Texto de registro";
+            mIntSII."Cod. pais" := FCR."Pago a-C¢d. pa¡s";
+            mIntSII.DocumentoTercero := FCR."N§ factura proveedor";
+            mIntSII."Fecha documento" := FCR."Fecha emisi¢n documento";
+            mIntSII."Fecha operacion" := FCR."Fecha emisi¢n documento";
             mIntSII."Tipo factura" := TipoFactura(MovIVAAux, 'COMPRA');
 
             IF CfgSII."Descripcion Factura compra" = CfgSII."Descripcion Factura compra"::"Primera linea documento" THEN BEGIN
-              FCRLin.SETRANGE(FCRLin."Document No.", FCR."No.");
+              FCRLin.SETRANGE(FCRLin."N§ documento", FCR."N§");
               CASE CfgSII."Tipo l¡nea factura compra" OF
                 CfgSII."Tipo l¡nea factura compra"::"Sin tipo ":
-                  FCRLin.SETRANGE(Type,0 );
+                  FCRLin.SETRANGE(Tipo,0 );
                 CfgSII."Tipo l¡nea factura compra"::"Con tipo":
-                  FCRLin.SETFILTER(Type,'>0' );
+                  FCRLin.SETFILTER(Tipo,'>0' );
               END;
               IF CfgSII."Con cantidad en factura compra" THEN
-                FCRLin.SETFILTER(Quantity,'<>0');
+                FCRLin.SETFILTER(Cantidad,'<>0');
               IF FCRLin.FIND('-') THEN
-                mIntSII.TextoRegistro := FCRLin.Description;
+                mIntSII.TextoRegistro := FCRLin.Descripci¢n;
             END;
 
             IF CfgSII."Descripcion Factura compra" = CfgSII."Descripcion Factura compra"::"N§ documento proveedor" THEN
-              mIntSII.TextoRegistro := 'N§ Documento ' + FCR."No.";
+              mIntSII.TextoRegistro := 'N§ Documento ' + FCR."N§";
 
             // Coger CO
-            FCRLin.SETRANGE("Document No.", FCR."No.");
-            FCRLin.SETRANGE(Type);
-            FCRLin.SETFILTER(Quantity,'<>0');
+            FCRLin.SETRANGE("N§ documento", FCR."N§");
+            FCRLin.SETRANGE(Tipo);
+            FCRLin.SETFILTER(Cantidad,'<>0');
             IF FCRLin.FIND('-') THEN
               mIntSII."Clave operacion" := Get_CO_NoSujeto(mIntSII.TipoSII,
-                                                           FCRLin."VAT Bus. Posting Group",
-                                                           FCRLin."VAT Prod. Posting Group",
+                                                           FCRLin."Grupo registro IVA neg.",
+                                                           FCRLin."Grupo registro IVA prod.",
                                                            TxtError);
 
           END;
         END;
         IF mIntSII."Tipo documento" = mIntSII."Tipo documento"::Abono THEN BEGIN
           IF ACR.GET(mIntSII.Documento) THEN BEGIN
-            mIntSII.NIF := ACR."VAT Registration No.";
-            mIntSII.RazonSocial := ACR."Pay-to Name";
-            mIntSII."Cod. divisa" := ACR."Currency Code";
-            mIntSII."Factor divisa" := ACR."Currency Factor";
-            mIntSII.TextoRegistro := ACR."Posting Description";
-            mIntSII."Cod. pais" := ACR."Pay-to Country/Region Code";
-            mIntSII.DocumentoTercero := ACR."Vendor Cr. Memo No.";
-            mIntSII."Fecha documento" := ACR."Document Date";
-            mIntSII."Fecha operacion" := ACR."Document Date";
+            mIntSII.NIF := ACR."CIF/NIF";
+            mIntSII.RazonSocial := ACR."Pago a-Nombre";
+            mIntSII."Cod. divisa" := ACR."C¢d. divisa";
+            mIntSII."Factor divisa" := ACR."Factor divisa";
+            mIntSII.TextoRegistro := ACR."Texto de registro";
+            mIntSII."Cod. pais" := ACR."Pago a-C¢d. pa¡s";
+            mIntSII.DocumentoTercero := ACR."N§ abono proveedor";
+            mIntSII."Fecha documento" := ACR."Fecha emisi¢n documento";
+            mIntSII."Fecha operacion" := ACR."Fecha emisi¢n documento";
             mIntSII."Tipo factura" := TipoFactura(MovIVAAux, 'COMPRA');
 
             IF CfgSII."Descripcion Abono venta" = CfgSII."Descripcion Abono compra"::"Primera linea documento" THEN BEGIN
-              ACRLin.SETRANGE("Document No.", ACR."No.");
+              ACRLin.SETRANGE("N§ documento", ACR."N§");
               CASE CfgSII."Tipo l¡nea abono compra" OF
                 CfgSII."Tipo l¡nea abono compra"::"Sin tipo ":
-                  ACRLin.SETRANGE(Type,0 );
+                  ACRLin.SETRANGE(Tipo,0 );
                 CfgSII."Tipo l¡nea abono compra"::"Con tipo":
-                  ACRLin.SETFILTER(Type,'>0' );
+                  ACRLin.SETFILTER(Tipo,'>0' );
               END;
               IF CfgSII."Con cantidad en abono compra" THEN
-                ACRLin.SETFILTER(Quantity,'<>0');
+                ACRLin.SETFILTER(Cantidad,'<>0');
               IF ACRLin.FIND('-') THEN
-                mIntSII.TextoRegistro := ACRLin.Description;
+                mIntSII.TextoRegistro := ACRLin.Descripci¢n;
             END;
 
             IF CfgSII."Descripcion Abono compra" = CfgSII."Descripcion Abono compra"::"N§ documento proveedor" THEN
-              mIntSII.TextoRegistro := 'N§ Documento ' + ACR."No.";
+              mIntSII.TextoRegistro := 'N§ Documento ' + ACR."N§";
 
             // Coger CO
-            ACRLin.SETRANGE("Document No.", ACR."No.");
-            ACRLin.SETRANGE(Type);
-            ACRLin.SETFILTER(Quantity,'<>0');
+            ACRLin.SETRANGE("N§ documento", ACR."N§");
+            ACRLin.SETRANGE(Tipo);
+            ACRLin.SETFILTER(Cantidad,'<>0');
             IF ACRLin.FIND('-') THEN
               mIntSII."Clave operacion" := Get_CO_NoSujeto(mIntSII.TipoSII,
-                                                           ACRLin."VAT Bus. Posting Group",
-                                                           ACRLin."VAT Prod. Posting Group",
+                                                           ACRLin."Grupo registro IVA neg.",
+                                                           ACRLin."Grupo registro IVA prod.",
                                                            TxtError);
 
             mIntSII."Factura corregida" := ACR."Corrected Invoice No.";
@@ -1765,8 +1781,8 @@ OBJECT Report 88201 Procesar Movs. IVA SII
               IF FCR.GET(ACR."Corrected Invoice No.") THEN BEGIN
                 mIntSII."Tipo factura rectificativa" := 'I'; // Por diferencia
                 mIntSII."Tipo factura" := 'R4';
-                mIntSII."Fecha factura corregida" := FCR."Document Date";
-                mIntSII."Factura corregida" := FCR."Vendor Invoice No.";
+                mIntSII."Fecha factura corregida" := FCR."Fecha emisi¢n documento";
+                mIntSII."Factura corregida" := FCR."N§ factura proveedor";
               END;
             END;
           END;
@@ -1849,30 +1865,30 @@ OBJECT Report 88201 Procesar Movs. IVA SII
         END;
 
 
-        LocalMovProv.SETCURRENTKEY("Document No.");
-        LocalMovCli.SETCURRENTKEY("Document No.");
+        LocalMovProv.SETCURRENTKEY("N§ documento");
+        LocalMovCli.SETCURRENTKEY("N§ documento");
 
-        LocalMovCli.SETRANGE("Document Type",LocalMovCli."Document Type"::Invoice,LocalMovCli."Document Type"::"Credit Memo");
-        LocalMovProv.SETRANGE("Document Type",LocalMovCli."Document Type"::Invoice,LocalMovCli."Document Type"::"Credit Memo");
+        LocalMovCli.SETRANGE("Tipo documento",LocalMovCli."Tipo documento"::Factura,LocalMovCli."Tipo documento"::Abono);
+        LocalMovProv.SETRANGE("Tipo documento",LocalMovCli."Tipo documento"::Factura,LocalMovCli."Tipo documento"::Abono);
 
         IF LocalDocSII.GET(gblNumDoc) THEN BEGIN
           CASE LocalDocSII.TipoSII OF
             LocalDocSII.TipoSII::E:
               BEGIN
-                LocalMovCli.SETRANGE("Document No.",LocalDocSII.Documento);
-                LocalMovCli.SETRANGE("Posting Date",LocalDocSII.Fecha);
+                LocalMovCli.SETRANGE("N§ documento",LocalDocSII.Documento);
+                LocalMovCli.SETRANGE("Fecha registro",LocalDocSII.Fecha);
                 IF LocalMovCli.FIND('-') THEN BEGIN
-                  NumMovRefrescaNoSujeto := LocalMovCli."Entry No.";
+                  NumMovRefrescaNoSujeto := LocalMovCli."N§ mov.";
                   ProcesNoSujetoTotal;
                 END;
 
               END;
             LocalDocSII.TipoSII::R:
               BEGIN
-                LocalMovProv.SETRANGE("Document No.",LocalDocSII.Documento);
-                LocalMovProv.SETRANGE("Posting Date",LocalDocSII.Fecha);
+                LocalMovProv.SETRANGE("N§ documento",LocalDocSII.Documento);
+                LocalMovProv.SETRANGE("Fecha registro",LocalDocSII.Fecha);
                 IF LocalMovProv.FIND('-') THEN BEGIN
-                  NumMovRefrescaNoSujeto := LocalMovProv."Entry No.";
+                  NumMovRefrescaNoSujeto := LocalMovProv."N§ mov.";
                   ProcesNoSujetoTotal;
                 END;
               END;

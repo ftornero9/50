@@ -83,10 +83,10 @@ OBJECT Table 88209 Lin. Documentos SII
     { 24  ;   ;Cuota deducible     ;Decimal       ;CaptionML=[ENU=Deductible fee;
                                                               ESP=Cuota deducible];
                                                    BlankZero=Yes }
-    { 39  ;   ;Grupo registro IVA neg.;Code20     ;TableRelation="VAT Business Posting Group";
+    { 39  ;   ;Grupo registro IVA neg.;Code20     ;TableRelation="Grupo registro IVA negocio";
                                                    CaptionML=[ENU=Business VAT group;
                                                               ESP=Grupo registro IVA neg.] }
-    { 40  ;   ;Grupo registro IVA prod.;Code20    ;TableRelation="VAT Product Posting Group";
+    { 40  ;   ;Grupo registro IVA prod.;Code20    ;TableRelation="Grupo registro IVA producto";
                                                    CaptionML=[ENU=Product VAT group;
                                                               ESP=Grupo registro IVA prod.] }
     { 90001;  ;Sujeta_NoExenta     ;Code10        ;CaptionML=[ENU=Subject Not Exempt;
@@ -97,10 +97,10 @@ OBJECT Table 88209 Lin. Documentos SII
                                                    Description=E1,E2,E3,E4,E5,E6 }
     { 90003;  ;No Sujeto           ;Boolean       ;CaptionML=[ENU=Not subject;
                                                               ESP=No sujeto] }
-    { 90004;  ;NMov IVA            ;Integer       ;TableRelation="VAT Entry";
+    { 90004;  ;NMov IVA            ;Integer       ;TableRelation="Mov. IVA";
                                                    CaptionML=[ENU=VAT NMov;
                                                               ESP=NMov IVA] }
-    { 90005;  ;NMov IVA no realizado;Integer      ;TableRelation="VAT Entry";
+    { 90005;  ;NMov IVA no realizado;Integer      ;TableRelation="Mov. IVA";
                                                    CaptionML=[ENU=Not performed VAT NMov;
                                                               ESP=NMov IVA no realizado] }
     { 90006;  ;Inversion sujeto pasivo;Boolean    ;CaptionML=[ENU=Reversion of taxable person;

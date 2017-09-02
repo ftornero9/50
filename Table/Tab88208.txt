@@ -2,8 +2,8 @@ OBJECT Table 88208 Documentos SII
 {
   OBJECT-PROPERTIES
   {
-    Date=28/07/17;
-    Time=[ 9:59:37];
+    Date=23/08/17;
+    Time=11:17:50;
     Modified=Yes;
     Version List=SII;
   }
@@ -65,23 +65,23 @@ OBJECT Table 88208 Documentos SII
                                                               ESP=Documento tercero] }
     { 9   ;   ;Fecha documento     ;Date          ;CaptionML=[ENU=Document date;
                                                               ESP=Fecha documento] }
-    { 10  ;   ;NumTercero          ;Code20        ;TableRelation=IF (TipoSII=CONST(E)) Customer.No.
-                                                                 ELSE IF (TipoSII=CONST(R)) Vendor.No.;
+    { 10  ;   ;NumTercero          ;Code20        ;TableRelation=IF (TipoSII=CONST(E)) Cliente.N§
+                                                                 ELSE IF (TipoSII=CONST(R)) Proveedor.N§;
                                                    OnValidate=BEGIN
                                                                 IF TipoSII = TipoSII::E THEN BEGIN
                                                                   IF Clien.GET(NumTercero) THEN BEGIN
-                                                                    NIF         := Clien."VAT Registration No.";
-                                                                    RazonSocial := Clien.Name;
-                                                                    "Cod. pais" := Clien."Country/Region Code";
+                                                                    NIF         := Clien."CIF/NIF";
+                                                                    RazonSocial := Clien.Nombre;
+                                                                    "Cod. pais" := Clien."C¢d. pa¡s";
                                                                     IDOtro      := FunPer.esIDOtro("Cod. pais");
                                                                   END;
                                                                 END;
 
                                                                 IF TipoSII = TipoSII::R THEN BEGIN
                                                                   IF Prove.GET(NumTercero) THEN BEGIN
-                                                                    NIF         := Prove."VAT Registration No.";
-                                                                    RazonSocial := Prove.Name;
-                                                                    "Cod. pais" := Prove."Country/Region Code";
+                                                                    NIF         := Prove."CIF/NIF";
+                                                                    RazonSocial := Prove.Nombre;
+                                                                    "Cod. pais" := Prove."C¢d. pa¡s";
                                                                     IDOtro      := FunPer.esIDOtro("Cod. pais");
                                                                   END;
                                                                 END;
@@ -215,7 +215,7 @@ OBJECT Table 88208 Documentos SII
                                                               ESP=Cuota deducible];
                                                    BlankZero=Yes;
                                                    Editable=No }
-    { 46  ;   ;Proveedor DUA       ;Code20        ;TableRelation=Vendor;
+    { 46  ;   ;Proveedor DUA       ;Code20        ;TableRelation=Proveedor;
                                                    CaptionML=[ENU=DUA supplier;
                                                               ESP=Proveedor DUA] }
     { 47  ;   ;Fecha operacion     ;Date          ;CaptionML=[ENU=Operation date;
@@ -231,6 +231,12 @@ OBJECT Table 88208 Documentos SII
     { 55  ;   ;Lineas documento    ;Integer       ;FieldClass=FlowField;
                                                    CalcFormula=Count("Lin. Documentos SII" WHERE (NMovDoc=FIELD(NMov)));
                                                    BlankZero=Yes;
+                                                   Editable=No }
+    { 57  ;   ;Entrada SII         ;DateTime      ;CaptionML=[ENU=SII Creation;
+                                                              ESP=Entrada SII];
+                                                   Editable=No }
+    { 58  ;   ;Refresco SII        ;DateTime      ;CaptionML=[ENU=SII Refresh;
+                                                              ESP=Refresco SII];
                                                    Editable=No }
     { 60  ;   ;Factura resumen inicio;Code20      ;CaptionML=[ENU=Start summary invoice;
                                                               ESP=Factura resumen inicio];
@@ -308,7 +314,7 @@ OBJECT Table 88208 Documentos SII
     VAR
       FormNavegar@1000000000 : Form 344;
     BEGIN
-      FormNavegar.SetDoc(Fecha,Documento);
+      FormNavegar.DefDoc(Fecha,Documento);
       FormNavegar.RUN;
     END;
 

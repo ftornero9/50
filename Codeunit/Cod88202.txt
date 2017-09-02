@@ -2,8 +2,8 @@ OBJECT Codeunit 88202 WebService SII
 {
   OBJECT-PROPERTIES
   {
-    Date=17/08/17;
-    Time=21:22:30;
+    Date=29/08/17;
+    Time=15:22:45;
     Modified=Yes;
     Version List=SII;
   }
@@ -55,8 +55,11 @@ OBJECT Codeunit 88202 WebService SII
       URL_WS_CD@1100288006 : TextConst 'ESP=https://www1.agenciatributaria.gob.es/wlpl/BURT-JDIT/ws/VNifV1SOAP';
       CertSII@1000000003 : Codeunit 88205;
       GblInStream@1100288009 : InStream;
+      FACTURA_DUPLICADA@1000000021 : TextConst 'ESP=3000';
+      Err_Doc_Duplicado@1000000022 : TextConst 'ENU=Document %1, more than once;ESP=Documento %1, esta repetido';
+      CfgCertSII@1000000023 : Record 88205;
 
-    PROCEDURE SII_Envio@1000000001(FicheroEntrada@1000000006 : Text[1024];SacarMensaje@1000000008 : Boolean;Accion@1000000011 : Text[80];Respuesta@1000000014 : Text[80];TipoEnvio@1000000004 : 'Emitidos,Recibidos,BienesInv,Cobros,Pagos,OpIntra,CobMetalico';TipoAccion@1000000009 : ' ,Consulta,Contraste,Baja';VAR DocSII@1000000007 : Record 88208);
+    PROCEDURE SII_Envio@1000000001(FicheroEntrada@1000000006 : Text[1024];SacarMensaje@1000000008 : Boolean;Accion@1000000011 : Text[80];Respuesta@1000000014 : Text[80];TipoEnvio@1000000004 : 'Emitidos,Recibidos,BienesInv,Cobros,Pagos,OpIntra,CobMetalico';TipoAccion@1000000009 : ' ,Consulta,Contraste,Baja,Corregir';VAR DocSII@1000000007 : Record 88208);
     VAR
       XMLDoc@1100288001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";
       XMLDoc2@1100288005 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";
@@ -82,6 +85,7 @@ OBJECT Codeunit 88202 WebService SII
       END;
 
       CfgSII.GET;
+      IF CfgCertSII.GET THEN;
 
       CLEAR(XMLDoc);
       CREATE(XMLDoc);
@@ -100,7 +104,12 @@ OBJECT Codeunit 88202 WebService SII
       XmlHttp2.SetRequestHeader('Content-Type', 'text/xml; charset=UTF-8');
       XmlHttp2.SetRequestHeader('SOAPAction', Accion);
 
-      XmlHttp2.SetTimeouts(10000,10000,10000,100000);
+      IF (TipoAccion = TipoAccion::Contraste) OR
+         (TipoAccion = TipoAccion::Consulta) OR
+         (TipoAccion = TipoAccion::Corregir) THEN
+        XmlHttp2.SetTimeouts(10000,10000,10000,10000)
+      ELSE
+        XmlHttp2.SetTimeouts(60000,60000,60000,100000);
 
       //FunSII.GuardarXMLReq(XMLDoc);
 
@@ -166,7 +175,8 @@ OBJECT Codeunit 88202 WebService SII
       XMLDoc2.async := FALSE;
       XMLDoc2.load(XmlHttp2.ResponseBody);
 
-      GblInStream := XmlHttp2.ResponseStream;
+      IF CfgCertSII."Soporta Instream" THEN
+        GblInStream := XmlHttp2.ResponseStream;
 
       IF CfgSII."Cargar certificados" THEN
         CertSII.EliminarCertificado;
@@ -182,7 +192,8 @@ OBJECT Codeunit 88202 WebService SII
           ProcesarRespuesta := FALSE;
           IF SacarMensaje THEN
             MESSAGE('ERROR: %1\\DESCRIPCI‡N: %2', FaultCode, FaultString);
-          FunSII.GuardarResAEAT(GblInStream);
+          IF CfgCertSII."Soporta Instream" THEN
+            FunSII.GuardarResAEAT(GblInStream);
         END;
       END ELSE BEGIN
         ProcesarRespuesta := FALSE;
@@ -190,7 +201,8 @@ OBJECT Codeunit 88202 WebService SII
         FaultString := COPYSTR(XmlHttp2.StatusText, 1, 1024);
         IF SacarMensaje THEN
           MESSAGE('Error estado: %1', XmlHttp2.Status);
-        FunSII.GuardarResAEAT(GblInStream);
+        IF CfgCertSII."Soporta Instream" THEN
+          FunSII.GuardarResAEAT(GblInStream);
       END;
 
       CASE TipoAccion OF
@@ -211,13 +223,23 @@ OBJECT Codeunit 88202 WebService SII
             IF ProcesarRespuesta THEN BEGIN
               FunSII.GuardarXMLRes(XMLDoc2);
               CASE TipoEnvio OF
-                TipoEnvio::Emitidos    : ProcesarConsultaFactEmitidas(XMLDoc2, Respuesta);
-                TipoEnvio::Recibidos   : ProcesarConsultaFactRecibidas(XMLDoc2, Respuesta);
+                TipoEnvio::Emitidos    : ProcesarConsultaFactEmitidas(XMLDoc2, Respuesta, FALSE);
+                TipoEnvio::Recibidos   : ProcesarConsultaFactRecibidas(XMLDoc2, Respuesta, FALSE);
                 TipoEnvio::BienesInv   : ProcesarConsultaBienInversion(XMLDoc2, Respuesta);
                 TipoEnvio::Cobros      : ProcesarConsultaCobros(XMLDoc2, Respuesta);
                 TipoEnvio::Pagos       : ProcesarConsultaPagos(XMLDoc2, Respuesta);
                 TipoEnvio::OpIntra     : ProcesarConsultaOpIntra(XMLDoc2, Respuesta);
                 TipoEnvio::CobMetalico : ProcesarConsultaCobMetalico(XMLDoc2, Respuesta);
+              END;
+            END;
+          END;
+        TipoAccion::Corregir:
+          BEGIN
+            IF ProcesarRespuesta THEN BEGIN
+              FunSII.GuardarXMLRes(XMLDoc2);
+              CASE TipoEnvio OF
+                TipoEnvio::Emitidos    : ProcesarConsultaFactEmitidas(XMLDoc2, Respuesta, TRUE);
+                TipoEnvio::Recibidos   : ProcesarConsultaFactRecibidas(XMLDoc2, Respuesta, TRUE);
               END;
             END;
           END;
@@ -280,6 +302,7 @@ OBJECT Codeunit 88202 WebService SII
       END;
 
       CfgSII.GET;
+      IF CfgCertSII.GET THEN;
 
       IF ISCLEAR(XMLDoc) THEN
         CREATE(XMLDoc);
@@ -344,7 +367,8 @@ OBJECT Codeunit 88202 WebService SII
         XMLDoc.async := FALSE;
         XMLDoc.load(XmlHttp2.ResponseBody);
 
-        GblInStream := XmlHttp2.ResponseStream;
+        IF CfgCertSII."Soporta Instream" THEN
+          GblInStream := XmlHttp2.ResponseStream;
 
         Correcto := (XmlHttp2.Status = 200);
 
@@ -359,7 +383,8 @@ OBJECT Codeunit 88202 WebService SII
         IF NOT GetResponse(XMLDoc, FaultString, FaultCode) THEN BEGIN
           IF GUIALLOWED AND NOT Silent THEN
             MESSAGE('ERROR: %1\\DESCRIPCI‡N: %2', FaultCode, FaultString);
-          FunSII.GuardarResAEAT(GblInStream);
+          IF CfgCertSII."Soporta Instream" THEN
+            FunSII.GuardarResAEAT(GblInStream);
           ret := FALSE;
         END ELSE BEGIN
           IF GUIALLOWED AND NOT Silent THEN
@@ -377,7 +402,7 @@ OBJECT Codeunit 88202 WebService SII
       EXIT(ret);
     END;
 
-    PROCEDURE SII_Envio_Externo@1000000010(FicheroEntrada@1000000006 : Text[1024];FicheroSalida@1000000008 : Text[1024];SacarMensaje@1000000002 : Boolean;Accion@1000000011 : Text[80];Respuesta@1000000014 : Text[80];TipoEnvio@1000000004 : 'Emitidos,Recibidos,BienesInv,Cobros,Pagos,OpIntra,CobMetalico';TipoAccion@1000000009 : ' ,Consulta,Contraste,Baja';VAR DocSII@1000000007 : Record 88208);
+    PROCEDURE SII_Envio_Externo@1000000010(FicheroEntrada@1000000006 : Text[1024];FicheroSalida@1000000008 : Text[1024];SacarMensaje@1000000002 : Boolean;Accion@1000000011 : Text[80];Respuesta@1000000014 : Text[80];TipoEnvio@1000000004 : 'Emitidos,Recibidos,BienesInv,Cobros,Pagos,OpIntra,CobMetalico';TipoAccion@1000000009 : ' ,Consulta,Contraste,Baja,Corregir';VAR DocSII@1000000007 : Record 88208);
     VAR
       XMLDoc@1100288001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";
       XMLDoc2@1100288005 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";
@@ -421,13 +446,22 @@ OBJECT Codeunit 88202 WebService SII
           BEGIN
             IF ProcesarRespuesta THEN BEGIN
               CASE TipoEnvio OF
-                TipoEnvio::Emitidos    : ProcesarConsultaFactEmitidas(XMLDoc2, Respuesta);
-                TipoEnvio::Recibidos   : ProcesarConsultaFactRecibidas(XMLDoc2, Respuesta);
+                TipoEnvio::Emitidos    : ProcesarConsultaFactEmitidas(XMLDoc2, Respuesta, FALSE);
+                TipoEnvio::Recibidos   : ProcesarConsultaFactRecibidas(XMLDoc2, Respuesta, FALSE);
                 TipoEnvio::BienesInv   : ProcesarConsultaBienInversion(XMLDoc2, Respuesta);
                 TipoEnvio::Cobros      : ProcesarConsultaCobros(XMLDoc2, Respuesta);
                 TipoEnvio::Pagos       : ProcesarConsultaPagos(XMLDoc2, Respuesta);
                 TipoEnvio::OpIntra     : ProcesarConsultaOpIntra(XMLDoc2, Respuesta);
                 TipoEnvio::CobMetalico : ProcesarConsultaCobMetalico(XMLDoc2, Respuesta);
+              END;
+            END;
+          END;
+        TipoAccion::Corregir:
+          BEGIN
+            IF ProcesarRespuesta THEN BEGIN
+              CASE TipoEnvio OF
+                TipoEnvio::Emitidos    : ProcesarConsultaFactEmitidas(XMLDoc2, Respuesta, TRUE);
+                TipoEnvio::Recibidos   : ProcesarConsultaFactRecibidas(XMLDoc2, Respuesta, TRUE);
               END;
             END;
           END;
@@ -482,43 +516,7 @@ OBJECT Codeunit 88202 WebService SII
       IF Agrupado THEN
         NMovAgrupado := recEnvios."No. mov.";
 
-      GuardarXMLEnvio := TRUE;
-      GuardarXMLRespuesta := TRUE;
-
-      GuardarXMLEnvioFich := TRUE;
-      GuardarXMLRespuestaFich := TRUE;
-
-      IF CfgSII.GET THEN BEGIN
-        GuardarXMLEnvio := NOT CfgSII."No guardar XML envio";
-        GuardarXMLRespuesta := NOT CfgSII."No guardar XML respuesta";
-
-        GuardarXMLEnvioFich := CfgSII."Guardar XML en ficheros" AND (CfgSII."Ruta XML envio" <> '');
-        GuardarXMLRespuestaFich :=CfgSII."Guardar XML en ficheros" AND (CfgSII."Ruta XML respuesta" <> '');
-      END;
-
-      IF GuardarXMLRespuesta THEN BEGIN
-        Fichero := FunSII.ClientTempFileName('', 'XML');
-        XMLDoc2.save(Fichero);
-        recEnvios."XML respuesta".IMPORT(Fichero, FALSE);
-      END;
-
-      IF GuardarXMLEnvio THEN BEGIN
-        Fichero := FunSII.ClientTempFileName('', 'XML');
-        XMLDoc.save(Fichero);
-        recEnvios."XML envio".IMPORT(Fichero, FALSE);
-      END;
-
-      IF GuardarXMLRespuestaFich THEN BEGIN
-        Fichero := FunSII.ClientTempFileName('', 'XML');
-        XMLDoc2.save(Fichero);
-        COPY(Fichero, CfgSII."Ruta XML respuesta"+FunSII.MakeNameXML(1, recEnvios."No. mov."));
-      END;
-
-      IF GuardarXMLEnvioFich THEN BEGIN
-        Fichero := FunSII.ClientTempFileName('', 'XML');
-        XMLDoc.save(Fichero);
-        COPY(Fichero, CfgSII."Ruta XML envio"+FunSII.MakeNameXML(0, recEnvios."No. mov."));
-      END;
+      GuardarXML(recEnvios, XMLDoc, XMLDoc2);
 
       FunSII.RemoveNameSpace(XMLDoc2, XMLDoc2);
 
@@ -584,6 +582,59 @@ OBJECT Codeunit 88202 WebService SII
       END;
 
       COMMIT;
+    END;
+
+    PROCEDURE GuardarXML@1000000015(VAR recEnvios@1000000008 : Record 88204;XMLDoc@1000000006 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";XMLDoc2@1000000005 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument");
+    VAR
+      CfgSII@1000000004 : Record 88201;
+      GuardarXMLEnvio@1000000003 : Boolean;
+      GuardarXMLRespuesta@1000000002 : Boolean;
+      GuardarXMLEnvioFich@1000000001 : Boolean;
+      GuardarXMLRespuestaFich@1000000000 : Boolean;
+      Fichero@1000000007 : Text[1024];
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        CfgSII.CHANGECOMPANY(qEmpresa);
+      END;
+
+      GuardarXMLEnvio := TRUE;
+      GuardarXMLRespuesta := TRUE;
+
+      GuardarXMLEnvioFich := TRUE;
+      GuardarXMLRespuestaFich := TRUE;
+
+      IF CfgSII.GET THEN BEGIN
+        GuardarXMLEnvio := NOT CfgSII."No guardar XML envio";
+        GuardarXMLRespuesta := NOT CfgSII."No guardar XML respuesta";
+
+        GuardarXMLEnvioFich := CfgSII."Guardar XML en ficheros" AND (CfgSII."Ruta XML envio" <> '');
+        GuardarXMLRespuestaFich :=CfgSII."Guardar XML en ficheros" AND (CfgSII."Ruta XML respuesta" <> '');
+      END;
+
+      IF GuardarXMLRespuesta THEN BEGIN
+        Fichero := FunSII.ClientTempFileName('', 'XML');
+        XMLDoc2.save(Fichero);
+        recEnvios."XML respuesta".IMPORT(Fichero, FALSE);
+      END;
+
+      IF GuardarXMLEnvio THEN BEGIN
+        Fichero := FunSII.ClientTempFileName('', 'XML');
+        XMLDoc.save(Fichero);
+        recEnvios."XML envio".IMPORT(Fichero, FALSE);
+      END;
+
+      IF GuardarXMLRespuestaFich THEN BEGIN
+        Fichero := FunSII.ClientTempFileName('', 'XML');
+        XMLDoc2.save(Fichero);
+        COPY(Fichero, CfgSII."Ruta XML respuesta"+FunSII.MakeNameXML(1, recEnvios."No. mov."));
+      END;
+
+      IF GuardarXMLEnvioFich THEN BEGIN
+        Fichero := FunSII.ClientTempFileName('', 'XML');
+        XMLDoc.save(Fichero);
+        COPY(Fichero, CfgSII."Ruta XML envio"+FunSII.MakeNameXML(0, recEnvios."No. mov."));
+      END;
     END;
 
     PROCEDURE BuscarDatosID@1000000016(XMLNode@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF80-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNode";VAR recEnvios@1000000004 : Record 88204);
@@ -879,7 +930,7 @@ OBJECT Codeunit 88202 WebService SII
       ModEnvio(NMov, XMLDoc, Respuesta, CargarFichero);
     END;
 
-    PROCEDURE ProcesarConsultaFactEmitidas@1000000003(XMLDoc@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1100288001 : Text[50]);
+    PROCEDURE ProcesarConsultaFactEmitidas@1000000003(XMLDoc@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1100288001 : Text[50];Corregir@1000000005 : Boolean);
     VAR
       XMLNodeList@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
       XMLNodeList2@1100288006 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
@@ -905,6 +956,11 @@ OBJECT Codeunit 88202 WebService SII
       IF Resultado = 'SinDatos' THEN BEGIN
         MESSAGE(Text001);
         EXIT;
+      END;
+
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        DocSII.CHANGECOMPANY(qEmpresa);
       END;
 
       DocSII.SETCURRENTKEY(Documento, Fecha);
@@ -999,11 +1055,23 @@ OBJECT Codeunit 88202 WebService SII
         IF NOT ISCLEAR(XMLNode2) THEN
           regConsul."NIF Contraparte" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Contraparte"));
 
+        {
+        regConsul."NIF Emisor/Presentador" := '';
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/NIFPresentador');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul."NIF Emisor/Presentador" := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul."NIF Emisor/Presentador"));
+        }
+
         regConsul."Timestamp presentaci¢n" := 0DT;
         XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/TimestampPresentacion');
         IF NOT ISCLEAR(XMLNode2) THEN
           IF EVALUATE(qDT, XMLNode2.text) THEN
             regConsul."Timestamp presentaci¢n" := qDT;
+
+        regConsul.CSV := '';
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/CSV');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul.CSV := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.CSV));
 
         regConsul."Estado cuadre" := 0;
         XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/EstadoCuadre');
@@ -1034,10 +1102,13 @@ OBJECT Codeunit 88202 WebService SII
         XMLNode := XMLNodeList.nextNode;
       END;
 
-      FORM.RUNMODAL(0, regConsul);
+      IF Corregir THEN
+        CorregirDocSII(regConsul, XMLDoc)
+      ELSE
+        FORM.RUNMODAL(0, regConsul);
     END;
 
-    PROCEDURE ProcesarConsultaFactRecibidas@1100288002(XMLDoc@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1100288001 : Text[50]);
+    PROCEDURE ProcesarConsultaFactRecibidas@1100288002(XMLDoc@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1100288001 : Text[50];Corregir@1000000005 : Boolean);
     VAR
       XMLNodeList@1000000000 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
       XMLNodeList2@1100288006 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{2933BF82-7B36-11D2-B20E-00C04F983E60}:'Microsoft XML, v3.0'.IXMLDOMNodeList";
@@ -1063,6 +1134,11 @@ OBJECT Codeunit 88202 WebService SII
       IF Resultado = 'SinDatos' THEN BEGIN
         MESSAGE(Text001);
         EXIT;
+      END;
+
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        DocSII.CHANGECOMPANY(qEmpresa);
       END;
 
       DocSII.SETCURRENTKEY(DocumentoTercero, "Fecha documento");
@@ -1165,6 +1241,11 @@ OBJECT Codeunit 88202 WebService SII
           IF EVALUATE(qDT, XMLNode2.text) THEN
             regConsul."Timestamp presentaci¢n" := qDT;
 
+        regConsul.CSV := '';
+        XMLNode2 := XMLNode.selectSingleNode('DatosPresentacion/CSV');
+        IF NOT ISCLEAR(XMLNode2) THEN
+          regConsul.CSV := COPYSTR(XMLNode2.text,1,MAXSTRLEN(regConsul.CSV));
+
         regConsul."Estado cuadre" := 0;
         XMLNode2 := XMLNode.selectSingleNode('EstadoFactura/EstadoCuadre');
         IF NOT ISCLEAR(XMLNode2) THEN
@@ -1194,7 +1275,10 @@ OBJECT Codeunit 88202 WebService SII
         XMLNode := XMLNodeList.nextNode;
       END;
 
-      FORM.RUNMODAL(0, regConsul);
+      IF Corregir THEN
+        CorregirDocSII(regConsul, XMLDoc)
+      ELSE
+        FORM.RUNMODAL(0, regConsul);
     END;
 
     PROCEDURE ProcesarConsultaBienInversion@1100288004(XMLDoc@1000000001 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument";Respuesta@1100288001 : Text[50]);
@@ -1733,6 +1817,57 @@ OBJECT Codeunit 88202 WebService SII
       END;
 
       FORM.RUNMODAL(0, regConsul);
+    END;
+
+    PROCEDURE CorregirDocSII@1000000034(VAR regConsul@1000000000 : TEMPORARY Record 88206;XMLDoc@1000000004 : Automation "{F5078F18-C551-11D3-89B9-0000F81FE221} 3.0:{F6D90F11-9C73-11D3-B32E-00C04F990BB4}:'Microsoft XML, v3.0'.DOMDocument");
+    VAR
+      DocSII@1000000001 : Record 88208;
+      EnvSII@1000000002 : Record 88204;
+      Mov@1000000003 : Integer;
+      qDocu@1000000006 : Text[35];
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        DocSII.CHANGECOMPANY(qEmpresa);
+        EnvSII.CHANGECOMPANY(qEmpresa);
+      END;
+
+      IF EnvSII.FIND('+') THEN
+        Mov := EnvSII."No. mov."
+      ELSE
+        Mov := 0;
+
+      IF regConsul.FIND('-') THEN REPEAT
+        IF DocSII.GET(regConsul.MovDocSII) THEN BEGIN
+          IF (DocSII."Codigo Error" = FACTURA_DUPLICADA) THEN BEGIN
+            IF FunSII.DocSIIDuplicado(DocSII, qDocu) THEN
+              ERROR(Err_Doc_Duplicado, qDocu);
+            EnvSII.INIT;
+            Mov := Mov + 1;
+            EnvSII."No. mov." := Mov;
+            EnvSII."NMov DocSII" := regConsul.MovDocSII;
+            EnvSII.CSV := regConsul.CSV;
+            EnvSII."Timestamp presentaci¢n" := regConsul."Timestamp presentaci¢n";
+            EnvSII."Tipo envio" := EnvSII."Tipo envio"::Env°o;
+            EnvSII."Estado env°o" := regConsul."Estado registro";
+            EnvSII.Usuario := USERID;
+            EnvSII."Fecha expedicion factura" := regConsul.Fecha;
+            EnvSII."Tipo comunicaci¢n" := 'A0';
+            GuardarXML(EnvSII, XMLDoc, XMLDoc);
+            EnvSII.INSERT;
+            DocSII.CSV := regConsul.CSV;
+            DocSII."Codigo Error" := '';
+            DocSII."Descripcion Error" := '';
+            DocSII."Timestamp presentaci¢n" := regConsul."Timestamp presentaci¢n";
+            DocSII."Tipo envio" := DocSII."Tipo envio"::Env°o;
+            DocSII."Estado env°o" := FunSII.CogerEstado(regConsul."Estado registro");
+            DocSII."Tipo comunicaci¢n" := 'A0';
+            DocSII."Estado cuadre" := regConsul."Estado cuadre";
+            DocSII."Timestamp cuadre" := regConsul."Timestamp cuadre";
+            DocSII.MODIFY;
+          END
+        END;
+      UNTIL regConsul.NEXT = 0;
     END;
 
     PROCEDURE CogerURL@1000000009(TipoEnvio@1000000000 : 'Emitidos,Recibidos,BienesInv,Cobros,Pagos,OpIntra,CobMetalico,NIF') : Text[250];

@@ -3,7 +3,7 @@ OBJECT Table 88204 Env¡os SII
   OBJECT-PROPERTIES
   {
     Date=28/07/17;
-    Time=[ 9:59:17];
+    Time=09:59:17;
     Modified=Yes;
     Version List=SII;
   }

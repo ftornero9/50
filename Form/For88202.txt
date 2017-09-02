@@ -2,8 +2,8 @@ OBJECT Form 88202 Env¡os SII
 {
   OBJECT-PROPERTIES
   {
-    Date=22/06/17;
-    Time=15:50:54;
+    Date=28/08/17;
+    Time=18:36:13;
     Modified=Yes;
     Version List=SII;
   }
@@ -180,6 +180,31 @@ OBJECT Form 88202 Env¡os SII
                                                               FunWS.CargarRespXML("No. mov.", '', 'RespuestaLRPagosRecibidas');
                                                             END;
                                                              }
+                                                   { ID=1000000031;
+                                                     MenuItemType=Separator }
+                                                   { ID=1000000032;
+                                                     CaptionML=[ENU="Fix ";
+                                                                ESP=Corregir];
+                                                     OnPush=BEGIN
+                                                              IF CONFIRM(Msg_Fact_Dupl, FALSE) THEN BEGIN
+
+                                                                qEmpresa := GblSII.GetGblEmpresa;
+                                                                IF qEmpresa <> '' THEN BEGIN
+                                                                  DocSII.CHANGECOMPANY(qEmpresa);
+                                                                END;
+
+                                                                IF DocSII.GET("NMov DocSII") THEN BEGIN
+                                                                  IF NOT Fun.DocuSIIYaProcesado(DocSII) THEN BEGIN
+                                                                    IF DocSII.TipoSII = DocSII.TipoSII::E THEN
+                                                                      Fun.CorregirEmitidos(DocSII);
+                                                                    IF DocSII.TipoSII = DocSII.TipoSII::R THEN
+                                                                      Fun.CorregirRecibidos(DocSII);
+                                                                  END;
+                                                                END;
+
+                                                              END;
+                                                            END;
+                                                             }
                                                  }
                                                   }
   }
@@ -189,6 +214,10 @@ OBJECT Form 88202 Env¡os SII
       Fun@1000000000 : Codeunit 88201;
       Fichero@1000000003 : Text[1024];
       FunWS@1000000001 : Codeunit 88202;
+      DocSII@1000000002 : Record 88208;
+      qEmpresa@1000000004 : Text[30];
+      GblSII@1000000005 : Codeunit 88200;
+      Msg_Fact_Dupl@1000000006 : TextConst 'ENU=Fix Error "Factura Duplicada";ESP=Corregir Error Factura Duplicada';
 
     BEGIN
     END.
