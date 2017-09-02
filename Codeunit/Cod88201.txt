@@ -2,8 +2,8 @@ OBJECT Codeunit 88201 Funciones SII
 {
   OBJECT-PROPERTIES
   {
-    Date=06/08/17;
-    Time=11:11:38;
+    Date=28/08/17;
+    Time=13:31:09;
     Modified=Yes;
     Version List=SII;
   }
@@ -1032,10 +1032,10 @@ OBJECT Codeunit 88201 Funciones SII
     BEGIN
       ret := 0;
       CASE UPPERCASE(pEstado) OF
-        'CORRECTO':               ret := 1;
-        'ACEPTADOCONERRORES':     ret := 2;
-        'INCORRECTO':             ret := 3;
-        'ERROR':                  ret := 4;
+        'CORRECTO','CORRECTA'                    : ret := 1;
+        'ACEPTADOCONERRORES','ACEPTADACONERRORES': ret := 2;
+        'INCORRECTO'                             : ret := 3;
+        'ERROR'                                  : ret := 4;
       END;
       EXIT(ret);
     END;
@@ -1344,6 +1344,30 @@ OBJECT Codeunit 88201 Funciones SII
       END;
     END;
 
+    PROCEDURE CorregirEmitidos@1000000076(TabDocSII@1000000000 : Record 88208);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+    BEGIN
+      ComprobarPermisoSII;
+
+      // Dejamos en blanco para consultar por Documento.
+      TabDocSII.NIF := '';
+      TabDocSII.RazonSocial := '';
+
+      Fichero := FunXML.ConsultarEmitidasEnviadas(TabDocSII);
+      IF Fichero <> '' THEN BEGIN
+        IF GestionExternaRespuesta THEN BEGIN
+          FichSal := FunPS1.MkFilename('respuesta.xml');
+          FunPS1.EjecutarPS1(0, Fichero, FichSal);
+          FunWS.SII_Envio_Externo(Fichero,FichSal,TRUE,'ConsultaLRFacturasEmitidas','RespuestaConsultaLRFacturasEmitidas',0,4,TabDocSII);
+        END ELSE
+          FunWS.SII_Envio(Fichero,TRUE,'ConsultaLRFacturasEmitidas','RespuestaConsultaLRFacturasEmitidas',0,4,TabDocSII);
+      END;
+    END;
+
     PROCEDURE "<<----------Recibidos"@1000000045();
     BEGIN
     END;
@@ -1533,6 +1557,31 @@ OBJECT Codeunit 88201 Funciones SII
                                   1,1,TabDocSII);
         END ELSE
           FunWS.SII_Envio(Fichero,TRUE,'ConsultaLRFacturasRecibidas','RespuestaConsultaLRFacturasRecibidas',1,1, TabDocSII);
+      END;
+    END;
+
+    PROCEDURE CorregirRecibidos@1000000077(TabDocSII@1000000000 : Record 88208);
+    VAR
+      Fichero@1100288001 : Text[1024];
+      DocuSII@1100288002 : Record 88205;
+      TipoEnvio@1100288003 : Code[2];
+      FichSal@1000000001 : Text[1024];
+    BEGIN
+      ComprobarPermisoSII;
+
+      // Dejamos en blanco para consultar por Documento.
+      TabDocSII.NIF := '';
+      TabDocSII.RazonSocial := '';
+
+      Fichero := FunXML.ConsultarRecibidasEnviadas(TabDocSII);
+      IF Fichero <> '' THEN BEGIN
+        IF GestionExternaRespuesta THEN BEGIN
+          FichSal := FunPS1.MkFilename('respuesta.xml');
+          FunPS1.EjecutarPS1(1, Fichero, FichSal);
+          FunWS.SII_Envio_Externo(Fichero,FichSal,TRUE,'ConsultaLRFacturasRecibidas','RespuestaConsultaLRFacturasRecibidas',
+                                  1,4,TabDocSII);
+        END ELSE
+          FunWS.SII_Envio(Fichero,TRUE,'ConsultaLRFacturasRecibidas','RespuestaConsultaLRFacturasRecibidas',1,4, TabDocSII);
       END;
     END;
 
@@ -2723,7 +2772,7 @@ OBJECT Codeunit 88201 Funciones SII
         CfgSII.CHANGECOMPANY(qEmpresa);
 
       IF CfgSII.GET THEN
-        EXIT(CfgSII."Recepci¢n externa respuesta");
+        EXIT(CfgSII."Usar Powershell");
     END;
 
     PROCEDURE RutaGestionExternaRespuesta@1000000072() : Text[1024];
@@ -2970,6 +3019,27 @@ OBJECT Codeunit 88201 Funciones SII
 
       TabDocSII.SETCURRENTKEY("NMov IVA");
       TabDocSII.SETRANGE("NMov IVA", NMovIVA);
+      EXIT(TabDocSII.COUNT > 1);
+    END;
+
+    PROCEDURE DocSIIDuplicado@1000000081(DocSII@1000000002 : Record 88208;VAR Docu@1000000000 : Text[35]) : Boolean;
+    VAR
+      TabDocSII@1000000001 : Record 88208;
+    BEGIN
+      qEmpresa := GblSII.GetGblEmpresa;
+      IF qEmpresa <> '' THEN BEGIN
+        TabDocSII.CHANGECOMPANY(qEmpresa);
+      END;
+
+      IF DocSII.TipoSII = DocSII.TipoSII::E THEN BEGIN
+        TabDocSII.SETCURRENTKEY(Documento, Fecha);
+        TabDocSII.SETRANGE(Documento, DocSII.Documento);
+        Docu := DocSII.Documento;
+      END ELSE BEGIN
+        TabDocSII.SETCURRENTKEY(DocumentoTercero, "Fecha documento");
+        TabDocSII.SETRANGE(DocumentoTercero, DocSII.DocumentoTercero);
+         Docu := DocSII.DocumentoTercero;
+      END;
       EXIT(TabDocSII.COUNT > 1);
     END;
 

@@ -2,8 +2,8 @@ OBJECT Table 88205 Config. Certificados SII
 {
   OBJECT-PROPERTIES
   {
-    Date=23/06/17;
-    Time=11:37:07;
+    Date=29/08/17;
+    Time=15:09:38;
     Modified=Yes;
     Version List=SII;
   }
@@ -45,6 +45,7 @@ OBJECT Table 88205 Config. Certificados SII
                                                               ESP=Path SII] }
     { 50001;  ;Contrase¤a SII      ;Text30        ;CaptionML=[ENU=SII password;
                                                               ESP=Contrase¤a SII] }
+    { 80000;  ;Soporta Instream    ;Boolean       ;Description=Se usa en codeunit 88203 }
   }
   KEYS
   {

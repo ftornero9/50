@@ -2,8 +2,8 @@ OBJECT Report 88201 Procesar Movs. IVA SII
 {
   OBJECT-PROPERTIES
   {
-    Date=01/08/17;
-    Time=18:45:38;
+    Date=21/08/17;
+    Time=12:30:04;
     Modified=Yes;
     Version List=SII;
   }
@@ -1116,6 +1116,10 @@ OBJECT Report 88201 Procesar Movs. IVA SII
                MovIVA."VAT %"                   := FVLin."VAT %";
                MovIVA.Amount                    := FVLin."Amount Including VAT" - FVLin.Amount;
                MovIVA.Base                      := FVLin.Amount;
+               IF mIntSII."Factor divisa" <> 0 THEN BEGIN
+                 MovIVA.Base    := ROUND(MovIVA.Base / mIntSII."Factor divisa", 0.01);
+                 MovIVA.Amount := ROUND(MovIVA.Amount / mIntSII."Factor divisa", 0.01);
+               END;
                Tipo := mIntSII.Tipo::Lineas;
                CogerDatosDocumento(MovIVA, mIntSII);
       // <--------------------------------------------------------- LLAMADA FUNCION PERSONALIZACIONES
@@ -1135,6 +1139,10 @@ OBJECT Report 88201 Procesar Movs. IVA SII
                MovIVA."VAT %"                   := AVLin."VAT %";
                MovIVA.Amount                    := -(AVLin."Amount Including VAT" - AVLin.Amount);
                MovIVA.Base                      := -AVLin.Amount;
+               IF mIntSII."Factor divisa" <> 0 THEN BEGIN
+                 MovIVA.Base    := ROUND(MovIVA.Base / mIntSII."Factor divisa", 0.01);
+                 MovIVA.Amount := ROUND(MovIVA.Amount / mIntSII."Factor divisa", 0.01);
+               END;
                Tipo := mIntSII.Tipo::Lineas;
                CogerDatosDocumento(MovIVA, mIntSII);
       // <--------------------------------------------------------- LLAMADA FUNCION PERSONALIZACIONES
@@ -1155,6 +1163,10 @@ OBJECT Report 88201 Procesar Movs. IVA SII
                MovIVA."VAT %"                   := FCLin."VAT %";
                MovIVA.Amount                    := FCLin."Amount Including VAT" - FCLin.Amount;
                MovIVA.Base                      := FCLin.Amount;
+               IF mIntSII."Factor divisa" <> 0 THEN BEGIN
+                 MovIVA.Base    := ROUND(MovIVA.Base / mIntSII."Factor divisa", 0.01);
+                 MovIVA.Amount := ROUND(MovIVA.Amount / mIntSII."Factor divisa", 0.01);
+               END;
                Tipo := mIntSII.Tipo::Lineas;
                CogerDatosDocumento(MovIVA, mIntSII);
       // <--------------------------------------------------------- LLAMADA FUNCION PERSONALIZACIONES
@@ -1174,6 +1186,10 @@ OBJECT Report 88201 Procesar Movs. IVA SII
                MovIVA."VAT %"                   := ACLin."VAT %";
                MovIVA.Amount                    := -(ACLin."Amount Including VAT" - ACLin.Amount);
                MovIVA.Base                      := -ACLin.Amount;
+               IF mIntSII."Factor divisa" <> 0 THEN BEGIN
+                 MovIVA.Base    := ROUND(MovIVA.Base / mIntSII."Factor divisa", 0.01);
+                 MovIVA.Amount := ROUND(MovIVA.Amount / mIntSII."Factor divisa", 0.01);
+               END;
                Tipo := mIntSII.Tipo::Lineas;
                CogerDatosDocumento(MovIVA, mIntSII);
       // <--------------------------------------------------------- LLAMADA FUNCION PERSONALIZACIONES

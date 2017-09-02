@@ -2,8 +2,8 @@ OBJECT Codeunit 88203 Generacion XML SII
 {
   OBJECT-PROPERTIES
   {
-    Date=28/07/17;
-    Time=14:59:38;
+    Date=29/08/17;
+    Time=10:17:01;
     Modified=Yes;
     Version List=SII;
   }
@@ -125,6 +125,7 @@ OBJECT Codeunit 88203 Generacion XML SII
     PROCEDURE GenerarCabConsulta@1000000008(pTipo@1100288002 : 'E,R,B,C,P';Accion@1000000002 : Text[80];Ejercicio@1000000000 : Code[10];Periodo@1000000003 : Code[10];TabDocSII@1000000001 : Record 88208);
     VAR
       qVersion@1000000004 : Code[20];
+      qDocu@1000000005 : Text[35];
     BEGIN
       CLEAR(XMLDoc);
       CREATE(XMLDoc);
@@ -212,6 +213,16 @@ OBJECT Codeunit 88203 Generacion XML SII
             IF (pTipo = pTipo::P) THEN BEGIN
               AppendElement(NewChild[4], 'sum:NumSerieFacturaEmisor', DocumentoTercero, NewChild[5]);
               AppendElement(NewChild[4], 'sum:FechaExpedicionFacturaEmisor', Date2Sii("Fecha documento"), NewChild[5]);
+            END;
+          END ELSE BEGIN
+            IF TipoSII = TipoSII::E THEN
+              qDocu := Documento
+            ELSE
+              qDocu := DocumentoTercero;
+            IF qDocu <> '' THEN BEGIN
+              AppendElement(NewChild[3], 'con:IDFactura', '', NewChild[4]);
+                AppendElement(NewChild[4], 'sum:NumSerieFacturaEmisor', qDocu, NewChild[5]);
+              //AppendElement(NewChild[4], 'sum:FechaExpedicionFacturaEmisor', Date2Sii(Fecha), NewChild[5]);
             END;
           END;
       END;
@@ -433,8 +444,8 @@ OBJECT Codeunit 88203 Generacion XML SII
         GetCfg;
         SetInfEmp(TabDocSII."Global Dimension 1 Code");
 
-        IF Es1S2017 THEN
-          Fecha := TODAY;
+      //  IF Es1S2017 THEN
+      //    Fecha := TODAY;
 
         CogerPeriodoImpositivo(Fecha);
 
@@ -712,7 +723,7 @@ OBJECT Codeunit 88203 Generacion XML SII
         AppendElement(Node, 'siiLR:'+Registro, '', NewChild[1]);
          AppendElement(NewChild[1], 'siiLR:IDFactura', '', NewChild[2]);
            AppendElement(NewChild[2], 'sii:IDEmisorFactura', '', NewChild[3]);
-             AppendElement(NewChild[3], 'sii:NombreRazon', ConvertStr40(RazonSocial), NewChild[4]);
+      //       AppendElement(NewChild[3], 'sii:NombreRazon', ConvertStr40(RazonSocial), NewChild[4]);
              IF NOT IDOtro THEN
                AppendElement(NewChild[3], 'sii:NIF', NIF, NewChild[4])
              ELSE BEGIN
@@ -1317,6 +1328,7 @@ OBJECT Codeunit 88203 Generacion XML SII
       i := 0;
 
       LinDocSII.SETRANGE(NMovDoc, NumMov);
+      LinDocSII.SETRANGE(Retencion, FALSE);
       IF LinDocSII.FIND('-') THEN REPEAT
         i := i + 1;
         CLEAR(MemFacturaE2);
@@ -1354,9 +1366,11 @@ OBJECT Codeunit 88203 Generacion XML SII
           END;
         END;
 
-        IF (LinDocSII."Tipo IVA" = LinDocSII."Tipo IVA"::Reversi¢n) THEN
-          IF MemFacturaE2."Causa exencion" = '' THEN
-            MemFacturaE2."Causa exencion" := 'E5';
+        IF NOT LinDocSII."Inversion sujeto pasivo" THEN BEGIN
+          IF (LinDocSII."Tipo IVA" = LinDocSII."Tipo IVA"::Reversi¢n) THEN
+            IF MemFacturaE2."Causa exencion" = '' THEN
+              MemFacturaE2."Causa exencion" := 'E5';
+        END;
 
         MemFacturaE2.IVA := ConvDec2Str(LinDocSII."%IVA", 2);
         MemFacturaE2.BaseIVA := LinDocSII.Base;

@@ -2,8 +2,8 @@ OBJECT Table 88208 Documentos SII
 {
   OBJECT-PROPERTIES
   {
-    Date=28/07/17;
-    Time=[ 9:59:37];
+    Date=23/08/17;
+    Time=11:17:50;
     Modified=Yes;
     Version List=SII;
   }
@@ -231,6 +231,12 @@ OBJECT Table 88208 Documentos SII
     { 55  ;   ;Lineas documento    ;Integer       ;FieldClass=FlowField;
                                                    CalcFormula=Count("Lin. Documentos SII" WHERE (NMovDoc=FIELD(NMov)));
                                                    BlankZero=Yes;
+                                                   Editable=No }
+    { 57  ;   ;Entrada SII         ;DateTime      ;CaptionML=[ENU=SII Creation;
+                                                              ESP=Entrada SII];
+                                                   Editable=No }
+    { 58  ;   ;Refresco SII        ;DateTime      ;CaptionML=[ENU=SII Refresh;
+                                                              ESP=Refresco SII];
                                                    Editable=No }
     { 60  ;   ;Factura resumen inicio;Code20      ;CaptionML=[ENU=Start summary invoice;
                                                               ESP=Factura resumen inicio];

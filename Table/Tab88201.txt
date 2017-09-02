@@ -2,8 +2,8 @@ OBJECT Table 88201 Config. SII
 {
   OBJECT-PROPERTIES
   {
-    Date=14/07/17;
-    Time=19:39:44;
+    Date=06/08/17;
+    Time=11:59:55;
     Modified=Yes;
     Version List=SII;
   }
@@ -226,8 +226,8 @@ OBJECT Table 88201 Config. SII
 
                                                    CaptionML=[ENU=XML external request Path;
                                                               ESP=Ruta XML envios externos] }
-    { 38  ;   ;Recepci¢n externa respuesta;Boolean;CaptionML=[ENU=External response;
-                                                              ESP=Recepci¢n externa respuesta] }
+    { 38  ;   ;Usar Powershell     ;Boolean       ;CaptionML=[ENU=Use Powershell;
+                                                              ESP=Usar Powershell] }
     { 39  ;   ;Ruta XML recepci¢n externos;Text100;OnValidate=BEGIN
                                                                 "Ruta XML recepci¢n externos" := PonerSlash("Ruta XML recepci¢n externos");
                                                               END;
